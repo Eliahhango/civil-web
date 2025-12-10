@@ -192,16 +192,3 @@ Edit `client/src/pages/Team.jsx` to add or modify team members.
 ## License
 
 This project is created for ENGG CONSULT Company Limited.
-
-## Support
-
-For support, email support@enggconsult.co.tz or call +255 744 690 860.
-
----
-
-**Powered by NgumaTech**
-
-# civil-web
-# civil-web
-# civil-web
-# civil-web
