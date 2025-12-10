@@ -1,0 +1,531 @@
+[
+  {
+    "id": "1765358006641uouer3xfm",
+    "timestamp": "2025-12-10T09:13:26.641Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765358005695y9drxvcrh",
+    "timestamp": "2025-12-10T09:13:25.695Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765358005360xssbtz2zq",
+    "timestamp": "2025-12-10T09:13:25.360Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765358005019cn25ug8i6",
+    "timestamp": "2025-12-10T09:13:25.018Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765358004597paff5ffdi",
+    "timestamp": "2025-12-10T09:13:24.597Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765358004017oypv8yjaz",
+    "timestamp": "2025-12-10T09:13:24.016Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765358003290r012kij5r",
+    "timestamp": "2025-12-10T09:13:23.290Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765357999992n51v4w87h",
+    "timestamp": "2025-12-10T09:13:19.991Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765357532454rqel32ge0",
+    "timestamp": "2025-12-10T09:05:32.453Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765357532123bl2u33xu9",
+    "timestamp": "2025-12-10T09:05:32.123Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765357531802wlxdpg80j",
+    "timestamp": "2025-12-10T09:05:31.802Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765357531503kls75tbiq",
+    "timestamp": "2025-12-10T09:05:31.503Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765357531176syj577tkx",
+    "timestamp": "2025-12-10T09:05:31.176Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "17653575306068s10okojm",
+    "timestamp": "2025-12-10T09:05:30.605Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765357529887fxcjgd6sp",
+    "timestamp": "2025-12-10T09:05:29.887Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765357527874w17dmg4z8",
+    "timestamp": "2025-12-10T09:05:27.874Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765357263669g49ronhxz",
+    "timestamp": "2025-12-10T09:01:03.669Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765357247921b9s2xvs2h",
+    "timestamp": "2025-12-10T09:00:47.921Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::ffff:127.0.0.1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765357223352b49l0s1tf",
+    "timestamp": "2025-12-10T09:00:23.352Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::ffff:127.0.0.1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765357111754482jrxy6h",
+    "timestamp": "2025-12-10T08:58:31.753Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::ffff:127.0.0.1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765357092757waupdoblo",
+    "timestamp": "2025-12-10T08:58:12.756Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::ffff:127.0.0.1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765356810575j7edxrte0",
+    "timestamp": "2025-12-10T08:53:30.575Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::ffff:127.0.0.1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin123"
+    },
+    "statusCode": 200
+  },
+  {
+    "id": "1765356745009f2qk8szf3",
+    "timestamp": "2025-12-10T08:52:25.008Z",
+    "type": "Attack Detected",
+    "severity": "high",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "ip": "::1",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "userId": null,
+    "userEmail": null,
+    "detections": [
+      {
+        "type": "Command Injection",
+        "pattern": "/[;&|`$(){}[\\]]/"
+      }
+    ],
+    "requestBody": {
+      "email": "admin@nexusengineering.co.tz",
+      "password": "admin1234"
+    },
+    "statusCode": 200
+  }
+]

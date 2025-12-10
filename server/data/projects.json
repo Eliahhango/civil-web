@@ -1,0 +1,290 @@
+[
+  {
+    "id": 1,
+    "title": "Central Business District Tower",
+    "description": "Design and engineering of a 25-story commercial complex featuring sustainable building practices and modern structural systems. This landmark project showcases innovative engineering solutions with LEED certification standards.",
+    "shortDescription": "A 25-story commercial complex with sustainable building practices and LEED certification.",
+    "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&h=800&fit=crop"
+    ],
+    "category": "Commercial",
+    "location": "Dar es Salaam",
+    "year": "2023"
+  },
+  {
+    "id": 2,
+    "title": "Northern Highway Expansion",
+    "description": "Comprehensive highway expansion project including bridge construction, drainage systems, and traffic management solutions. The project improved connectivity across the region with state-of-the-art infrastructure.",
+    "shortDescription": "Highway expansion with bridge construction and advanced traffic management systems.",
+    "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1504307651254-35680f183b10?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop"
+    ],
+    "category": "Transportation",
+    "location": "Arusha",
+    "year": "2024"
+  },
+  {
+    "id": 3,
+    "title": "Water Treatment Facility",
+    "description": "State-of-the-art water treatment plant design serving 500,000+ residents with advanced filtration and distribution systems. This facility ensures clean, safe water supply with sustainable practices.",
+    "shortDescription": "Modern water treatment plant serving 500,000+ residents with advanced filtration systems.",
+    "image": "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=800&fit=crop"
+    ],
+    "category": "Water Infrastructure",
+    "location": "Mwanza",
+    "year": "2023"
+  },
+  {
+    "id": 4,
+    "title": "Suspension Bridge Project",
+    "description": "Engineering and design of a 450-meter suspension bridge spanning a major river. The project utilized advanced materials and seismic-resistant design principles.",
+    "shortDescription": "450-meter suspension bridge with seismic-resistant design spanning a major river.",
+    "image": "https://images.unsplash.com/photo-1504307651254-35680f183b10?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1504307651254-35680f183b10?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1200&h=800&fit=crop"
+    ],
+    "category": "Bridge Engineering",
+    "location": "Dodoma",
+    "year": "2022"
+  },
+  {
+    "id": 5,
+    "title": "Industrial Complex Development",
+    "description": "Complete engineering services for a 50-hectare industrial complex including structural design, utilities, and infrastructure planning. The project supports regional economic development.",
+    "shortDescription": "50-hectare industrial complex with comprehensive engineering services and infrastructure planning.",
+    "image": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1200&h=800&fit=crop"
+    ],
+    "category": "Industrial",
+    "location": "Tanga",
+    "year": "2023"
+  },
+  {
+    "id": 6,
+    "title": "Urban Rail Transit System",
+    "description": "Comprehensive design and engineering for a modern urban rail transit system including stations, tracks, and signaling systems. This project transforms public transportation in the city.",
+    "shortDescription": "Modern urban rail transit system with stations, tracks, and advanced signaling systems.",
+    "image": "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1504307651254-35680f183b10?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1200&h=800&fit=crop"
+    ],
+    "category": "Transportation",
+    "location": "Dar es Salaam",
+    "year": "2024"
+  },
+  {
+    "id": 7,
+    "title": "Coastal Highway Bridge Complex",
+    "description": "Design and construction of a 1.2km multi-span bridge complex connecting coastal regions. Features advanced seismic resistance and sustainable materials, serving as a critical transportation link.",
+    "shortDescription": "1.2km multi-span bridge complex with seismic resistance connecting coastal regions.",
+    "image": "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1504307651254-35680f183b10?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1200&h=800&fit=crop"
+    ],
+    "category": "Bridge Engineering",
+    "location": "Zanzibar",
+    "year": "2023"
+  },
+  {
+    "id": 8,
+    "title": "Smart City Infrastructure Network",
+    "description": "Comprehensive engineering design for smart city infrastructure including intelligent traffic systems, smart lighting, and integrated utility networks. This project sets the foundation for future urban development.",
+    "shortDescription": "Smart city infrastructure with intelligent traffic systems and integrated utility networks.",
+    "image": "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1200&h=800&fit=crop"
+    ],
+    "category": "Infrastructure",
+    "location": "Arusha",
+    "year": "2024"
+  },
+  {
+    "id": 9,
+    "title": "Residential Complex Development",
+    "description": "Complete structural engineering and design for a 500-unit residential complex featuring sustainable building practices, green spaces, and modern amenities. The project includes multi-story buildings with earthquake-resistant design.",
+    "shortDescription": "500-unit residential complex with sustainable practices and earthquake-resistant design.",
+    "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&h=800&fit=crop"
+    ],
+    "category": "Commercial",
+    "location": "Mwanza",
+    "year": "2023"
+  },
+  {
+    "id": 10,
+    "title": "Wastewater Treatment Plant",
+    "description": "State-of-the-art wastewater treatment facility with capacity for 300,000 residents. Features advanced biological treatment processes, energy recovery systems, and environmental compliance measures.",
+    "shortDescription": "Wastewater treatment facility serving 300,000 residents with energy recovery systems.",
+    "image": "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=800&fit=crop"
+    ],
+    "category": "Water Infrastructure",
+    "location": "Dodoma",
+    "year": "2022"
+  },
+  {
+    "id": 11,
+    "title": "Airport Terminal Expansion",
+    "description": "Engineering design for major airport terminal expansion including structural modifications, new boarding gates, and enhanced passenger facilities. The project improves capacity by 40% while maintaining operations.",
+    "shortDescription": "Airport terminal expansion increasing capacity by 40% with enhanced passenger facilities.",
+    "image": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1200&h=800&fit=crop"
+    ],
+    "category": "Infrastructure",
+    "location": "Kilimanjaro",
+    "year": "2024"
+  },
+  {
+    "id": 12,
+    "title": "Hydroelectric Power Plant",
+    "description": "Comprehensive engineering services for a 50MW hydroelectric power plant including dam design, turbine installation, and power transmission infrastructure. This renewable energy project serves multiple regions.",
+    "shortDescription": "50MW hydroelectric power plant with dam design and power transmission infrastructure.",
+    "image": "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1200&h=800&fit=crop"
+    ],
+    "category": "Infrastructure",
+    "location": "Morogoro",
+    "year": "2023"
+  },
+  {
+    "id": 13,
+    "title": "Shopping Mall Complex",
+    "description": "Complete structural and MEP engineering for a 3-story shopping mall with 200+ retail units, parking facilities, and entertainment areas. Features modern architectural design with sustainable building systems.",
+    "shortDescription": "3-story shopping mall with 200+ retail units and sustainable building systems.",
+    "image": "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&h=800&fit=crop"
+    ],
+    "category": "Commercial",
+    "location": "Dar es Salaam",
+    "year": "2023"
+  },
+  {
+    "id": 14,
+    "title": "Port Infrastructure Upgrade",
+    "description": "Major port infrastructure upgrade including new berths, cargo handling facilities, and container terminal expansion. The project enhances port capacity and efficiency for international trade.",
+    "shortDescription": "Port infrastructure upgrade with new berths and expanded container terminal capacity.",
+    "image": "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1200&h=800&fit=crop"
+    ],
+    "category": "Infrastructure",
+    "location": "Dar es Salaam",
+    "year": "2024"
+  },
+  {
+    "id": 15,
+    "title": "Hospital Complex Design",
+    "description": "Comprehensive engineering design for a 300-bed hospital complex including specialized medical facilities, emergency services, and support infrastructure. Features advanced HVAC and medical gas systems.",
+    "shortDescription": "300-bed hospital complex with specialized medical facilities and advanced HVAC systems.",
+    "image": "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&h=800&fit=crop"
+    ],
+    "category": "Commercial",
+    "location": "Tanga",
+    "year": "2023"
+  },
+  {
+    "id": 16,
+    "title": "Rural Road Network Development",
+    "description": "Design and construction supervision for 200km rural road network connecting remote communities. Includes drainage systems, bridges, and road safety features to improve accessibility and economic opportunities.",
+    "shortDescription": "200km rural road network with drainage systems and bridges connecting remote communities.",
+    "image": "https://images.unsplash.com/photo-1504307651254-35680f183b10?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1504307651254-35680f183b10?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1200&h=800&fit=crop"
+    ],
+    "category": "Transportation",
+    "location": "Iringa",
+    "year": "2022"
+  },
+  {
+    "id": 17,
+    "title": "Water Distribution Network",
+    "description": "Comprehensive water distribution network design covering 150km of pipelines, pumping stations, and storage facilities. This project provides reliable water supply to underserved communities.",
+    "shortDescription": "150km water distribution network with pumping stations serving underserved communities.",
+    "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=800&fit=crop"
+    ],
+    "category": "Water Infrastructure",
+    "location": "Mbeya",
+    "year": "2023"
+  },
+  {
+    "id": 18,
+    "title": "Sports Complex Stadium",
+    "description": "Engineering design for a 20,000-seat multi-purpose sports stadium with modern facilities, VIP areas, and comprehensive infrastructure. Features innovative structural design for optimal viewing experience.",
+    "shortDescription": "20,000-seat multi-purpose sports stadium with modern facilities and VIP areas.",
+    "image": "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1200&h=800&fit=crop",
+    "images": [
+      "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&h=800&fit=crop",
+      "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&h=800&fit=crop"
+    ],
+    "category": "Commercial",
+    "location": "Dodoma",
+    "year": "2024"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "email": "admin@nexusengineering.co.tz",
+    "password": "$2a$10$/j/eD7bw/La6QsspiY.R2OnDbeiyOGAkraA5trcLO3mlBvv03EyAa",
+    "role": "admin"
+  },
+  {
+    "id": "2",
+    "username": "testclient",
+    "email": "client@test.com",
+    "password": "$2a$10$AHARxLceZ7q/Ai0pQWlei.Ms4d5rCwQiTkXTyKualRMjbYpIdfIue",
+    "role": "client",
+    "createdAt": "2025-12-10T08:30:39.890Z"
+  }
+]

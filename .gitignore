@@ -1,0 +1,85 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Production builds
+dist/
+build/
+client/dist/
+client/build/
+server/dist/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+server/.env
+client/.env
+*.env
+
+# Firebase service account key (keep secure!)
+server/serviceAccountKey.json
+serviceAccountKey.json
+firebase-adminsdk-*.json
+*-firebase-adminsdk-*.json
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Testing
+coverage/
+.nyc_output/
+.pytest_cache/
+
+# Cache
+.cache/
+.parcel-cache/
+.next/
+.nuxt/
+.vuepress/dist/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Uploads (keep directory structure)
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Vercel
+.vercel
+
+# Netlify
+.netlify
+.netlify/
+
+# Railway
+.railway
+
+# Security logs (optional - can be committed for monitoring)
+# Uncomment to ignore security logs
+# server/data/security-logs.json
+
+# Data files (optional - uncomment if you don't want to track data)
+# server/data/*.json
+# !server/data/.gitkeep
