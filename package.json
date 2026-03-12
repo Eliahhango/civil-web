@@ -1,0 +1,8 @@
+﻿{
+  "name": "renovex-static-site",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "echo Static site ready"
+  }
+}
