@@ -1,8 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50" fill="none">
-  <circle cx="25" cy="25" r="24" fill="#FDD400"/>
-  <circle cx="25" cy="25" r="24" stroke="#0B0F14" stroke-opacity="0.18" stroke-width="2"/>
-  <path d="M15 15H31" stroke="#0B0F14" stroke-width="4" stroke-linecap="round"/>
-  <path d="M15 25H28" stroke="#0B0F14" stroke-width="4" stroke-linecap="round"/>
-  <path d="M15 35H31" stroke="#0B0F14" stroke-width="4" stroke-linecap="round"/>
-  <path d="M33 15L29.8 35L25 24.8L20.2 35L17 15" stroke="#0B0F14" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+<svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="25" cy="25" r="25" fill="#FED403"/>
+<mask id="mask0_291_37406" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="50" height="50">
+<circle cx="25" cy="25" r="25" fill="#E4ED64"/>
+</mask>
+<g mask="url(#mask0_291_37406)">
+<path d="M15 15H31" stroke="#0D0D0D" stroke-width="4" stroke-linecap="round"/>
+<path d="M15 25H28" stroke="#0D0D0D" stroke-width="4" stroke-linecap="round"/>
+<path d="M15 35H31" stroke="#0D0D0D" stroke-width="4" stroke-linecap="round"/>
+<path d="M33 15L29.8 35L25 24.8L20.2 35L17 15" stroke="#0D0D0D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
 </svg>
