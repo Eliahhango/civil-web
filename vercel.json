@@ -3,7 +3,7 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/renovex/home-version-2/",
+      "destination": "/elitech/home-version-2/",
       "permanent": false
     }
   ]
