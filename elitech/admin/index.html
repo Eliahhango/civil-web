@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EliTechWiz Admin Panel</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="/elitech/wp-content/themes/renovex/assets/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/elitech/wp-content/themes/renovex/assets/css/css-variable.css">
+  <link rel="stylesheet" href="/elitech/wp-content/themes/renovex/assets/css/all.min.css">
+  <link rel="stylesheet" href="/elitech/wp-content/themes/renovex/style.css">
+  <link rel="stylesheet" href="/elitech/admin/admin.css">
+</head>
+<body>
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="brand-wrap">
+        <h1>EliTechWiz CMS</h1>
+        <p>Content management panel</p>
+      </div>
+      <nav class="admin-nav">
+        <button class="nav-btn active" data-tab="site">Site Details</button>
+        <button class="nav-btn" data-tab="seo">SEO & Share</button>
+        <button class="nav-btn" data-tab="replacements">Text Replacements</button>
+        <button class="nav-btn" data-tab="rules">Custom Rules</button>
+        <button class="nav-btn" data-tab="json">Raw JSON</button>
+      </nav>
+      <div class="admin-sidebar-footer">
+        <a href="/elitech/home-version-2/" target="_blank" rel="noopener">Open Website</a>
+      </div>
+    </aside>
+
+    <main class="admin-content">
+      <header class="admin-header">
+        <h2 id="tab-title">Site Details</h2>
+        <div class="header-actions">
+          <button id="btn-apply" class="btn-default">Apply Preview</button>
+          <button id="btn-reset" class="btn-default btn-outline">Reset Local</button>
+        </div>
+      </header>
+
+      <section id="tab-site" class="tab-panel active">
+        <div class="form-grid">
+          <label>Company Name<input id="site-name" type="text"></label>
+          <label>Tagline<input id="site-tagline" type="text"></label>
+        </div>
+      </section>
+
+      <section id="tab-seo" class="tab-panel">
+        <div class="form-grid">
+          <label>SEO Title<input id="seo-title" type="text"></label>
+          <label>Meta Description<textarea id="seo-description" rows="3"></textarea></label>
+          <label>OG/Twitter Image URL<input id="seo-image" type="url"></label>
+          <label>Canonical URL<input id="seo-url" type="url"></label>
+          <label>Twitter Card
+            <select id="seo-twitter-card">
+              <option value="summary_large_image">summary_large_image</option>
+              <option value="summary">summary</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section id="tab-replacements" class="tab-panel">
+        <div class="panel-head">
+          <h3>Global Text Replacements</h3>
+          <button id="add-replacement" class="btn-default">Add</button>
+        </div>
+        <div id="replacements-list" class="list-wrap"></div>
+      </section>
+
+      <section id="tab-rules" class="tab-panel">
+        <div class="panel-head">
+          <h3>Custom Page Rules</h3>
+          <button id="add-rule" class="btn-default">Add</button>
+        </div>
+        <p class="hint">Use for all site content. Path examples: <code>/elitech/</code>, <code>/elitech/home-version-2/</code>, <code>/elitech/*</code>.</p>
+        <div id="rules-list" class="list-wrap"></div>
+      </section>
+
+      <section id="tab-json" class="tab-panel">
+        <label>Full JSON<textarea id="raw-json" rows="16"></textarea></label>
+        <div class="panel-actions">
+          <button id="btn-load-json" class="btn-default">Load JSON Into Form</button>
+          <button id="btn-export" class="btn-default">Download content.json</button>
+          <label class="file-btn btn-outline">Import JSON<input id="file-import" type="file" accept="application/json"></label>
+        </div>
+      </section>
+
+      <footer class="admin-footer" id="status">Ready.</footer>
+    </main>
+  </div>
+
+  <script src="/elitech/admin/admin.js"></script>
+</body>
+</html>

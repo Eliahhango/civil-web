@@ -1028,3 +1028,25 @@
 	
 })(jQuery);
 
+(function () {
+    "use strict";
+
+    function loadCmsRuntime() {
+        if (document.querySelector('script[data-elitech-cms-runtime="1"]')) {
+            return;
+        }
+
+        var script = document.createElement("script");
+        script.src = "/elitech/cms/runtime.js";
+        script.defer = true;
+        script.setAttribute("data-elitech-cms-runtime", "1");
+        document.head.appendChild(script);
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", loadCmsRuntime);
+    } else {
+        loadCmsRuntime();
+    }
+})();
+
