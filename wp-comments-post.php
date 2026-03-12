@@ -1,0 +1,1 @@
+<html><head><link rel="icon" href="data:;"><meta http-equiv="refresh" content="0;/.well-known/sgcaptcha/?r=%2Frenovex%2Fwp-comments-post.php&y=powu:102.205.250.222:1773344003.495"></meta></head></html>
