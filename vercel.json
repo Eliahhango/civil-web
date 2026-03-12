@@ -1,0 +1,9 @@
+﻿{
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/renovex/home-version-2/",
+      "permanent": false
+    }
+  ]
+}
