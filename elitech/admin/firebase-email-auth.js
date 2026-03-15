@@ -57,6 +57,10 @@ async function sendLink() {
     window.localStorage.setItem(EMAIL_STORAGE_KEY, email);
     setStatus("Sign-in link sent. Check your email and open the link.", false);
   } catch (error) {
+    if (error && error.code === "auth/unauthorized-continue-uri") {
+      setStatus("Domain not allowlisted in Firebase Auth. Add this domain in Firebase Console > Authentication > Settings > Authorized domains.", true);
+      return;
+    }
     setStatus(error.message || "Failed to send sign-in link.", true);
   }
 }
@@ -84,6 +88,10 @@ async function exchangeFirebaseSession() {
 
   if (window.CMSAdmin && typeof window.CMSAdmin.refreshSession === "function") {
     await window.CMSAdmin.refreshSession();
+  }
+
+  if (window.CMSAdmin && typeof window.CMSAdmin.enterDashboard === "function") {
+    await window.CMSAdmin.enterDashboard();
   }
 
   setStatus("Email link verified and admin session started.", false);

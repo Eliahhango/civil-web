@@ -9,6 +9,7 @@
   var STATIC_CMS_URL = "/elitech/cms/content.json";
 
   var state = null;
+  var dashboardInitialized = false;
 
   function $(id) {
     return document.getElementById(id);
@@ -19,9 +20,14 @@
   }
 
   function setStatus(message, error) {
-    var node = $("status");
-    node.textContent = message;
-    node.style.color = error ? "#ff8c95" : "#94a9bf";
+    ["status", "login-status"].forEach(function (id) {
+      var node = $(id);
+      if (!node) {
+        return;
+      }
+      node.textContent = message;
+      node.style.color = error ? "#ff8c95" : "#94a9bf";
+    });
   }
 
   function getAuthToken() {
@@ -29,9 +35,38 @@
   }
 
   function setAuthState(authenticated) {
-    var stateNode = $("auth-state");
-    stateNode.textContent = authenticated ? "Authenticated session active" : "Not authenticated";
-    stateNode.style.color = authenticated ? "#7ce9b8" : "#94a9bf";
+    ["auth-state", "login-auth-state"].forEach(function (id) {
+      var stateNode = $(id);
+      if (!stateNode) {
+        return;
+      }
+      stateNode.textContent = authenticated ? "Authenticated session active" : "Not authenticated";
+      stateNode.style.color = authenticated ? "#7ce9b8" : "#94a9bf";
+    });
+  }
+
+  function showLoginView() {
+    var loginView = $("login-view");
+    var dashboardView = $("dashboard-view");
+
+    if (loginView) {
+      loginView.classList.remove("hidden");
+    }
+    if (dashboardView) {
+      dashboardView.classList.add("hidden");
+    }
+  }
+
+  function showDashboardView() {
+    var loginView = $("login-view");
+    var dashboardView = $("dashboard-view");
+
+    if (loginView) {
+      loginView.classList.add("hidden");
+    }
+    if (dashboardView) {
+      dashboardView.classList.remove("hidden");
+    }
   }
 
   function parseResponseJson(res) {
@@ -78,6 +113,7 @@
         }
         setAuthState(true);
         setStatus("Login successful. You can now save to server.", false);
+        enterDashboard();
       });
     }).catch(function (error) {
       setAuthState(false);
@@ -92,9 +128,11 @@
     }).then(function () {
       setAuthState(false);
       setStatus("Logged out from admin session.", false);
+      showLoginView();
     }).catch(function () {
       setAuthState(false);
       setStatus("Could not logout session.", true);
+      showLoginView();
     });
   }
 
@@ -299,7 +337,6 @@
     $("btn-apply").addEventListener("click", applyLocal);
     $("btn-reset").addEventListener("click", resetLocal);
     $("btn-save-server").addEventListener("click", saveToServer);
-    $("btn-login").addEventListener("click", loginSession);
     $("btn-logout").addEventListener("click", logoutSession);
 
     $("add-replacement").addEventListener("click", function () {
@@ -406,17 +443,15 @@
       });
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
+  function initializeDashboard() {
+    if (dashboardInitialized) {
+      return Promise.resolve();
+    }
+
     renderTabs();
-    setAuthState(false);
-    checkSessionStatus();
+    bindActions();
 
-    window.CMSAdmin = {
-      setStatus: setStatus,
-      refreshSession: checkSessionStatus
-    };
-
-    loadState().then(function (data) {
+    return loadState().then(function (data) {
       state = clone(data);
       state.globalReplacements = state.globalReplacements || [];
       state.rules = state.rules || [];
@@ -425,7 +460,7 @@
       renderReplacements();
       renderRules();
       syncRawJson();
-      bindActions();
+      dashboardInitialized = true;
       setStatus("Loaded configuration.", false);
     }).catch(function () {
       state = { site: {}, seo: {}, globalReplacements: [], rules: [] };
@@ -433,8 +468,36 @@
       renderReplacements();
       renderRules();
       syncRawJson();
-      bindActions();
+      dashboardInitialized = true;
       setStatus("Could not load CMS data from API or static file. You can still build config here.", true);
+    });
+  }
+
+  function enterDashboard() {
+    return initializeDashboard().then(function () {
+      showDashboardView();
+      return checkSessionStatus();
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    showLoginView();
+    setAuthState(false);
+
+    window.CMSAdmin = {
+      setStatus: setStatus,
+      refreshSession: checkSessionStatus,
+      enterDashboard: enterDashboard
+    };
+
+    $("btn-login").addEventListener("click", loginSession);
+
+    checkSessionStatus().then(function (authed) {
+      if (authed) {
+        enterDashboard();
+      } else {
+        setStatus("Please sign in to access the dashboard.", false);
+      }
     });
   });
 })();

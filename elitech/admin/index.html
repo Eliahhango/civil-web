@@ -12,7 +12,37 @@
   <link rel="stylesheet" href="/elitech/admin/admin.css">
 </head>
 <body>
-  <div class="admin-shell">
+  <section id="login-view" class="login-view">
+    <div class="login-card">
+      <p class="login-badge">EliTechWiz CMS</p>
+      <h1>Admin Sign In</h1>
+      <p class="login-subtitle">Use your email link or admin token to access the dashboard.</p>
+
+      <div class="login-block">
+        <label>Firebase Email Link
+          <input id="email-link-input" type="email" placeholder="admin@yourdomain.com">
+        </label>
+        <div class="auth-actions">
+          <button id="btn-send-email-link" class="btn-default" type="button">Send Sign-In Link</button>
+          <button id="btn-complete-email-link" class="btn-default btn-outline" type="button">Complete Sign-In</button>
+        </div>
+      </div>
+
+      <div class="login-divider"><span>or</span></div>
+
+      <div class="login-block">
+        <label>Admin Token
+          <input id="admin-token" type="password" placeholder="Enter CMS admin token">
+        </label>
+        <button id="btn-login" class="btn-default btn-outline" type="button">Login With Token</button>
+      </div>
+
+      <p id="login-auth-state" class="auth-state">Not authenticated</p>
+      <p id="login-status" class="admin-footer">Ready.</p>
+    </div>
+  </section>
+
+  <div id="dashboard-view" class="admin-shell hidden">
     <aside class="admin-sidebar">
       <div class="brand-wrap">
         <h1>EliTechWiz CMS</h1>
@@ -37,29 +67,12 @@
           <button id="btn-apply" class="btn-default">Apply Preview</button>
           <button id="btn-save-server" class="btn-default">Save To Server</button>
           <button id="btn-reset" class="btn-default btn-outline">Reset Local</button>
+          <button id="btn-logout" class="btn-default btn-outline" type="button">Logout</button>
         </div>
       </header>
 
-      <section class="admin-auth-card">
-        <label>Admin Token
-          <input id="admin-token" type="password" placeholder="Enter CMS admin token once to create session">
-        </label>
-        <div class="auth-actions">
-          <button id="btn-login" class="btn-default btn-outline" type="button">Login</button>
-          <button id="btn-logout" class="btn-default btn-outline" type="button">Logout</button>
-        </div>
+      <section class="admin-auth-card compact">
         <p id="auth-state" class="auth-state">Not authenticated</p>
-      </section>
-
-      <section class="admin-auth-card">
-        <label>Firebase Email Link Login
-          <input id="email-link-input" type="email" placeholder="admin@yourdomain.com">
-        </label>
-        <div class="auth-actions">
-          <button id="btn-send-email-link" class="btn-default btn-outline" type="button">Send Sign-In Link</button>
-          <button id="btn-complete-email-link" class="btn-default btn-outline" type="button">Complete Sign-In</button>
-        </div>
-        <p class="auth-state">Passwordless sign-in for admin access</p>
       </section>
 
       <section id="tab-site" class="tab-panel active">
