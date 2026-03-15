@@ -29,7 +29,6 @@ Set these in Vercel project settings:
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_CLIENT_EMAIL`
 - `FIREBASE_PRIVATE_KEY` (single-line value with escaped `\\n`)
-- `FIREBASE_STORAGE_BUCKET` (optional)
 - `FIREBASE_DATABASE_URL` (optional)
 
 Optional persistent storage (recommended):
@@ -40,6 +39,8 @@ Optional persistent storage (recommended):
 If KV variables are missing, writes fall back to temporary server storage (`/tmp`) and will not survive cold starts or redeploys.
 
 If Firebase variables are present, Firestore becomes the primary persistent backend.
+
+This project is configured to work with Firestore only. Firebase Storage is not required for the current CMS and admin flow.
 
 ## Configure Firebase Email Link Auth
 
