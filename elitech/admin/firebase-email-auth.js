@@ -66,6 +66,31 @@ function setStatus(message, isError) {
   statusNode.style.color = isError ? "#ff8c95" : "#94a9bf";
 }
 
+function getSafeAuthMessage(error, fallbackMessage) {
+  const code = String(error && error.code || "").toLowerCase();
+
+  if (code === "auth/invalid-credential" || code === "auth/wrong-password" || code === "auth/user-not-found") {
+    return "Invalid email or password.";
+  }
+  if (code === "auth/invalid-email") {
+    return "Enter a valid email address.";
+  }
+  if (code === "auth/too-many-requests") {
+    return "Too many attempts. Please wait and try again.";
+  }
+  if (code === "auth/network-request-failed") {
+    return "Network error. Check your connection and try again.";
+  }
+  if (code === "auth/expired-action-code" || code === "auth/invalid-action-code") {
+    return "This sign-in link is invalid or expired. Request a new one.";
+  }
+  if (code === "auth/user-disabled") {
+    return "This account is disabled. Contact support.";
+  }
+
+  return fallbackMessage;
+}
+
 function getActionCodeSettings() {
   return {
     url: `${window.location.origin}/elitech/admin/`,
@@ -90,11 +115,11 @@ async function ensureAuth() {
   });
 
   if (!response.ok) {
-    throw new Error(config.error || "Failed to load Firebase config");
+    throw new Error("Sign-in configuration is unavailable right now.");
   }
 
   if (!config.apiKey || !config.authDomain || !config.projectId || !config.appId) {
-    throw new Error("Firebase web config is missing in server environment");
+    throw new Error("Sign-in configuration is incomplete.");
   }
 
   auth = getAuth(initializeApp(config));
@@ -117,10 +142,10 @@ async function sendLink() {
     setStatus("Sign-in link sent. Check your email and open the link.", false);
   } catch (error) {
     if (error && error.code === "auth/unauthorized-continue-uri") {
-      setStatus("Domain not allowlisted in Firebase Auth. Add this domain in Firebase Console > Authentication > Settings > Authorized domains.", true);
+      setStatus("This domain is not authorized for email links.", true);
       return;
     }
-    setStatus(error.message || "Failed to send sign-in link.", true);
+    setStatus(getSafeAuthMessage(error, "Failed to send sign-in link."), true);
   }
 }
 
@@ -144,7 +169,7 @@ async function signInWithPassword() {
     }
     setStatus("Signed in with email and password.", false);
   } catch (error) {
-    setStatus(error.message || "Email/password sign-in failed.", true);
+    setStatus(getSafeAuthMessage(error, "Sign-in failed."), true);
   }
 }
 
@@ -167,7 +192,7 @@ async function sendPasswordReset() {
     await sendPasswordResetEmail(authInstance, email);
     setStatus("Password reset email sent. Check your inbox.", false);
   } catch (error) {
-    setStatus(error.message || "Could not send reset email.", true);
+    setStatus(getSafeAuthMessage(error, "Could not send reset email."), true);
   }
 }
 
@@ -200,14 +225,14 @@ function syncAdminAuthState(user) {
     if (typeof window.CMSAdmin.enterDashboard === "function") {
       window.CMSAdmin.enterDashboard();
     }
-    setStatus("Firebase sign-in active. You can now save changes.", false);
+    setStatus("Sign-in active. You can now save changes.", false);
     return;
   }
 
   if (typeof window.CMSAdmin.showLoginView === "function") {
     window.CMSAdmin.showLoginView();
   }
-  setStatus("Please sign in with Firebase to access the dashboard.", false);
+  setStatus("Please sign in to access the dashboard.", false);
 }
 
 async function completeSignInFromLink() {
@@ -236,7 +261,7 @@ async function completeSignInFromLink() {
     window.history.replaceState({}, document.title, cleanUrl);
     setStatus("Email link verified. Loading dashboard.", false);
   } catch (error) {
-    setStatus(error.message || "Failed to complete email link sign-in.", true);
+    setStatus(getSafeAuthMessage(error, "Failed to complete email link sign-in."), true);
   }
 }
 
@@ -278,7 +303,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (isSignInWithEmailLink(authInstance, window.location.href)) {
       completeSignInFromLink();
     }
-  }).catch(function (error) {
-    setStatus(error.message || "Failed to initialize Firebase auth.", true);
+  }).catch(function (_error) {
+    setStatus("Failed to initialize sign-in.", true);
   });
 });

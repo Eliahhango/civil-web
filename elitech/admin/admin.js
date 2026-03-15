@@ -103,7 +103,7 @@
       }
 
       stateNode.textContent = authenticated
-        ? "Signed in as " + (email || "Firebase user")
+        ? "Signed in as " + (email || "Admin user")
         : "Not authenticated";
       stateNode.style.color = authenticated ? "#7ce9b8" : "#94a9bf";
     });
