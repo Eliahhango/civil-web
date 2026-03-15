@@ -2,13 +2,14 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebas
 import {
   getAuth,
   isSignInWithEmailLink,
+  onAuthStateChanged,
   sendSignInLinkToEmail,
+  signOut,
   signInWithEmailLink
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 const EMAIL_STORAGE_KEY = "emailForSignIn";
 const BACKEND_CONFIG_URL = "/elitech/cms/backend.json";
-const FIREBASE_LOGIN_PATH = "/api/cms/firebase-login";
 const FIREBASE_WEB_CONFIG_PATH = "/api/cms/firebase-web-config";
 
 var auth = null;
@@ -122,37 +123,43 @@ async function sendLink() {
   }
 }
 
-async function exchangeFirebaseSession() {
+async function getIdToken() {
   var authInstance = await ensureAuth();
   const user = authInstance.currentUser;
   if (!user) {
-    throw new Error("No authenticated Firebase user.");
+    return "";
   }
 
-  const idToken = await user.getIdToken(true);
-  const response = await fetch(resolveApiUrl(FIREBASE_LOGIN_PATH), {
-    method: "POST",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ idToken })
-  });
+  return user.getIdToken(true);
+}
 
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok) {
-    throw new Error(payload.error || "Backend session setup failed");
+async function logout() {
+  var authInstance = await ensureAuth();
+  await signOut(authInstance);
+  setStatus("Signed out successfully.", false);
+}
+
+function syncAdminAuthState(user) {
+  if (!window.CMSAdmin) {
+    return;
   }
 
-  if (window.CMSAdmin && typeof window.CMSAdmin.refreshSession === "function") {
-    await window.CMSAdmin.refreshSession();
+  if (typeof window.CMSAdmin.setAuthState === "function") {
+    window.CMSAdmin.setAuthState(Boolean(user), user && user.email ? user.email : "");
   }
 
-  if (window.CMSAdmin && typeof window.CMSAdmin.enterDashboard === "function") {
-    await window.CMSAdmin.enterDashboard();
+  if (user) {
+    if (typeof window.CMSAdmin.enterDashboard === "function") {
+      window.CMSAdmin.enterDashboard();
+    }
+    setStatus("Firebase sign-in active. You can now save changes.", false);
+    return;
   }
 
-  setStatus("Email link verified and admin session started.", false);
+  if (typeof window.CMSAdmin.showLoginView === "function") {
+    window.CMSAdmin.showLoginView();
+  }
+  setStatus("Please sign in with Firebase to access the dashboard.", false);
 }
 
 async function completeSignInFromLink() {
@@ -179,8 +186,7 @@ async function completeSignInFromLink() {
 
     const cleanUrl = `${window.location.origin}${window.location.pathname}`;
     window.history.replaceState({}, document.title, cleanUrl);
-
-    await exchangeFirebaseSession();
+    setStatus("Email link verified. Loading dashboard.", false);
   } catch (error) {
     setStatus(error.message || "Failed to complete email link sign-in.", true);
   }
@@ -200,8 +206,17 @@ function bindAuthButtons() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  window.CMSFirebaseAuth = {
+    getIdToken: getIdToken,
+    logout: logout
+  };
+
   bindAuthButtons();
   ensureAuth().then(function (authInstance) {
+    onAuthStateChanged(authInstance, function (user) {
+      syncAdminAuthState(user);
+    });
+
     if (isSignInWithEmailLink(authInstance, window.location.href)) {
       completeSignInFromLink();
     }

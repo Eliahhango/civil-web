@@ -16,7 +16,7 @@
     <div class="login-card">
       <p class="login-badge">EliTechWiz CMS</p>
       <h1>Admin Sign In</h1>
-      <p class="login-subtitle">Use your email link or admin token to access the dashboard.</p>
+      <p class="login-subtitle">Use your Firebase email link to access the dashboard.</p>
 
       <div class="login-block">
         <label>Firebase Email Link
@@ -26,15 +26,6 @@
           <button id="btn-send-email-link" class="btn-default" type="button">Send Sign-In Link</button>
           <button id="btn-complete-email-link" class="btn-default btn-outline" type="button">Complete Sign-In</button>
         </div>
-      </div>
-
-      <div class="login-divider"><span>or</span></div>
-
-      <div class="login-block">
-        <label>Admin Token
-          <input id="admin-token" type="password" placeholder="Enter CMS admin token">
-        </label>
-        <button id="btn-login" class="btn-default btn-outline" type="button">Login With Token</button>
       </div>
 
       <p id="login-auth-state" class="auth-state">Not authenticated</p>

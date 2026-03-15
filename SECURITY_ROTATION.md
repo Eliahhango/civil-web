@@ -48,9 +48,6 @@ Recommended referrers:
 
 Set or update these in Vercel Project Settings -> Environment Variables:
 
-- `CMS_ADMIN_TOKEN`
-- `CMS_SESSION_SECRET`
-- `CMS_ALLOWED_EMAILS`
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_CLIENT_EMAIL`
 - `FIREBASE_PRIVATE_KEY`

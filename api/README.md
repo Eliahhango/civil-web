@@ -3,11 +3,7 @@
 This project now includes a CMS backend endpoint:
 
 - `GET /api/cms/content`: Read live CMS configuration.
-- `PUT /api/cms/content`: Save CMS configuration (requires active session or bearer token).
-- `POST /api/cms/login`: Authenticate and create secure admin session cookie.
-- `GET /api/cms/session`: Check if admin session is authenticated.
-- `POST /api/cms/logout`: Clear admin session cookie.
-- `POST /api/cms/firebase-login`: Verify Firebase ID token and create admin session cookie.
+- `PUT /api/cms/content`: Save CMS configuration with a Firebase ID token.
 - `GET /api/cms/firebase-web-config`: Returns Firebase web config from server environment for admin auth.
 
 ## Storage Order
@@ -23,9 +19,6 @@ CMS content is read and written in this order:
 
 Set these in Vercel project settings:
 
-- `CMS_ADMIN_TOKEN`: Secret token used by the admin panel for saving.
-- `CMS_SESSION_SECRET` (optional, recommended): Secret used to sign session cookies.
-- `CMS_ALLOWED_EMAILS`: Comma-separated admin email allowlist for Firebase Email Link login.
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_CLIENT_EMAIL`
 - `FIREBASE_PRIVATE_KEY` (single-line value with escaped `\\n`)
@@ -50,7 +43,7 @@ This project is configured to work with Firestore only. Firebase Storage is not 
 4. Add your deployment domain to Authorized Domains (for example `civil-web.vercel.app`).
 5. Ensure `/elitech/admin/` is reachable over HTTPS.
 
-The admin page includes passwordless email-link login and exchanges the Firebase ID token with `/api/cms/firebase-login` to create the secure CMS session.
+The admin page uses passwordless Firebase email-link login and sends the signed-in user's Firebase ID token directly to `PUT /api/cms/content`.
 Firebase web config is now loaded at runtime from `/api/cms/firebase-web-config` so the repository does not contain live client configuration values.
 
 See [SECURITY_ROTATION.md](SECURITY_ROTATION.md) for the credential rotation and recovery checklist.
@@ -58,8 +51,8 @@ See [SECURITY_ROTATION.md](SECURITY_ROTATION.md) for the credential rotation and
 ## Admin Panel Flow
 
 1. Open `/elitech/admin/`.
-2. Paste the same token value from `CMS_ADMIN_TOKEN`.
-3. Click **Login** to create secure session.
+2. Send the Firebase email sign-in link.
+3. Complete sign-in from your email.
 4. Edit content and click **Save To Server**.
 
 The website runtime reads from `/api/cms/content` first, then falls back to static `/elitech/cms/content.json`.
@@ -73,10 +66,6 @@ For `frontend and backend on Vercel`, keep [elitech/cms/backend.json](elitech/cm
 That makes the site use the same-origin Vercel API routes:
 
 - `/api/cms/content`
-- `/api/cms/login`
-- `/api/cms/logout`
-- `/api/cms/session`
-- `/api/cms/firebase-login`
 - `/api/cms/firebase-web-config`
 
 Set the required Firebase and CMS variables in Vercel Project Settings -> Environment Variables. The server-side Vercel API routes read those variables directly.

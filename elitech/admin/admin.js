@@ -1,12 +1,9 @@
-(function () {
+;(function () {
   "use strict";
 
   var STORAGE_KEY = "elitech.cms.content";
   var BACKEND_CONFIG_URL = "/elitech/cms/backend.json";
   var CMS_API_PATH = "/api/cms/content";
-  var CMS_LOGIN_PATH = "/api/cms/login";
-  var CMS_LOGOUT_PATH = "/api/cms/logout";
-  var CMS_SESSION_PATH = "/api/cms/session";
   var STATIC_CMS_URL = "/elitech/cms/content.json";
 
   var state = null;
@@ -44,6 +41,7 @@
           apiBaseUrl = "";
           return apiBaseUrl;
         }
+
         return response.json().then(function (payload) {
           apiBaseUrl = trimTrailingSlash(payload && payload.apiBaseUrl || "");
           return apiBaseUrl;
@@ -66,17 +64,16 @@
     });
   }
 
-  function getAuthToken() {
-    return $("admin-token").value.trim();
-  }
-
-  function setAuthState(authenticated) {
+  function setAuthState(authenticated, email) {
     ["auth-state", "login-auth-state"].forEach(function (id) {
       var stateNode = $(id);
       if (!stateNode) {
         return;
       }
-      stateNode.textContent = authenticated ? "Authenticated session active" : "Not authenticated";
+
+      stateNode.textContent = authenticated
+        ? "Signed in as " + (email || "Firebase user")
+        : "Not authenticated";
       stateNode.style.color = authenticated ? "#7ce9b8" : "#94a9bf";
     });
   }
@@ -108,73 +105,6 @@
   function parseResponseJson(res) {
     return res.json().catch(function () {
       return {};
-    });
-  }
-
-  function checkSessionStatus() {
-    return loadBackendConfig().then(function () {
-      return fetch(resolveApiUrl(CMS_SESSION_PATH), {
-        method: "GET",
-        credentials: "include",
-        cache: "no-cache"
-      });
-    }).then(function (res) {
-      return parseResponseJson(res).then(function (payload) {
-        var authed = Boolean(payload && payload.authenticated);
-        setAuthState(authed);
-        return authed;
-      });
-    }).catch(function () {
-      setAuthState(false);
-      return false;
-    });
-  }
-
-  function loginSession() {
-    var token = getAuthToken();
-    if (!token) {
-      setStatus("Enter admin token to login.", true);
-      return;
-    }
-
-    loadBackendConfig().then(function () {
-      return fetch(resolveApiUrl(CMS_LOGIN_PATH), {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ token: token })
-      });
-    }).then(function (res) {
-      return parseResponseJson(res).then(function (payload) {
-        if (!res.ok) {
-          throw new Error(payload.error || "Login failed");
-        }
-        setAuthState(true);
-        setStatus("Login successful. You can now save to server.", false);
-        enterDashboard();
-      });
-    }).catch(function (error) {
-      setAuthState(false);
-      setStatus(error.message || "Login failed.", true);
-    });
-  }
-
-  function logoutSession() {
-    loadBackendConfig().then(function () {
-      return fetch(resolveApiUrl(CMS_LOGOUT_PATH), {
-        method: "POST",
-        credentials: "include"
-      });
-    }).then(function () {
-      setAuthState(false);
-      setStatus("Logged out from admin session.", false);
-      showLoginView();
-    }).catch(function () {
-      setAuthState(false);
-      setStatus("Could not logout session.", true);
-      showLoginView();
     });
   }
 
@@ -348,20 +278,25 @@
     readFormIntoState();
     syncRawJson();
 
-    var token = getAuthToken();
-    var headers = {
-      "Content-Type": "application/json"
-    };
-    if (token) {
-      headers.Authorization = "Bearer " + token;
-    }
+    Promise.resolve().then(function () {
+      if (!window.CMSFirebaseAuth || typeof window.CMSFirebaseAuth.getIdToken !== "function") {
+        throw new Error("Firebase auth is not ready.");
+      }
+      return window.CMSFirebaseAuth.getIdToken();
+    }).then(function (idToken) {
+      if (!idToken) {
+        throw new Error("Sign in with Firebase before saving.");
+      }
 
-    loadBackendConfig().then(function () {
-      return fetch(resolveApiUrl(CMS_API_PATH), {
-        method: "PUT",
-        credentials: "include",
-        headers: headers,
-        body: JSON.stringify(state)
+      return loadBackendConfig().then(function () {
+        return fetch(resolveApiUrl(CMS_API_PATH), {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + idToken
+          },
+          body: JSON.stringify(state)
+        });
       });
     }).then(function (res) {
       return parseResponseJson(res).then(function (payload) {
@@ -370,7 +305,6 @@
         }
         localStorage.removeItem(STORAGE_KEY);
         setStatus("Saved to backend successfully. Live site will use latest content.", false);
-        checkSessionStatus();
       });
     }).catch(function (error) {
       setStatus(error.message || "Could not save to server.", true);
@@ -381,7 +315,16 @@
     $("btn-apply").addEventListener("click", applyLocal);
     $("btn-reset").addEventListener("click", resetLocal);
     $("btn-save-server").addEventListener("click", saveToServer);
-    $("btn-logout").addEventListener("click", logoutSession);
+    $("btn-logout").addEventListener("click", function () {
+      if (!window.CMSFirebaseAuth || typeof window.CMSFirebaseAuth.logout !== "function") {
+        setStatus("Firebase auth is not ready.", true);
+        return;
+      }
+
+      window.CMSFirebaseAuth.logout().catch(function (error) {
+        setStatus(error.message || "Could not sign out.", true);
+      });
+    });
 
     $("add-replacement").addEventListener("click", function () {
       readFormIntoState();
@@ -526,28 +469,20 @@
   function enterDashboard() {
     return initializeDashboard().then(function () {
       showDashboardView();
-      return checkSessionStatus();
+      return true;
     });
   }
 
   document.addEventListener("DOMContentLoaded", function () {
     showLoginView();
     setAuthState(false);
+    setStatus("Please sign in with Firebase to access the dashboard.", false);
 
     window.CMSAdmin = {
       setStatus: setStatus,
-      refreshSession: checkSessionStatus,
+      setAuthState: setAuthState,
+      showLoginView: showLoginView,
       enterDashboard: enterDashboard
     };
-
-    $("btn-login").addEventListener("click", loginSession);
-
-    checkSessionStatus().then(function (authed) {
-      if (authed) {
-        enterDashboard();
-      } else {
-        setStatus("Please sign in to access the dashboard.", false);
-      }
-    });
   });
 })();

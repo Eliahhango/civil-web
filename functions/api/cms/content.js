@@ -1,8 +1,7 @@
 const fs = require("fs");
 const path = require("path");
-const { isAuthorized } = require("./_auth");
 const { applyCors } = require("./_cors");
-const { getFirestore } = require("./firebase");
+const { getFirestore, getFirebaseAuth } = require("./firebase");
 
 const FALLBACK_CONTENT_PATH = path.join(__dirname, "default-content.json");
 const TEMP_CONTENT_PATH = "/tmp/elitech-cms-content.json";
@@ -26,6 +25,39 @@ function normalizeConfig(data) {
     globalReplacements: Array.isArray(value.globalReplacements) ? value.globalReplacements : [],
     rules: Array.isArray(value.rules) ? value.rules : []
   };
+}
+
+function getBearerToken(req) {
+  const header = req.headers && (req.headers.authorization || req.headers.Authorization);
+  if (!header || typeof header !== "string") {
+    return "";
+  }
+
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  return match ? match[1].trim() : "";
+}
+
+async function verifyAuthorizedUser(req) {
+  const idToken = getBearerToken(req);
+  if (!idToken) {
+    return { ok: false, status: 401, error: "Missing Firebase ID token" };
+  }
+
+  const auth = getFirebaseAuth();
+  if (!auth) {
+    return { ok: false, status: 500, error: "Firebase Auth is not configured" };
+  }
+
+  try {
+    const decoded = await auth.verifyIdToken(idToken, true);
+    if (!decoded || !decoded.email || decoded.email_verified === false) {
+      return { ok: false, status: 403, error: "Verified Firebase email required" };
+    }
+
+    return { ok: true, user: decoded };
+  } catch (_error) {
+    return { ok: false, status: 401, error: "Invalid Firebase ID token" };
+  }
 }
 
 async function readFromVercelKV() {
@@ -167,8 +199,9 @@ module.exports = async function handler(req, res) {
   }
 
   if (req.method === "PUT") {
-    if (!isAuthorized(req)) {
-      return res.status(401).send(JSON.stringify({ error: "Unauthorized" }));
+    const authResult = await verifyAuthorizedUser(req);
+    if (!authResult.ok) {
+      return res.status(authResult.status).send(JSON.stringify({ error: authResult.error }));
     }
 
     const payload = normalizeConfig(req.body);
