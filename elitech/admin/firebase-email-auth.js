@@ -3,6 +3,7 @@ import {
   getAuth,
   isSignInWithEmailLink,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   sendSignInLinkToEmail,
   signOut,
   signInWithEmailAndPassword,
@@ -148,6 +149,29 @@ async function signInWithPassword() {
   }
 }
 
+async function sendPasswordReset() {
+  var authInstance = await ensureAuth();
+  const emailPasswordNode = document.getElementById("email-password-input");
+  const emailLinkNode = document.getElementById("email-link-input");
+  const email = String(
+    (emailPasswordNode && emailPasswordNode.value) ||
+    (emailLinkNode && emailLinkNode.value) ||
+    ""
+  ).trim();
+
+  if (!email) {
+    setStatus("Enter your email first, then click Forgot Password.", true);
+    return;
+  }
+
+  try {
+    await sendPasswordResetEmail(authInstance, email);
+    setStatus("Password reset email sent. Check your inbox.", false);
+  } catch (error) {
+    setStatus(error.message || "Could not send reset email.", true);
+  }
+}
+
 async function getIdToken() {
   var authInstance = await ensureAuth();
   const user = authInstance.currentUser;
@@ -221,6 +245,7 @@ function bindAuthButtons() {
   const sendBtn = document.getElementById("btn-send-email-link");
   const completeBtn = document.getElementById("btn-complete-email-link");
   const passwordBtn = document.getElementById("btn-login-password");
+  const forgotPasswordBtn = document.getElementById("btn-forgot-password");
 
   if (sendBtn) {
     sendBtn.addEventListener("click", sendLink);
@@ -232,6 +257,10 @@ function bindAuthButtons() {
 
   if (passwordBtn) {
     passwordBtn.addEventListener("click", signInWithPassword);
+  }
+
+  if (forgotPasswordBtn) {
+    forgotPasswordBtn.addEventListener("click", sendPasswordReset);
   }
 }
 

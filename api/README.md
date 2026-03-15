@@ -52,6 +52,7 @@ See [SECURITY_ROTATION.md](SECURITY_ROTATION.md) for the credential rotation and
 
 1. Open `/elitech/admin/`.
 2. Sign in with email link (send link and complete from email) or with email/password.
+3. If needed, use **Forgot Password** to receive a Firebase reset email.
 4. Edit content and click **Save To Server**.
 
 The website runtime reads from `/api/cms/content` first, then falls back to static `/elitech/cms/content.json`.
