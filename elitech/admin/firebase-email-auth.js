@@ -5,6 +5,7 @@ import {
   onAuthStateChanged,
   sendSignInLinkToEmail,
   signOut,
+  signInWithEmailAndPassword,
   signInWithEmailLink
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
@@ -123,6 +124,30 @@ async function sendLink() {
   }
 }
 
+async function signInWithPassword() {
+  var authInstance = await ensureAuth();
+  const emailNode = document.getElementById("email-password-input");
+  const passwordNode = document.getElementById("password-input");
+
+  const email = String((emailNode && emailNode.value) || "").trim();
+  const password = String((passwordNode && passwordNode.value) || "");
+
+  if (!email || !password) {
+    setStatus("Enter your email and password to sign in.", true);
+    return;
+  }
+
+  try {
+    await signInWithEmailAndPassword(authInstance, email, password);
+    if (passwordNode) {
+      passwordNode.value = "";
+    }
+    setStatus("Signed in with email and password.", false);
+  } catch (error) {
+    setStatus(error.message || "Email/password sign-in failed.", true);
+  }
+}
+
 async function getIdToken() {
   var authInstance = await ensureAuth();
   const user = authInstance.currentUser;
@@ -195,6 +220,7 @@ async function completeSignInFromLink() {
 function bindAuthButtons() {
   const sendBtn = document.getElementById("btn-send-email-link");
   const completeBtn = document.getElementById("btn-complete-email-link");
+  const passwordBtn = document.getElementById("btn-login-password");
 
   if (sendBtn) {
     sendBtn.addEventListener("click", sendLink);
@@ -202,6 +228,10 @@ function bindAuthButtons() {
 
   if (completeBtn) {
     completeBtn.addEventListener("click", completeSignInFromLink);
+  }
+
+  if (passwordBtn) {
+    passwordBtn.addEventListener("click", signInWithPassword);
   }
 }
 

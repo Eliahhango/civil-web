@@ -35,15 +35,15 @@ If Firebase variables are present, Firestore becomes the primary persistent back
 
 This project is configured to work with Firestore only. Firebase Storage is not required for the current CMS and admin flow.
 
-## Configure Firebase Email Link Auth
+## Configure Firebase Admin Auth
 
 1. Firebase Console -> Authentication -> Sign-in method.
 2. Enable `Email/Password` provider.
-3. Enable `Email link (passwordless sign-in)`.
+3. Enable `Email link (passwordless sign-in)` if you want passwordless login.
 4. Add your deployment domain to Authorized Domains (for example `civil-web.vercel.app`).
 5. Ensure `/elitech/admin/` is reachable over HTTPS.
 
-The admin page uses passwordless Firebase email-link login and sends the signed-in user's Firebase ID token directly to `PUT /api/cms/content`.
+The admin page supports Firebase email-link login and Firebase email/password login. After sign-in, it sends the signed-in user's Firebase ID token directly to `PUT /api/cms/content`.
 Firebase web config is now loaded at runtime from `/api/cms/firebase-web-config` so the repository does not contain live client configuration values.
 
 See [SECURITY_ROTATION.md](SECURITY_ROTATION.md) for the credential rotation and recovery checklist.
@@ -51,8 +51,7 @@ See [SECURITY_ROTATION.md](SECURITY_ROTATION.md) for the credential rotation and
 ## Admin Panel Flow
 
 1. Open `/elitech/admin/`.
-2. Send the Firebase email sign-in link.
-3. Complete sign-in from your email.
+2. Sign in with email link (send link and complete from email) or with email/password.
 4. Edit content and click **Save To Server**.
 
 The website runtime reads from `/api/cms/content` first, then falls back to static `/elitech/cms/content.json`.
