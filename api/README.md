@@ -52,6 +52,8 @@ If Firebase variables are present, Firestore becomes the primary persistent back
 The admin page includes passwordless email-link login and exchanges the Firebase ID token with `/api/cms/firebase-login` to create the secure CMS session.
 Firebase web config is now loaded at runtime from `/api/cms/firebase-web-config` so the repository does not contain live client configuration values.
 
+See [SECURITY_ROTATION.md](SECURITY_ROTATION.md) for the credential rotation and recovery checklist.
+
 ## Admin Panel Flow
 
 1. Open `/elitech/admin/`.
