@@ -1,9 +1,45 @@
 (function () {
   "use strict";
 
-  var CONFIG_URL = "/api/cms/content";
+  var BACKEND_CONFIG_URL = "/elitech/cms/backend.json";
+  var CONFIG_PATH = "/api/cms/content";
   var STATIC_CONFIG_URL = "/elitech/cms/content.json";
   var STORAGE_KEY = "elitech.cms.content";
+  var apiBaseUrl = null;
+
+  function trimTrailingSlash(value) {
+    return String(value || "").replace(/\/+$/, "");
+  }
+
+  function resolveApiUrl(path) {
+    var base = trimTrailingSlash(apiBaseUrl || "");
+    if (!base) {
+      return path;
+    }
+    return base + path;
+  }
+
+  function loadBackendConfig() {
+    if (apiBaseUrl !== null) {
+      return Promise.resolve(apiBaseUrl);
+    }
+
+    return fetch(BACKEND_CONFIG_URL, { cache: "no-cache" })
+      .then(function (response) {
+        if (!response.ok) {
+          apiBaseUrl = "";
+          return apiBaseUrl;
+        }
+        return response.json().then(function (payload) {
+          apiBaseUrl = trimTrailingSlash(payload && payload.apiBaseUrl || "");
+          return apiBaseUrl;
+        });
+      })
+      .catch(function () {
+        apiBaseUrl = "";
+        return apiBaseUrl;
+      });
+  }
 
   function normalizePath(path) {
     if (!path) {
@@ -249,7 +285,13 @@
   }
 
   function fetchConfigWithFallback() {
-    return fetch(CONFIG_URL, { cache: "no-cache" })
+    return loadBackendConfig()
+      .then(function () {
+        return fetch(resolveApiUrl(CONFIG_PATH), {
+          cache: "no-cache",
+          credentials: "include"
+        });
+      })
       .then(function (response) {
         if (response.ok) {
           return response.json();

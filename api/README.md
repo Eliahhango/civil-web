@@ -62,3 +62,11 @@ See [SECURITY_ROTATION.md](SECURITY_ROTATION.md) for the credential rotation and
 4. Edit content and click **Save To Server**.
 
 The website runtime reads from `/api/cms/content` first, then falls back to static `/elitech/cms/content.json`.
+
+## Hybrid Deployment
+
+For `frontend on Vercel` and `backend on Firebase`, set [elitech/cms/backend.json](elitech/cms/backend.json) to the Firebase API base URL, for example:
+
+`https://us-central1-your-firebase-project.cloudfunctions.net/api`
+
+Also set `CMS_ALLOWED_ORIGINS` in Firebase Functions environment to include your Vercel domain.

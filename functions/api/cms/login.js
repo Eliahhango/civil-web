@@ -1,4 +1,5 @@
 const { buildSessionCookie, createSessionToken, getExpectedAdminToken } = require("./_auth");
+const { applyCors } = require("./_cors");
 
 function readBody(req) {
   if (typeof req.body === "string") {
@@ -12,6 +13,10 @@ function readBody(req) {
 }
 
 module.exports = function handler(req, res) {
+  if (applyCors(req, res)) {
+    return;
+  }
+
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
 

@@ -1,4 +1,10 @@
+const { applyCors } = require("./_cors");
+
 module.exports = function handler(req, res) {
+  if (applyCors(req, res)) {
+    return;
+  }
+
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
 

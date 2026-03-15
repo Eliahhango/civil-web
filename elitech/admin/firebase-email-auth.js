@@ -7,10 +7,46 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 const EMAIL_STORAGE_KEY = "emailForSignIn";
-const FIREBASE_LOGIN_API = "/api/cms/firebase-login";
-const FIREBASE_WEB_CONFIG_API = "/api/cms/firebase-web-config";
+const BACKEND_CONFIG_URL = "/elitech/cms/backend.json";
+const FIREBASE_LOGIN_PATH = "/api/cms/firebase-login";
+const FIREBASE_WEB_CONFIG_PATH = "/api/cms/firebase-web-config";
 
 var auth = null;
+var apiBaseUrl = null;
+
+function trimTrailingSlash(value) {
+  return String(value || "").replace(/\/+$/, "");
+}
+
+function resolveApiUrl(path) {
+  var base = trimTrailingSlash(apiBaseUrl || "");
+  if (!base) {
+    return path;
+  }
+  return base + path;
+}
+
+async function loadBackendConfig() {
+  if (apiBaseUrl !== null) {
+    return apiBaseUrl;
+  }
+
+  var response = await fetch(BACKEND_CONFIG_URL, {
+    method: "GET",
+    cache: "no-cache"
+  });
+
+  if (!response.ok) {
+    apiBaseUrl = "";
+    return apiBaseUrl;
+  }
+
+  var payload = await response.json().catch(function () {
+    return {};
+  });
+  apiBaseUrl = trimTrailingSlash(payload && payload.apiBaseUrl || "");
+  return apiBaseUrl;
+}
 
 function setStatus(message, isError) {
   if (window.CMSAdmin && typeof window.CMSAdmin.setStatus === "function") {
@@ -39,9 +75,11 @@ async function ensureAuth() {
     return auth;
   }
 
-  var response = await fetch(FIREBASE_WEB_CONFIG_API, {
+  await loadBackendConfig();
+
+  var response = await fetch(resolveApiUrl(FIREBASE_WEB_CONFIG_PATH), {
     method: "GET",
-    credentials: "same-origin",
+    credentials: "include",
     cache: "no-cache"
   });
 
@@ -92,7 +130,7 @@ async function exchangeFirebaseSession() {
   }
 
   const idToken = await user.getIdToken(true);
-  const response = await fetch(FIREBASE_LOGIN_API, {
+  const response = await fetch(resolveApiUrl(FIREBASE_LOGIN_PATH), {
     method: "POST",
     credentials: "include",
     headers: {

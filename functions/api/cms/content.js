@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const { isAuthorized } = require("./_auth");
+const { applyCors } = require("./_cors");
 const { getFirestore } = require("./firebase");
 
 const FALLBACK_CONTENT_PATH = path.join(__dirname, "default-content.json");
@@ -149,6 +150,10 @@ async function getCurrentContent() {
 }
 
 module.exports = async function handler(req, res) {
+  if (applyCors(req, res)) {
+    return;
+  }
+
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
 

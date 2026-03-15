@@ -2,14 +2,16 @@
   "use strict";
 
   var STORAGE_KEY = "elitech.cms.content";
-  var CMS_API_URL = "/api/cms/content";
-  var CMS_LOGIN_URL = "/api/cms/login";
-  var CMS_LOGOUT_URL = "/api/cms/logout";
-  var CMS_SESSION_URL = "/api/cms/session";
+  var BACKEND_CONFIG_URL = "/elitech/cms/backend.json";
+  var CMS_API_PATH = "/api/cms/content";
+  var CMS_LOGIN_PATH = "/api/cms/login";
+  var CMS_LOGOUT_PATH = "/api/cms/logout";
+  var CMS_SESSION_PATH = "/api/cms/session";
   var STATIC_CMS_URL = "/elitech/cms/content.json";
 
   var state = null;
   var dashboardInitialized = false;
+  var apiBaseUrl = null;
 
   function $(id) {
     return document.getElementById(id);
@@ -17,6 +19,40 @@
 
   function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
+  }
+
+  function trimTrailingSlash(value) {
+    return String(value || "").replace(/\/+$/, "");
+  }
+
+  function resolveApiUrl(path) {
+    var base = trimTrailingSlash(apiBaseUrl || "");
+    if (!base) {
+      return path;
+    }
+    return base + path;
+  }
+
+  function loadBackendConfig() {
+    if (apiBaseUrl !== null) {
+      return Promise.resolve(apiBaseUrl);
+    }
+
+    return fetch(BACKEND_CONFIG_URL, { cache: "no-cache" })
+      .then(function (response) {
+        if (!response.ok) {
+          apiBaseUrl = "";
+          return apiBaseUrl;
+        }
+        return response.json().then(function (payload) {
+          apiBaseUrl = trimTrailingSlash(payload && payload.apiBaseUrl || "");
+          return apiBaseUrl;
+        });
+      })
+      .catch(function () {
+        apiBaseUrl = "";
+        return apiBaseUrl;
+      });
   }
 
   function setStatus(message, error) {
@@ -76,10 +112,12 @@
   }
 
   function checkSessionStatus() {
-    return fetch(CMS_SESSION_URL, {
-      method: "GET",
-      credentials: "include",
-      cache: "no-cache"
+    return loadBackendConfig().then(function () {
+      return fetch(resolveApiUrl(CMS_SESSION_PATH), {
+        method: "GET",
+        credentials: "include",
+        cache: "no-cache"
+      });
     }).then(function (res) {
       return parseResponseJson(res).then(function (payload) {
         var authed = Boolean(payload && payload.authenticated);
@@ -99,13 +137,15 @@
       return;
     }
 
-    fetch(CMS_LOGIN_URL, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ token: token })
+    loadBackendConfig().then(function () {
+      return fetch(resolveApiUrl(CMS_LOGIN_PATH), {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ token: token })
+      });
     }).then(function (res) {
       return parseResponseJson(res).then(function (payload) {
         if (!res.ok) {
@@ -122,9 +162,11 @@
   }
 
   function logoutSession() {
-    fetch(CMS_LOGOUT_URL, {
-      method: "POST",
-      credentials: "include"
+    loadBackendConfig().then(function () {
+      return fetch(resolveApiUrl(CMS_LOGOUT_PATH), {
+        method: "POST",
+        credentials: "include"
+      });
     }).then(function () {
       setAuthState(false);
       setStatus("Logged out from admin session.", false);
@@ -314,11 +356,13 @@
       headers.Authorization = "Bearer " + token;
     }
 
-    fetch(CMS_API_URL, {
-      method: "PUT",
-      credentials: "include",
-      headers: headers,
-      body: JSON.stringify(state)
+    loadBackendConfig().then(function () {
+      return fetch(resolveApiUrl(CMS_API_PATH), {
+        method: "PUT",
+        credentials: "include",
+        headers: headers,
+        body: JSON.stringify(state)
+      });
     }).then(function (res) {
       return parseResponseJson(res).then(function (payload) {
         if (!res.ok) {
@@ -418,7 +462,13 @@
   }
 
   function loadState() {
-    return fetch(CMS_API_URL, { cache: "no-cache" })
+    return loadBackendConfig()
+      .then(function () {
+        return fetch(resolveApiUrl(CMS_API_PATH), {
+          cache: "no-cache",
+          credentials: "include"
+        });
+      })
       .then(function (res) {
         if (res.ok) {
           return res.json();

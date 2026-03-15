@@ -1,4 +1,5 @@
 const { buildSessionCookie, createSessionToken } = require("./_auth");
+const { applyCors } = require("./_cors");
 const { getFirebaseAuth } = require("./firebase");
 
 function readBody(req) {
@@ -20,6 +21,10 @@ function parseAllowedEmails() {
 }
 
 module.exports = async function handler(req, res) {
+  if (applyCors(req, res)) {
+    return;
+  }
+
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
 
