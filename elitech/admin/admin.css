@@ -116,6 +116,10 @@ body {
   white-space: nowrap;
 }
 
+.auth-state.subtle {
+  opacity: 0.9;
+}
+
 .admin-header h2 {
   margin: 0;
   font-family: "Space Grotesk", sans-serif;

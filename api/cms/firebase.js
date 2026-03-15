@@ -58,6 +58,15 @@ function getFirestore() {
   return app.firestore();
 }
 
+function getFirebaseAuth() {
+  const app = initializeFirebase();
+  if (!app) {
+    return null;
+  }
+  return app.auth();
+}
+
 module.exports = {
-  getFirestore
+  getFirestore,
+  getFirebaseAuth
 };

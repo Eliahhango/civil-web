@@ -7,6 +7,7 @@ This project now includes a CMS backend endpoint:
 - `POST /api/cms/login`: Authenticate and create secure admin session cookie.
 - `GET /api/cms/session`: Check if admin session is authenticated.
 - `POST /api/cms/logout`: Clear admin session cookie.
+- `POST /api/cms/firebase-login`: Verify Firebase ID token and create admin session cookie.
 
 ## Storage Order
 
@@ -23,6 +24,7 @@ Set these in Vercel project settings:
 
 - `CMS_ADMIN_TOKEN`: Secret token used by the admin panel for saving.
 - `CMS_SESSION_SECRET` (optional, recommended): Secret used to sign session cookies.
+- `CMS_ALLOWED_EMAILS`: Comma-separated admin email allowlist for Firebase Email Link login.
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_CLIENT_EMAIL`
 - `FIREBASE_PRIVATE_KEY` (single-line value with escaped `\\n`)
@@ -37,6 +39,16 @@ Optional persistent storage (recommended):
 If KV variables are missing, writes fall back to temporary server storage (`/tmp`) and will not survive cold starts or redeploys.
 
 If Firebase variables are present, Firestore becomes the primary persistent backend.
+
+## Configure Firebase Email Link Auth
+
+1. Firebase Console -> Authentication -> Sign-in method.
+2. Enable `Email/Password` provider.
+3. Enable `Email link (passwordless sign-in)`.
+4. Add your deployment domain to Authorized Domains (for example `civil-web.vercel.app`).
+5. Ensure `/elitech/admin/` is reachable over HTTPS.
+
+The admin page includes passwordless email-link login and exchanges the Firebase ID token with `/api/cms/firebase-login` to create the secure CMS session.
 
 ## Admin Panel Flow
 

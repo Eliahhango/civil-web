@@ -411,6 +411,11 @@
     setAuthState(false);
     checkSessionStatus();
 
+    window.CMSAdmin = {
+      setStatus: setStatus,
+      refreshSession: checkSessionStatus
+    };
+
     loadState().then(function (data) {
       state = clone(data);
       state.globalReplacements = state.globalReplacements || [];
