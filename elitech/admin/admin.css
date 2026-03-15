@@ -89,6 +89,22 @@ body {
   gap: 12px;
 }
 
+.admin-auth-card {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  margin-bottom: 18px;
+  background: rgba(13, 26, 41, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px;
+  animation: lift .22s ease;
+}
+
+.admin-auth-card label {
+  flex: 1;
+}
+
 .admin-header h2 {
   margin: 0;
   font-family: "Space Grotesk", sans-serif;
@@ -240,6 +256,11 @@ code {
 @media (max-width: 980px) {
   .admin-shell {
     grid-template-columns: 1fr;
+  }
+
+  .admin-auth-card {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .form-grid,

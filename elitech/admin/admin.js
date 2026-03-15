@@ -2,7 +2,9 @@
   "use strict";
 
   var STORAGE_KEY = "elitech.cms.content";
-  var CMS_URL = "/elitech/cms/content.json";
+  var CMS_API_URL = "/api/cms/content";
+  var STATIC_CMS_URL = "/elitech/cms/content.json";
+  var ADMIN_TOKEN_KEY = "elitech.cms.adminToken";
 
   var state = null;
 
@@ -18,6 +20,26 @@
     var node = $("status");
     node.textContent = message;
     node.style.color = error ? "#ff8c95" : "#94a9bf";
+  }
+
+  function getAuthToken() {
+    return $("admin-token").value.trim();
+  }
+
+  function saveAuthToken() {
+    var token = getAuthToken();
+    if (!token) {
+      localStorage.removeItem(ADMIN_TOKEN_KEY);
+      setStatus("Auth token cleared from this browser.", false);
+      return;
+    }
+    localStorage.setItem(ADMIN_TOKEN_KEY, token);
+    setStatus("Auth token saved for this browser.", false);
+  }
+
+  function restoreAuthToken() {
+    var token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
+    $("admin-token").value = token;
   }
 
   function normalizePath(path) {
@@ -186,9 +208,41 @@
     location.reload();
   }
 
+  function saveToServer() {
+    readFormIntoState();
+    syncRawJson();
+
+    var token = getAuthToken();
+    if (!token) {
+      setStatus("Enter admin token before saving to server.", true);
+      return;
+    }
+
+    fetch(CMS_API_URL, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify(state)
+    }).then(function (res) {
+      return res.json().catch(function () { return {}; }).then(function (payload) {
+        if (!res.ok) {
+          throw new Error(payload.error || "Failed to save on server");
+        }
+        localStorage.removeItem(STORAGE_KEY);
+        setStatus("Saved to backend successfully. Live site will use latest content.", false);
+      });
+    }).catch(function (error) {
+      setStatus(error.message || "Could not save to server.", true);
+    });
+  }
+
   function bindActions() {
     $("btn-apply").addEventListener("click", applyLocal);
     $("btn-reset").addEventListener("click", resetLocal);
+    $("btn-save-server").addEventListener("click", saveToServer);
+    $("btn-save-token").addEventListener("click", saveAuthToken);
 
     $("add-replacement").addEventListener("click", function () {
       readFormIntoState();
@@ -269,8 +323,18 @@
   }
 
   function loadState() {
-    return fetch(CMS_URL, { cache: "no-cache" })
-      .then(function (res) { return res.json(); })
+    return fetch(CMS_API_URL, { cache: "no-cache" })
+      .then(function (res) {
+        if (res.ok) {
+          return res.json();
+        }
+        return fetch(STATIC_CMS_URL, { cache: "no-cache" }).then(function (staticRes) {
+          if (!staticRes.ok) {
+            throw new Error("Failed to load CMS data");
+          }
+          return staticRes.json();
+        });
+      })
       .then(function (base) {
         var local = localStorage.getItem(STORAGE_KEY);
         if (local) {
@@ -286,6 +350,7 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     renderTabs();
+    restoreAuthToken();
 
     loadState().then(function (data) {
       state = clone(data);
@@ -305,7 +370,7 @@
       renderRules();
       syncRawJson();
       bindActions();
-      setStatus("Could not load /elitech/cms/content.json. You can still build config here.", true);
+      setStatus("Could not load CMS data from API or static file. You can still build config here.", true);
     });
   });
 })();

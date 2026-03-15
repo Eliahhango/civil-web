@@ -35,9 +35,17 @@
         <h2 id="tab-title">Site Details</h2>
         <div class="header-actions">
           <button id="btn-apply" class="btn-default">Apply Preview</button>
+          <button id="btn-save-server" class="btn-default">Save To Server</button>
           <button id="btn-reset" class="btn-default btn-outline">Reset Local</button>
         </div>
       </header>
+
+      <section class="admin-auth-card">
+        <label>Admin Token
+          <input id="admin-token" type="password" placeholder="Set CMS_ADMIN_TOKEN in Vercel and paste same token here">
+        </label>
+        <button id="btn-save-token" class="btn-default btn-outline" type="button">Save Token In Browser</button>
+      </section>
 
       <section id="tab-site" class="tab-panel active">
         <div class="form-grid">

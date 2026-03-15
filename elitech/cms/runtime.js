@@ -1,7 +1,8 @@
 (function () {
   "use strict";
 
-  var CONFIG_URL = "/elitech/cms/content.json";
+  var CONFIG_URL = "/api/cms/content";
+  var STATIC_CONFIG_URL = "/elitech/cms/content.json";
   var STORAGE_KEY = "elitech.cms.content";
 
   function normalizePath(path) {
@@ -247,14 +248,31 @@
     replaceTextGlobally(data.globalReplacements || []);
   }
 
-  function bootstrap() {
-    fetch(CONFIG_URL, { cache: "no-cache" })
+  function fetchConfigWithFallback() {
+    return fetch(CONFIG_URL, { cache: "no-cache" })
       .then(function (response) {
-        if (!response.ok) {
-          throw new Error("Failed to load CMS config");
+        if (response.ok) {
+          return response.json();
         }
-        return response.json();
+        return fetch(STATIC_CONFIG_URL, { cache: "no-cache" }).then(function (staticResponse) {
+          if (!staticResponse.ok) {
+            throw new Error("Failed to load CMS config");
+          }
+          return staticResponse.json();
+        });
       })
+      .catch(function () {
+        return fetch(STATIC_CONFIG_URL, { cache: "no-cache" }).then(function (staticResponse) {
+          if (!staticResponse.ok) {
+            throw new Error("Failed to load CMS config");
+          }
+          return staticResponse.json();
+        });
+      });
+  }
+
+  function bootstrap() {
+    fetchConfigWithFallback()
       .then(function (base) {
         var merged = mergeConfig(base || {}, getLocalOverride());
         applyConfig(merged);
