@@ -24,6 +24,13 @@ Set these in Vercel project settings:
 - `FIREBASE_PRIVATE_KEY` (single-line value with escaped `\\n`)
 - `FIREBASE_DATABASE_URL` (optional)
 
+Authorization settings:
+
+- Preferred: Firebase custom claim `admin=true` on CMS admin users.
+- `CMS_ENABLE_EMAIL_ADMIN_FALLBACK` (optional): Set to `true` to allow fallback via admin email allowlist.
+- `CMS_ADMIN_EMAILS` (optional fallback list): Comma-separated email list used only when fallback is enabled.
+- `CMS_MAX_PAYLOAD_BYTES` (optional): Request body limit for `PUT /api/cms/content`.
+
 Optional persistent storage (recommended):
 
 - `KV_REST_API_URL`
@@ -44,6 +51,7 @@ This project is configured to work with Firestore only. Firebase Storage is not 
 5. Ensure `/elitech/admin/` is reachable over HTTPS.
 
 The admin page supports Firebase email-link login and Firebase email/password login. After sign-in, it sends the signed-in user's Firebase ID token directly to `PUT /api/cms/content`.
+`PUT /api/cms/content` is now admin-only. A verified user token alone is not enough.
 Firebase web config is now loaded at runtime from `/api/cms/firebase-web-config` so the repository does not contain live client configuration values.
 
 See [SECURITY_ROTATION.md](SECURITY_ROTATION.md) for the credential rotation and recovery checklist.
@@ -56,6 +64,25 @@ See [SECURITY_ROTATION.md](SECURITY_ROTATION.md) for the credential rotation and
 4. Edit content and click **Save To Server**.
 
 The website runtime reads from `/api/cms/content` first, then falls back to static `/elitech/cms/content.json`.
+
+## CMS Rule Safety
+
+Runtime and backend validation allow only these rule actions:
+
+- `text`
+- `addClass`
+- `remove`
+- `attr:href`
+- `attr:src`
+- `attr:alt`
+- `attr:title`
+- `style:color`
+- `style:background-color`
+- `style:font-weight`
+- `style:text-decoration`
+- `style:opacity`
+
+The previous raw `html` action is blocked for safety.
 
 ## Vercel Deployment
 

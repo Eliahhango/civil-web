@@ -9,6 +9,22 @@
   var state = null;
   var dashboardInitialized = false;
   var apiBaseUrl = null;
+  var statusTimer = null;
+
+  var ALLOWED_RULE_ACTIONS = {
+    "text": true,
+    "addClass": true,
+    "remove": true,
+    "attr:href": true,
+    "attr:src": true,
+    "attr:alt": true,
+    "attr:title": true,
+    "style:color": true,
+    "style:background-color": true,
+    "style:font-weight": true,
+    "style:text-decoration": true,
+    "style:opacity": true
+  };
 
   function $(id) {
     return document.getElementById(id);
@@ -61,7 +77,22 @@
       }
       node.textContent = message;
       node.style.color = error ? "#ff8c95" : "#94a9bf";
+      node.classList.remove("status-success", "status-error", "status-pulse");
+      node.classList.add(error ? "status-error" : "status-success", "status-pulse");
     });
+
+    if (statusTimer) {
+      clearTimeout(statusTimer);
+    }
+
+    statusTimer = setTimeout(function () {
+      ["status", "login-status"].forEach(function (id) {
+        var node = $(id);
+        if (node) {
+          node.classList.remove("status-pulse");
+        }
+      });
+    }, 360);
   }
 
   function setAuthState(authenticated, email) {
@@ -83,10 +114,19 @@
     var dashboardView = $("dashboard-view");
 
     if (loginView) {
+      loginView.setAttribute("aria-hidden", "false");
       loginView.classList.remove("hidden");
+      requestAnimationFrame(function () {
+        loginView.classList.add("is-active");
+      });
     }
+
     if (dashboardView) {
-      dashboardView.classList.add("hidden");
+      dashboardView.setAttribute("aria-hidden", "true");
+      dashboardView.classList.remove("is-active");
+      setTimeout(function () {
+        dashboardView.classList.add("hidden");
+      }, 170);
     }
   }
 
@@ -94,11 +134,20 @@
     var loginView = $("login-view");
     var dashboardView = $("dashboard-view");
 
-    if (loginView) {
-      loginView.classList.add("hidden");
-    }
     if (dashboardView) {
+      dashboardView.setAttribute("aria-hidden", "false");
       dashboardView.classList.remove("hidden");
+      requestAnimationFrame(function () {
+        dashboardView.classList.add("is-active");
+      });
+    }
+
+    if (loginView) {
+      loginView.setAttribute("aria-hidden", "true");
+      loginView.classList.remove("is-active");
+      setTimeout(function () {
+        loginView.classList.add("hidden");
+      }, 170);
     }
   }
 
@@ -106,6 +155,13 @@
     return res.json().catch(function () {
       return {};
     });
+  }
+
+  function toSafeString(value, maxLen) {
+    if (typeof value !== "string") {
+      return "";
+    }
+    return value.slice(0, maxLen);
   }
 
   function normalizePath(path) {
@@ -122,6 +178,67 @@
     return p;
   }
 
+  function normalizeImportedState(raw) {
+    var value = raw && typeof raw === "object" ? raw : {};
+
+    var next = {
+      site: {},
+      seo: {},
+      globalReplacements: [],
+      rules: []
+    };
+
+    if (value.site && typeof value.site === "object" && !Array.isArray(value.site)) {
+      Object.keys(value.site).forEach(function (key) {
+        if (key && key.length <= 80) {
+          next.site[key] = toSafeString(value.site[key], 2048);
+        }
+      });
+    }
+
+    if (value.seo && typeof value.seo === "object" && !Array.isArray(value.seo)) {
+      Object.keys(value.seo).forEach(function (key) {
+        if (key && key.length <= 80) {
+          next.seo[key] = toSafeString(value.seo[key], 2048);
+        }
+      });
+    }
+
+    if (Array.isArray(value.globalReplacements)) {
+      next.globalReplacements = value.globalReplacements.slice(0, 300).map(function (item) {
+        return {
+          from: toSafeString(item && item.from, 400),
+          to: toSafeString(item && item.to, 2048),
+          wholeWord: Boolean(item && item.wholeWord),
+          caseSensitive: Boolean(item && item.caseSensitive)
+        };
+      }).filter(function (item) {
+        return item.from;
+      });
+    }
+
+    if (Array.isArray(value.rules)) {
+      next.rules = value.rules.slice(0, 300).map(function (item) {
+        var action = toSafeString(item && item.action, 64);
+        var rawPaths = Array.isArray(item && item.paths) ? item.paths : [];
+        var paths = rawPaths.map(function (p) {
+          return normalizePath(toSafeString(p, 240));
+        }).filter(Boolean).slice(0, 20);
+
+        return {
+          paths: paths.length ? paths : ["/elitech/*"],
+          selector: toSafeString(item && item.selector, 256),
+          action: ALLOWED_RULE_ACTIONS[action] ? action : "text",
+          value: toSafeString(item && item.value, 2048)
+        };
+      }).filter(function (item) {
+        return item.selector;
+      });
+    }
+
+    return next;
+  }
+
   function renderTabs() {
     var buttons = document.querySelectorAll(".nav-btn");
     buttons.forEach(function (btn) {
@@ -133,7 +250,11 @@
         document.querySelectorAll(".tab-panel").forEach(function (panel) {
           panel.classList.remove("active");
         });
-        $("tab-" + tab).classList.add("active");
+
+        var target = $("tab-" + tab);
+        if (target) {
+          target.classList.add("active");
+        }
         $("tab-title").textContent = btn.textContent.trim();
       });
     });
@@ -164,48 +285,115 @@
     state.seo.twitterCard = $("seo-twitter-card").value;
   }
 
+  function createLabelWithInput(labelText, kind, value, placeholder) {
+    var label = document.createElement("label");
+    label.appendChild(document.createTextNode(labelText));
+
+    var input = document.createElement("input");
+    input.setAttribute("data-kind", kind);
+    input.value = toSafeString(value || "", 2048);
+    if (placeholder) {
+      input.placeholder = placeholder;
+    }
+
+    label.appendChild(input);
+    return label;
+  }
+
+  function createLabelWithBooleanSelect(labelText, kind, boolValue) {
+    var label = document.createElement("label");
+    label.appendChild(document.createTextNode(labelText));
+
+    var select = document.createElement("select");
+    select.setAttribute("data-kind", kind);
+
+    var noOpt = document.createElement("option");
+    noOpt.value = "false";
+    noOpt.textContent = "No";
+    select.appendChild(noOpt);
+
+    var yesOpt = document.createElement("option");
+    yesOpt.value = "true";
+    yesOpt.textContent = "Yes";
+    select.appendChild(yesOpt);
+
+    select.value = String(Boolean(boolValue));
+    label.appendChild(select);
+    return label;
+  }
+
+  function createLabelWithActionSelect(actionValue) {
+    var label = document.createElement("label");
+    label.appendChild(document.createTextNode("Action"));
+
+    var select = document.createElement("select");
+    select.setAttribute("data-kind", "action");
+
+    [
+      "text",
+      "attr:href",
+      "attr:src",
+      "attr:alt",
+      "attr:title",
+      "style:color",
+      "style:background-color",
+      "style:font-weight",
+      "style:text-decoration",
+      "style:opacity",
+      "addClass",
+      "remove"
+    ].forEach(function (action) {
+      var option = document.createElement("option");
+      option.value = action;
+      option.textContent = action;
+      select.appendChild(option);
+    });
+
+    select.value = ALLOWED_RULE_ACTIONS[actionValue] ? actionValue : "text";
+    label.appendChild(select);
+    return label;
+  }
+
+  function createRemoveButton(index, type) {
+    var removeBtn = document.createElement("button");
+    removeBtn.className = "remove-btn";
+    removeBtn.type = "button";
+    removeBtn.setAttribute("data-index", String(index));
+    removeBtn.setAttribute("data-type", type);
+    removeBtn.textContent = "Remove";
+    return removeBtn;
+  }
+
   function replacementRow(item, index) {
     var wrapper = document.createElement("div");
     wrapper.className = "row-box";
 
-    wrapper.innerHTML = '' +
-      '<label>Find<input data-kind="find" value="' + (item.from || "") + '"></label>' +
-      '<label>Replace With<input data-kind="replace" value="' + (item.to || "") + '"></label>' +
-      '<label>Whole Word<select data-kind="whole"><option value="false">No</option><option value="true">Yes</option></select></label>' +
-      '<label>Case Sensitive<select data-kind="case"><option value="false">No</option><option value="true">Yes</option></select></label>' +
-      '<button class="remove-btn" data-index="' + index + '" data-type="replacement">Remove</button>';
+    wrapper.appendChild(createLabelWithInput("Find", "find", item.from));
+    wrapper.appendChild(createLabelWithInput("Replace With", "replace", item.to));
+    wrapper.appendChild(createLabelWithBooleanSelect("Whole Word", "whole", item.wholeWord));
+    wrapper.appendChild(createLabelWithBooleanSelect("Case Sensitive", "case", item.caseSensitive));
+    wrapper.appendChild(createRemoveButton(index, "replacement"));
 
-    wrapper.querySelector('[data-kind="whole"]').value = String(Boolean(item.wholeWord));
-    wrapper.querySelector('[data-kind="case"]').value = String(Boolean(item.caseSensitive));
     return wrapper;
   }
 
   function ruleRow(item, index) {
     var wrapper = document.createElement("div");
     wrapper.className = "row-box rule";
-
     var joinedPaths = Array.isArray(item.paths) ? item.paths.join(", ") : "";
-    wrapper.innerHTML = '' +
-      '<label>Paths<input data-kind="paths" value="' + joinedPaths + '" placeholder="/elitech/, /elitech/home-version-2/"></label>' +
-      '<label>Selector<input data-kind="selector" value="' + (item.selector || "") + '" placeholder=".class-name h1"></label>' +
-      '<label>Action<select data-kind="action">' +
-        '<option value="text">text</option>' +
-        '<option value="html">html</option>' +
-        '<option value="attr:href">attr:href</option>' +
-        '<option value="attr:src">attr:src</option>' +
-        '<option value="addClass">addClass</option>' +
-        '<option value="remove">remove</option>' +
-      '</select></label>' +
-      '<label>Value<input data-kind="value" value="' + (item.value || "") + '"></label>' +
-      '<button class="remove-btn" data-index="' + index + '" data-type="rule">Remove</button>';
 
-    wrapper.querySelector('[data-kind="action"]').value = item.action || "text";
+    wrapper.appendChild(createLabelWithInput("Paths", "paths", joinedPaths, "/elitech/, /elitech/home-version-2/"));
+    wrapper.appendChild(createLabelWithInput("Selector", "selector", item.selector || "", ".class-name h1"));
+    wrapper.appendChild(createLabelWithActionSelect(item.action || "text"));
+    wrapper.appendChild(createLabelWithInput("Value", "value", item.value || ""));
+    wrapper.appendChild(createRemoveButton(index, "rule"));
+
     return wrapper;
   }
 
   function renderReplacements() {
     var list = $("replacements-list");
-    list.innerHTML = "";
+    list.replaceChildren();
 
     (state.globalReplacements || []).forEach(function (item, index) {
       list.appendChild(replacementRow(item, index));
@@ -214,7 +402,7 @@
 
   function renderRules() {
     var list = $("rules-list");
-    list.innerHTML = "";
+    list.replaceChildren();
 
     (state.rules || []).forEach(function (item, index) {
       list.appendChild(ruleRow(item, index));
@@ -241,10 +429,15 @@
         return normalizePath(p.trim());
       }).filter(Boolean);
 
+      var action = row.querySelector('[data-kind="action"]').value;
+      if (!ALLOWED_RULE_ACTIONS[action]) {
+        action = "text";
+      }
+
       return {
         paths: paths,
         selector: row.querySelector('[data-kind="selector"]').value.trim(),
-        action: row.querySelector('[data-kind="action"]').value,
+        action: action,
         value: row.querySelector('[data-kind="value"]').value
       };
     }).filter(function (item) {
@@ -345,6 +538,7 @@
       if (!target.classList.contains("remove-btn")) {
         return;
       }
+
       var index = Number(target.getAttribute("data-index"));
       var type = target.getAttribute("data-type");
 
@@ -361,12 +555,13 @@
 
     $("btn-load-json").addEventListener("click", function () {
       try {
-        state = JSON.parse($("raw-json").value);
+        state = normalizeImportedState(JSON.parse($("raw-json").value));
         renderBasics();
         renderReplacements();
         renderRules();
+        syncRawJson();
         setStatus("Raw JSON loaded into form.", false);
-      } catch (error) {
+      } catch (_error) {
         setStatus("Invalid JSON. Fix syntax and try again.", true);
       }
     });
@@ -391,13 +586,13 @@
 
       file.text().then(function (txt) {
         try {
-          state = JSON.parse(txt);
+          state = normalizeImportedState(JSON.parse(txt));
           renderBasics();
           renderReplacements();
           renderRules();
           syncRawJson();
           setStatus("JSON imported.", false);
-        } catch (error) {
+        } catch (_error) {
           setStatus("Imported file is not valid JSON.", true);
         }
       });
@@ -407,10 +602,7 @@
   function loadState() {
     return loadBackendConfig()
       .then(function () {
-        return fetch(resolveApiUrl(CMS_API_PATH), {
-          cache: "no-cache",
-          credentials: "include"
-        });
+        return fetch(resolveApiUrl(CMS_API_PATH), { cache: "no-cache" });
       })
       .then(function (res) {
         if (res.ok) {
@@ -424,15 +616,16 @@
         });
       })
       .then(function (base) {
+        var normalizedBase = normalizeImportedState(base || {});
         var local = localStorage.getItem(STORAGE_KEY);
         if (local) {
           try {
-            return JSON.parse(local);
-          } catch (error) {
-            return base;
+            return normalizeImportedState(JSON.parse(local));
+          } catch (_error) {
+            return normalizedBase;
           }
         }
-        return base;
+        return normalizedBase;
       });
   }
 
@@ -445,7 +638,7 @@
     bindActions();
 
     return loadState().then(function (data) {
-      state = clone(data);
+      state = clone(normalizeImportedState(data));
       state.globalReplacements = state.globalReplacements || [];
       state.rules = state.rules || [];
 

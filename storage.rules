@@ -10,7 +10,7 @@ service firebase.storage {
     }
 
     function isAdmin() {
-      return emailVerified() && request.auth.token.email == "hangoeliah@gmail.com";
+      return emailVerified() && request.auth.token.admin == true;
     }
 
     match /cms/{allPaths=**} {

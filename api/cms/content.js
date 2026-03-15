@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
-const { getFirestore, getFirebaseAuth } = require("./firebase");
+const { getFirestore, getFirebaseAuth, isAdminUser } = require("./firebase");
+const { validateAndNormalizePayload } = require("./payload-validation");
 
 const FALLBACK_CONTENT_PATH = path.join(process.cwd(), "elitech", "cms", "content.json");
 const TEMP_CONTENT_PATH = "/tmp/elitech-cms-content.json";
@@ -50,8 +51,13 @@ async function verifyAuthorizedUser(req) {
 
   try {
     const decoded = await auth.verifyIdToken(idToken, true);
-    if (!decoded || !decoded.email || decoded.email_verified === false) {
-      return { ok: false, status: 403, error: "Verified Firebase email required" };
+    if (!decoded || decoded.email_verified === false) {
+      return { ok: false, status: 403, error: "Verified Firebase account required" };
+    }
+
+    const adminResult = isAdminUser(decoded);
+    if (!adminResult.ok) {
+      return { ok: false, status: 403, error: "Forbidden: admin access required" };
     }
 
     return { ok: true, user: decoded };
@@ -194,6 +200,7 @@ async function getCurrentContent() {
 module.exports = async function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
+  res.setHeader("X-Content-Type-Options", "nosniff");
 
   if (req.method === "GET") {
     try {
@@ -210,7 +217,12 @@ module.exports = async function handler(req, res) {
       return res.status(authResult.status).send(JSON.stringify({ error: authResult.error }));
     }
 
-    const payload = normalizeConfig(req.body);
+    const payloadResult = validateAndNormalizePayload(req);
+    if (!payloadResult.ok) {
+      return res.status(payloadResult.status).send(JSON.stringify({ error: payloadResult.error }));
+    }
+
+    const payload = payloadResult.data;
 
     try {
       const savedInFirestore = await writeToFirestore(payload);

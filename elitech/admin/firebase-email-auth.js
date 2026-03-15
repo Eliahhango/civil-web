@@ -82,7 +82,6 @@ async function ensureAuth() {
 
   var response = await fetch(resolveApiUrl(FIREBASE_WEB_CONFIG_PATH), {
     method: "GET",
-    credentials: "include",
     cache: "no-cache"
   });
 

@@ -66,7 +66,54 @@ function getFirebaseAuth() {
   return app.auth();
 }
 
+function getAdminEmailAllowlist() {
+  const raw = getRequiredEnv("CMS_ADMIN_EMAILS");
+  if (!raw) {
+    return [];
+  }
+
+  return raw
+    .split(",")
+    .map((value) => String(value || "").trim().toLowerCase())
+    .filter(Boolean);
+}
+
+function canUseEmailFallback() {
+  return getRequiredEnv("CMS_ENABLE_EMAIL_ADMIN_FALLBACK").toLowerCase() === "true";
+}
+
+function isAdminUser(decodedToken) {
+  if (!decodedToken || typeof decodedToken !== "object") {
+    return { ok: false, reason: "invalid-token" };
+  }
+
+  if (decodedToken.admin === true) {
+    return { ok: true, mode: "custom-claim" };
+  }
+
+  if (!canUseEmailFallback()) {
+    return { ok: false, reason: "admin-claim-required" };
+  }
+
+  const email = String(decodedToken.email || "").trim().toLowerCase();
+  if (!email) {
+    return { ok: false, reason: "missing-email" };
+  }
+
+  const allowlist = getAdminEmailAllowlist();
+  if (!allowlist.length) {
+    return { ok: false, reason: "allowlist-empty" };
+  }
+
+  if (!allowlist.includes(email)) {
+    return { ok: false, reason: "email-not-allowed" };
+  }
+
+  return { ok: true, mode: "email-allowlist" };
+}
+
 module.exports = {
   getFirestore,
-  getFirebaseAuth
+  getFirebaseAuth,
+  isAdminUser
 };

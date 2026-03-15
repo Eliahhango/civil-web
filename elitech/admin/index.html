@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/elitech/admin/admin.css">
 </head>
 <body>
-  <section id="login-view" class="login-view">
+  <section id="login-view" class="login-view is-active" aria-hidden="false">
     <div class="login-card">
       <p class="login-badge">EliTechWiz CMS</p>
       <h1>Admin Sign In</h1>
@@ -44,11 +44,11 @@
       </div>
 
       <p id="login-auth-state" class="auth-state">Not authenticated</p>
-      <p id="login-status" class="admin-footer">Ready.</p>
+      <p id="login-status" class="admin-footer" aria-live="polite">Ready.</p>
     </div>
   </section>
 
-  <div id="dashboard-view" class="admin-shell hidden">
+  <div id="dashboard-view" class="admin-shell hidden" aria-hidden="true">
     <aside class="admin-sidebar">
       <div class="brand-wrap">
         <h1>EliTechWiz CMS</h1>
@@ -129,7 +129,7 @@
         </div>
       </section>
 
-      <footer class="admin-footer" id="status">Ready.</footer>
+      <footer class="admin-footer" id="status" aria-live="polite">Ready.</footer>
     </main>
   </div>
 

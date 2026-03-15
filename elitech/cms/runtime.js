@@ -6,6 +6,33 @@
   var STATIC_CONFIG_URL = "/elitech/cms/content.json";
   var STORAGE_KEY = "elitech.cms.content";
   var apiBaseUrl = null;
+  var ALLOWED_RULE_ACTIONS = {
+    "text": true,
+    "addClass": true,
+    "remove": true,
+    "attr:href": true,
+    "attr:src": true,
+    "attr:alt": true,
+    "attr:title": true,
+    "style:color": true,
+    "style:background-color": true,
+    "style:font-weight": true,
+    "style:text-decoration": true,
+    "style:opacity": true
+  };
+  var ALLOWED_ATTRS = {
+    href: true,
+    src: true,
+    alt: true,
+    title: true
+  };
+  var ALLOWED_STYLE_PROPS = {
+    color: true,
+    "background-color": true,
+    "font-weight": true,
+    "text-decoration": true,
+    opacity: true
+  };
 
   function trimTrailingSlash(value) {
     return String(value || "").replace(/\/+$/, "");
@@ -200,9 +227,49 @@
       return;
     }
 
-    var elements = document.querySelectorAll(rule.selector);
+    if (!ALLOWED_RULE_ACTIONS[rule.action]) {
+      return;
+    }
+
+    var elements = [];
+    try {
+      elements = document.querySelectorAll(rule.selector);
+    } catch (_error) {
+      return;
+    }
+
     if (!elements.length) {
       return;
+    }
+
+    function isSafeUrl(value) {
+      var urlValue = String(value || "").trim();
+      if (!urlValue) {
+        return true;
+      }
+
+      if (/^javascript:/i.test(urlValue)) {
+        return false;
+      }
+
+      if (/^[/?#]|^\.\.?\//.test(urlValue)) {
+        return true;
+      }
+
+      try {
+        var parsed = new URL(urlValue, window.location.origin);
+        return parsed.protocol === "http:" || parsed.protocol === "https:" || parsed.protocol === "mailto:" || parsed.protocol === "tel:";
+      } catch (_error) {
+        return false;
+      }
+    }
+
+    function isSafeStyleValue(value) {
+      var styleValue = String(value || "");
+      if (styleValue.length > 256) {
+        return false;
+      }
+      return !/(expression\s*\(|javascript:|url\s*\()/i.test(styleValue);
     }
 
     elements.forEach(function (el) {
@@ -210,28 +277,37 @@
         el.textContent = rule.value || "";
         return;
       }
-      if (rule.action === "html") {
-        el.innerHTML = rule.value || "";
-        return;
-      }
+
       if (rule.action.indexOf("attr:") === 0) {
         var attr = rule.action.split(":")[1];
-        if (attr) {
-          el.setAttribute(attr, rule.value || "");
+        if (attr && ALLOWED_ATTRS[attr]) {
+          var nextValue = String(rule.value || "");
+          if ((attr === "href" || attr === "src") && !isSafeUrl(nextValue)) {
+            return;
+          }
+          el.setAttribute(attr, nextValue);
         }
         return;
       }
+
       if (rule.action.indexOf("style:") === 0) {
         var styleProp = rule.action.split(":")[1];
-        if (styleProp) {
-          el.style.setProperty(styleProp, rule.value || "");
+        if (styleProp && ALLOWED_STYLE_PROPS[styleProp] && isSafeStyleValue(rule.value)) {
+          el.style.setProperty(styleProp, String(rule.value || ""));
         }
         return;
       }
+
       if (rule.action === "addClass" && rule.value) {
-        el.classList.add(rule.value);
+        var classes = String(rule.value || "").split(/\s+/).filter(Boolean);
+        classes.forEach(function (token) {
+          if (/^[A-Za-z_][A-Za-z0-9_-]*$/.test(token)) {
+            el.classList.add(token);
+          }
+        });
         return;
       }
+
       if (rule.action === "remove") {
         el.remove();
       }
@@ -288,8 +364,7 @@
     return loadBackendConfig()
       .then(function () {
         return fetch(resolveApiUrl(CONFIG_PATH), {
-          cache: "no-cache",
-          credentials: "include"
+          cache: "no-cache"
         });
       })
       .then(function (response) {
