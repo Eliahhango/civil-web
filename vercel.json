@@ -1,10 +1,20 @@
 {
   "outputDirectory": ".",
-  "redirects": [
+  "routes": [
     {
-      "source": "/",
-      "destination": "/elitech/home-version-2/",
-      "permanent": false
+      "src": "^/$",
+      "status": 307,
+      "headers": {
+        "Location": "/elitech/home-version-2/"
+      }
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "^(.*)$",
+      "dest": "/elitech/404/index.html",
+      "status": 404
     }
   ]
 }
