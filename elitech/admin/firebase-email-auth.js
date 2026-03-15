@@ -8,18 +8,9 @@ import {
 
 const EMAIL_STORAGE_KEY = "emailForSignIn";
 const FIREBASE_LOGIN_API = "/api/cms/firebase-login";
+const FIREBASE_WEB_CONFIG_API = "/api/cms/firebase-web-config";
 
-const firebaseConfig = {
-  apiKey: "replace-with-web-api-key",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-firebase-project-id",
-  storageBucket: "your-project.firebasestorage.app",
-  messagingSenderId: "replace-with-messaging-sender-id",
-  appId: "replace-with-web-app-id"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+var auth = null;
 
 function setStatus(message, isError) {
   if (window.CMSAdmin && typeof window.CMSAdmin.setStatus === "function") {
@@ -43,7 +34,35 @@ function getActionCodeSettings() {
   };
 }
 
+async function ensureAuth() {
+  if (auth) {
+    return auth;
+  }
+
+  var response = await fetch(FIREBASE_WEB_CONFIG_API, {
+    method: "GET",
+    credentials: "same-origin",
+    cache: "no-cache"
+  });
+
+  var config = await response.json().catch(function () {
+    return {};
+  });
+
+  if (!response.ok) {
+    throw new Error(config.error || "Failed to load Firebase config");
+  }
+
+  if (!config.apiKey || !config.authDomain || !config.projectId || !config.appId) {
+    throw new Error("Firebase web config is missing in server environment");
+  }
+
+  auth = getAuth(initializeApp(config));
+  return auth;
+}
+
 async function sendLink() {
+  var authInstance = await ensureAuth();
   const emailNode = document.getElementById("email-link-input");
   const email = String((emailNode && emailNode.value) || "").trim();
 
@@ -53,7 +72,7 @@ async function sendLink() {
   }
 
   try {
-    await sendSignInLinkToEmail(auth, email, getActionCodeSettings());
+    await sendSignInLinkToEmail(authInstance, email, getActionCodeSettings());
     window.localStorage.setItem(EMAIL_STORAGE_KEY, email);
     setStatus("Sign-in link sent. Check your email and open the link.", false);
   } catch (error) {
@@ -66,7 +85,8 @@ async function sendLink() {
 }
 
 async function exchangeFirebaseSession() {
-  const user = auth.currentUser;
+  var authInstance = await ensureAuth();
+  const user = authInstance.currentUser;
   if (!user) {
     throw new Error("No authenticated Firebase user.");
   }
@@ -98,7 +118,8 @@ async function exchangeFirebaseSession() {
 }
 
 async function completeSignInFromLink() {
-  if (!isSignInWithEmailLink(auth, window.location.href)) {
+  var authInstance = await ensureAuth();
+  if (!isSignInWithEmailLink(authInstance, window.location.href)) {
     setStatus("Current URL is not a Firebase email sign-in link.", true);
     return;
   }
@@ -115,7 +136,7 @@ async function completeSignInFromLink() {
   }
 
   try {
-    await signInWithEmailLink(auth, email, window.location.href);
+    await signInWithEmailLink(authInstance, email, window.location.href);
     window.localStorage.removeItem(EMAIL_STORAGE_KEY);
 
     const cleanUrl = `${window.location.origin}${window.location.pathname}`;
@@ -142,8 +163,11 @@ function bindAuthButtons() {
 
 document.addEventListener("DOMContentLoaded", function () {
   bindAuthButtons();
-
-  if (isSignInWithEmailLink(auth, window.location.href)) {
-    completeSignInFromLink();
-  }
+  ensureAuth().then(function (authInstance) {
+    if (isSignInWithEmailLink(authInstance, window.location.href)) {
+      completeSignInFromLink();
+    }
+  }).catch(function (error) {
+    setStatus(error.message || "Failed to initialize Firebase auth.", true);
+  });
 });
