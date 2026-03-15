@@ -63,6 +63,23 @@ See [SECURITY_ROTATION.md](SECURITY_ROTATION.md) for the credential rotation and
 
 The website runtime reads from `/api/cms/content` first, then falls back to static `/elitech/cms/content.json`.
 
+## Vercel Deployment
+
+For `frontend and backend on Vercel`, keep [elitech/cms/backend.json](elitech/cms/backend.json) as:
+
+`{ "apiBaseUrl": "" }`
+
+That makes the site use the same-origin Vercel API routes:
+
+- `/api/cms/content`
+- `/api/cms/login`
+- `/api/cms/logout`
+- `/api/cms/session`
+- `/api/cms/firebase-login`
+- `/api/cms/firebase-web-config`
+
+Set the required Firebase and CMS variables in Vercel Project Settings -> Environment Variables. The server-side Vercel API routes read those variables directly.
+
 ## Hybrid Deployment
 
 For `frontend on Vercel` and `backend on Firebase`, set [elitech/cms/backend.json](elitech/cms/backend.json) to the Firebase API base URL, for example:
