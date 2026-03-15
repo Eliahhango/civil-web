@@ -3,8 +3,10 @@
 
   var STORAGE_KEY = "elitech.cms.content";
   var CMS_API_URL = "/api/cms/content";
+  var CMS_LOGIN_URL = "/api/cms/login";
+  var CMS_LOGOUT_URL = "/api/cms/logout";
+  var CMS_SESSION_URL = "/api/cms/session";
   var STATIC_CMS_URL = "/elitech/cms/content.json";
-  var ADMIN_TOKEN_KEY = "elitech.cms.adminToken";
 
   var state = null;
 
@@ -26,20 +28,74 @@
     return $("admin-token").value.trim();
   }
 
-  function saveAuthToken() {
-    var token = getAuthToken();
-    if (!token) {
-      localStorage.removeItem(ADMIN_TOKEN_KEY);
-      setStatus("Auth token cleared from this browser.", false);
-      return;
-    }
-    localStorage.setItem(ADMIN_TOKEN_KEY, token);
-    setStatus("Auth token saved for this browser.", false);
+  function setAuthState(authenticated) {
+    var stateNode = $("auth-state");
+    stateNode.textContent = authenticated ? "Authenticated session active" : "Not authenticated";
+    stateNode.style.color = authenticated ? "#7ce9b8" : "#94a9bf";
   }
 
-  function restoreAuthToken() {
-    var token = localStorage.getItem(ADMIN_TOKEN_KEY) || "";
-    $("admin-token").value = token;
+  function parseResponseJson(res) {
+    return res.json().catch(function () {
+      return {};
+    });
+  }
+
+  function checkSessionStatus() {
+    return fetch(CMS_SESSION_URL, {
+      method: "GET",
+      credentials: "include",
+      cache: "no-cache"
+    }).then(function (res) {
+      return parseResponseJson(res).then(function (payload) {
+        var authed = Boolean(payload && payload.authenticated);
+        setAuthState(authed);
+        return authed;
+      });
+    }).catch(function () {
+      setAuthState(false);
+      return false;
+    });
+  }
+
+  function loginSession() {
+    var token = getAuthToken();
+    if (!token) {
+      setStatus("Enter admin token to login.", true);
+      return;
+    }
+
+    fetch(CMS_LOGIN_URL, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ token: token })
+    }).then(function (res) {
+      return parseResponseJson(res).then(function (payload) {
+        if (!res.ok) {
+          throw new Error(payload.error || "Login failed");
+        }
+        setAuthState(true);
+        setStatus("Login successful. You can now save to server.", false);
+      });
+    }).catch(function (error) {
+      setAuthState(false);
+      setStatus(error.message || "Login failed.", true);
+    });
+  }
+
+  function logoutSession() {
+    fetch(CMS_LOGOUT_URL, {
+      method: "POST",
+      credentials: "include"
+    }).then(function () {
+      setAuthState(false);
+      setStatus("Logged out from admin session.", false);
+    }).catch(function () {
+      setAuthState(false);
+      setStatus("Could not logout session.", true);
+    });
   }
 
   function normalizePath(path) {
@@ -213,25 +269,26 @@
     syncRawJson();
 
     var token = getAuthToken();
-    if (!token) {
-      setStatus("Enter admin token before saving to server.", true);
-      return;
+    var headers = {
+      "Content-Type": "application/json"
+    };
+    if (token) {
+      headers.Authorization = "Bearer " + token;
     }
 
     fetch(CMS_API_URL, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
-      },
+      credentials: "include",
+      headers: headers,
       body: JSON.stringify(state)
     }).then(function (res) {
-      return res.json().catch(function () { return {}; }).then(function (payload) {
+      return parseResponseJson(res).then(function (payload) {
         if (!res.ok) {
           throw new Error(payload.error || "Failed to save on server");
         }
         localStorage.removeItem(STORAGE_KEY);
         setStatus("Saved to backend successfully. Live site will use latest content.", false);
+        checkSessionStatus();
       });
     }).catch(function (error) {
       setStatus(error.message || "Could not save to server.", true);
@@ -242,7 +299,8 @@
     $("btn-apply").addEventListener("click", applyLocal);
     $("btn-reset").addEventListener("click", resetLocal);
     $("btn-save-server").addEventListener("click", saveToServer);
-    $("btn-save-token").addEventListener("click", saveAuthToken);
+    $("btn-login").addEventListener("click", loginSession);
+    $("btn-logout").addEventListener("click", logoutSession);
 
     $("add-replacement").addEventListener("click", function () {
       readFormIntoState();
@@ -350,7 +408,8 @@
 
   document.addEventListener("DOMContentLoaded", function () {
     renderTabs();
-    restoreAuthToken();
+    setAuthState(false);
+    checkSessionStatus();
 
     loadState().then(function (data) {
       state = clone(data);

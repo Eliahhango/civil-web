@@ -105,6 +105,17 @@ body {
   flex: 1;
 }
 
+.auth-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.auth-state {
+  margin: 0;
+  color: var(--admin-muted);
+  white-space: nowrap;
+}
+
 .admin-header h2 {
   margin: 0;
   font-family: "Space Grotesk", sans-serif;
@@ -261,6 +272,10 @@ code {
   .admin-auth-card {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .auth-actions {
+    width: 100%;
   }
 
   .form-grid,

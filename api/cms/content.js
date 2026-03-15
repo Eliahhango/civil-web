@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { isAuthorized } = require("./_auth");
 
 const FALLBACK_CONTENT_PATH = path.join(process.cwd(), "elitech", "cms", "content.json");
 const TEMP_CONTENT_PATH = "/tmp/elitech-cms-content.json";
@@ -115,22 +116,6 @@ async function getCurrentContent() {
   }
 
   return readFromFallbackFile();
-}
-
-function isAuthorized(req) {
-  const expectedToken = process.env.CMS_ADMIN_TOKEN;
-  if (!expectedToken) {
-    return false;
-  }
-
-  const authHeader = req.headers.authorization || "";
-  const prefix = "Bearer ";
-  if (!authHeader.startsWith(prefix)) {
-    return false;
-  }
-
-  const provided = authHeader.slice(prefix.length).trim();
-  return provided && provided === expectedToken;
 }
 
 module.exports = async function handler(req, res) {

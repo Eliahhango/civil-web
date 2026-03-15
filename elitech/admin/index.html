@@ -42,9 +42,13 @@
 
       <section class="admin-auth-card">
         <label>Admin Token
-          <input id="admin-token" type="password" placeholder="Set CMS_ADMIN_TOKEN in Vercel and paste same token here">
+          <input id="admin-token" type="password" placeholder="Enter CMS admin token once to create session">
         </label>
-        <button id="btn-save-token" class="btn-default btn-outline" type="button">Save Token In Browser</button>
+        <div class="auth-actions">
+          <button id="btn-login" class="btn-default btn-outline" type="button">Login</button>
+          <button id="btn-logout" class="btn-default btn-outline" type="button">Logout</button>
+        </div>
+        <p id="auth-state" class="auth-state">Not authenticated</p>
       </section>
 
       <section id="tab-site" class="tab-panel active">
