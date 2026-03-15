@@ -8,12 +8,26 @@ This project now includes a CMS backend endpoint:
 - `GET /api/cms/session`: Check if admin session is authenticated.
 - `POST /api/cms/logout`: Clear admin session cookie.
 
+## Storage Order
+
+CMS content is read and written in this order:
+
+1. Firebase Firestore (`cms/content` document)
+2. Vercel KV (if configured)
+3. Temporary server storage (`/tmp`)
+4. Static fallback file (`/elitech/cms/content.json`) for reads
+
 ## Required Environment Variables
 
 Set these in Vercel project settings:
 
 - `CMS_ADMIN_TOKEN`: Secret token used by the admin panel for saving.
 - `CMS_SESSION_SECRET` (optional, recommended): Secret used to sign session cookies.
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_PRIVATE_KEY` (single-line value with escaped `\\n`)
+- `FIREBASE_STORAGE_BUCKET` (optional)
+- `FIREBASE_DATABASE_URL` (optional)
 
 Optional persistent storage (recommended):
 
@@ -21,6 +35,8 @@ Optional persistent storage (recommended):
 - `KV_REST_API_TOKEN`
 
 If KV variables are missing, writes fall back to temporary server storage (`/tmp`) and will not survive cold starts or redeploys.
+
+If Firebase variables are present, Firestore becomes the primary persistent backend.
 
 ## Admin Panel Flow
 

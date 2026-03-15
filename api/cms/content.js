@@ -1,10 +1,13 @@
 const fs = require("fs");
 const path = require("path");
 const { isAuthorized } = require("./_auth");
+const { getFirestore } = require("./firebase");
 
 const FALLBACK_CONTENT_PATH = path.join(process.cwd(), "elitech", "cms", "content.json");
 const TEMP_CONTENT_PATH = "/tmp/elitech-cms-content.json";
 const CONTENT_KEY = "elitech_cms_content";
+const FIRESTORE_COLLECTION = "cms";
+const FIRESTORE_DOC_ID = "content";
 
 function readJsonSafe(raw) {
   try {
@@ -50,6 +53,35 @@ async function readFromVercelKV() {
 
   const parsed = typeof payload.result === "string" ? readJsonSafe(payload.result) : payload.result;
   return normalizeConfig(parsed);
+}
+
+async function readFromFirestore() {
+  const db = getFirestore();
+  if (!db) {
+    return null;
+  }
+
+  const doc = await db.collection(FIRESTORE_COLLECTION).doc(FIRESTORE_DOC_ID).get();
+  if (!doc.exists) {
+    return null;
+  }
+
+  const data = doc.data() || {};
+  return normalizeConfig(data.payload || data);
+}
+
+async function writeToFirestore(data) {
+  const db = getFirestore();
+  if (!db) {
+    return false;
+  }
+
+  await db.collection(FIRESTORE_COLLECTION).doc(FIRESTORE_DOC_ID).set({
+    payload: data,
+    updatedAt: Date.now()
+  }, { merge: true });
+
+  return true;
 }
 
 async function writeToVercelKV(data) {
@@ -98,6 +130,15 @@ function readFromFallbackFile() {
 
 async function getCurrentContent() {
   try {
+    const firestoreValue = await readFromFirestore();
+    if (firestoreValue) {
+      return firestoreValue;
+    }
+  } catch (error) {
+    // Ignore Firestore errors and continue with fallback sources.
+  }
+
+  try {
     const kvValue = await readFromVercelKV();
     if (kvValue) {
       return kvValue;
@@ -139,15 +180,22 @@ module.exports = async function handler(req, res) {
     const payload = normalizeConfig(req.body);
 
     try {
-      const savedInKv = await writeToVercelKV(payload);
-      if (!savedInKv) {
-        writeToTmpFile(payload);
+      const savedInFirestore = await writeToFirestore(payload);
+      if (savedInFirestore) {
+        return res.status(200).send(JSON.stringify({ ok: true, storage: "firestore" }));
       }
-      return res.status(200).send(JSON.stringify({ ok: true }));
+
+      const savedInKv = await writeToVercelKV(payload);
+      if (savedInKv) {
+        return res.status(200).send(JSON.stringify({ ok: true, storage: "vercel-kv" }));
+      }
+
+      writeToTmpFile(payload);
+      return res.status(200).send(JSON.stringify({ ok: true, warning: "Saved in temporary storage only", storage: "tmp" }));
     } catch (error) {
       try {
         writeToTmpFile(payload);
-        return res.status(200).send(JSON.stringify({ ok: true, warning: "Saved in temporary storage only" }));
+        return res.status(200).send(JSON.stringify({ ok: true, warning: "Saved in temporary storage only", storage: "tmp" }));
       } catch (tmpError) {
         return res.status(500).send(JSON.stringify({ error: "Failed to save CMS content" }));
       }
