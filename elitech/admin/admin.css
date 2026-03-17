@@ -24,7 +24,8 @@ body {
   background: #080b12 url('/elitech/wp-content/uploads/2025/11/hero-image-gold.jpg') no-repeat center center fixed;
   background-size: cover;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Base mesh gradient background */
@@ -513,7 +514,6 @@ body::after {
   height: 100vh;
   position: relative;
   z-index: 1;
-  overflow: hidden;
 }
 
 .admin-sidebar {
@@ -577,8 +577,8 @@ body::after {
   padding: 26px;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .admin-header {
