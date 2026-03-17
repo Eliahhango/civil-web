@@ -580,30 +580,64 @@
 
   function replacementRow(item, index) {
     var wrapper = document.createElement("div");
-    wrapper.className = "row-box";
+    wrapper.className = "engine-node replacement-node";
 
-    wrapper.appendChild(createLabelWithInput("Find", "find", item.from));
-    wrapper.appendChild(createLabelWithInput("Replace With", "replace", item.to));
-    wrapper.appendChild(createLabelWithBooleanSelect("Whole Word", "whole", item.wholeWord));
-    wrapper.appendChild(createLabelWithBooleanSelect("Case Sensitive", "case", item.caseSensitive));
-    wrapper.appendChild(createRemoveButton(index, "replacement"));
+    var mainRow = document.createElement("div");
+    mainRow.className = "node-main";
+    mainRow.appendChild(createLabelWithInput("Find String", "find", item.from));
+    
+    var arrow = document.createElement("div");
+    arrow.className = "node-arrow";
+    arrow.innerHTML = "<i class='fas fa-arrow-right'></i>";
+    mainRow.appendChild(arrow);
+    
+    mainRow.appendChild(createLabelWithInput("Replace With", "replace", item.to));
+
+    var footRow = document.createElement("div");
+    footRow.className = "node-foot";
+    footRow.appendChild(createLabelWithBooleanSelect("Whole Word", "whole", item.wholeWord));
+    footRow.appendChild(createLabelWithBooleanSelect("Case Sensitive", "case", item.caseSensitive));
+
+    var rmv = createRemoveButton(index, "replacement");
+    rmv.className = "btn-default btn-outline btn-sm remove-btn node-rmv";
+    rmv.innerHTML = "<i class='fas fa-trash'></i> Remove";
+    footRow.appendChild(rmv);
+
+    wrapper.appendChild(mainRow);
+    wrapper.appendChild(footRow);
 
     return wrapper;
   }
 
   function ruleRow(item, index) {
-      var wrapper = document.createElement("div");
-      wrapper.className = "row-box rule";
-      var joinedPaths = Array.isArray(item.paths) ? item.paths.join(", ") : "";
+    var wrapper = document.createElement("div");
+    wrapper.className = "engine-node rule-node";
+    var joinedPaths = Array.isArray(item.paths) ? item.paths.join(", ") : "";
 
-      wrapper.appendChild(createLabelWithInput("Paths", "paths", joinedPaths, "/elitech/, /elitech/home-version-2/"));
-      wrapper.appendChild(createLabelWithInput("Selector", "selector", item.selector || "", ".class-name h1"));
-      wrapper.appendChild(createLabelWithActionSelect(item.action || "text"));
-      wrapper.appendChild(createLabelWithInput("Value", "value", item.value || ""));
-      wrapper.appendChild(createRemoveButton(index, "rule"));
+    var mainRow = document.createElement("div");
+    mainRow.className = "node-main-rules";
+    mainRow.appendChild(createLabelWithInput("Target Routes", "paths", joinedPaths, "/elitech/*, /elitech/home-version-2/"));
+    mainRow.appendChild(createLabelWithInput("CSS Selector", "selector", item.selector || "", ".class-name h1"));
+    mainRow.appendChild(createLabelWithActionSelect(item.action || "text"));
+    mainRow.appendChild(createLabelWithInput("New Value", "value", item.value || ""));
 
-      return wrapper;
-    }
+    var footRow = document.createElement("div");
+    footRow.className = "node-foot";
+    var info = document.createElement("span");
+    info.className = "node-hint";
+    info.textContent = "Specify the DOM target and paths to apply this rule dynamically.";
+    footRow.appendChild(info);
+
+    var rmv = createRemoveButton(index, "rule");
+    rmv.className = "btn-default btn-outline btn-sm remove-btn node-rmv";
+    rmv.innerHTML = "<i class='fas fa-trash'></i> Remove Rule";
+    footRow.appendChild(rmv);
+
+    wrapper.appendChild(mainRow);
+    wrapper.appendChild(footRow);
+
+    return wrapper;
+  }
 
   function collectionRow(item, index, type) {
     var tr = document.createElement("tr");
@@ -848,7 +882,7 @@
   }
 
   function readReplacements() {
-    var rows = document.querySelectorAll("#replacements-list .row-box");
+    var rows = document.querySelectorAll("#replacements-list .replacement-node");
     state.globalReplacements = Array.from(rows).map(function (row) {
       return {
         from: row.querySelector('[data-kind="find"]').value,
@@ -860,7 +894,7 @@
   }
 
   function readRules() {
-    var rows = document.querySelectorAll("#rules-list .row-box.rule");
+    var rows = document.querySelectorAll("#rules-list .rule-node");
     state.rules = Array.from(rows).map(function (row) {
       var rawPaths = row.querySelector('[data-kind="paths"]').value;
       var paths = rawPaths.split(",").map(function (p) {

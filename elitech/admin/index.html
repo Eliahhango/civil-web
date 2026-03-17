@@ -312,15 +312,16 @@
       <section id="tab-replacements" class="tab-panel">
         <div class="panel-head">
           <h3>Global Text Replacements</h3>
-          <button id="add-replacement" class="btn-default">Add</button>
+          <button id="add-replacement" class="btn-default"><i class="fas fa-plus"></i> Add Rule</button>
         </div>
+        <p class="hint">Define string sequences to be automatically found and replaced on runtime globally across all site pages.</p>
         <div id="replacements-list" class="list-wrap"></div>
       </section>
 
       <section id="tab-rules" class="tab-panel">
         <div class="panel-head">
           <h3>Custom Page Rules</h3>
-          <button id="add-rule" class="btn-default">Add</button>
+          <button id="add-rule" class="btn-default"><i class="fas fa-plus"></i> Add Path Route</button>
         </div>
         <p class="hint">Use for all site content. Path examples: <code>/elitech/</code>, <code>/elitech/home-version-2/</code>, <code>/elitech/*</code>.</p>
         <div id="rules-list" class="list-wrap"></div>
@@ -368,11 +369,24 @@
       </section>
 
       <section id="tab-json" class="tab-panel">
-        <label>Full JSON<textarea id="raw-json" rows="16"></textarea></label>
-        <div class="panel-actions">
-          <button id="btn-load-json" class="btn-default">Load JSON Into Form</button>
-          <button id="btn-export" class="btn-default">Download content.json</button>
-          <label class="file-btn btn-outline">Import JSON<input id="file-import" type="file" accept="application/json"></label>
+        <div class="panel-head">
+          <h3>Advanced System State</h3>
+          <div class="header-actions">
+            <button id="btn-load-json" class="btn-default btn-outline" style="padding: 6px 12px; font-size: 0.8rem;"><i class="fas fa-sync"></i> Re-Hydrate Form</button>
+            <button id="btn-export" class="btn-default btn-outline" style="padding: 6px 12px; font-size: 0.8rem;"><i class="fas fa-download"></i> Download Export</button>
+            <label class="btn-default" style="margin: 0; padding: 6px 12px; font-size: 0.8rem; cursor: pointer;">
+              <i class="fas fa-upload"></i> Import Configuration
+              <input id="file-import" type="file" accept="application/json" style="display: none;">
+            </label>
+          </div>
+        </div>
+        
+        <div class="code-editor-wrap">
+          <div class="code-editor-header">
+            <div class="mac-dots"><span></span><span></span><span></span></div>
+            <div class="code-title">content.json — Read-Only Mode (Auto-Synced)</div>
+          </div>
+          <textarea id="raw-json" rows="24" class="code-textarea" spellcheck="false"></textarea>
         </div>
       </section>
 
