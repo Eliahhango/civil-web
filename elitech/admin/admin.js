@@ -423,12 +423,36 @@
     if ($("kpi-blogs-count") && state.blogs) {
       $("kpi-blogs-count").textContent = state.blogs.length;
     }
-    if ($("kpi-seo-warnings")) {
+    if ($("kpi-media-count") && state.media) {
+      $("kpi-media-count").textContent = state.media.length;
+    }
+    if ($("kpi-rules-count")) {
+      var activeRules = (state.rules || []).length + (state.globalReplacements || []).length;
+      $("kpi-rules-count").textContent = activeRules;
+    }
+    
+    if ($("kpi-seo-warnings-badge")) {
       var warnings = 0;
       if (!state.seo.title || state.seo.title.length > 60) warnings++;
       if (!state.seo.description || state.seo.description.length > 160) warnings++;
-      $("kpi-seo-warnings").textContent = warnings;
-      $("kpi-seo-warnings").style.color = warnings > 0 ? "var(--admin-warning)" : "var(--admin-success)";
+      $("kpi-seo-warnings-badge").textContent = warnings + (warnings === 1 ? " Warning" : " Warnings");
+      $("kpi-seo-warnings-badge").className = "badge " + (warnings > 0 ? "warn" : "ok");
+      
+      if ($("kpi-seo-bar")) {
+        $("kpi-seo-bar").style.width = (warnings > 0 ? (warnings * 20) : 100) + "%";
+        $("kpi-seo-bar").className = "fill " + (warnings > 0 ? "warn" : "ok");
+      }
+    }
+    
+    if ($("kpi-payload-size")) {
+      var sizeBytes = new Blob([JSON.stringify(state)]).size;
+      var sizeKB = (sizeBytes / 1024).toFixed(1);
+      $("kpi-payload-size").textContent = sizeKB + " KB";
+      
+      if ($("kpi-payload-bar")) {
+        var percentage = Math.min((sizeBytes / (500 * 1024)) * 100, 100); 
+        $("kpi-payload-bar").style.width = Math.max(percentage, 2) + "%";
+      }
     }
   }
 

@@ -171,6 +171,11 @@
       </section>
 
       <section id="tab-dashboard" class="tab-panel active">
+        <div class="dash-welcome">
+          <h2>Overview Protocol</h2>
+          <p>EliTechWiz Operations Control Center is online and synchronized.</p>
+        </div>
+
         <div class="kpi-grid">
           <div class="kpi-card">
             <div class="kpi-icon"><i class="fas fa-hard-hat"></i></div>
@@ -180,45 +185,70 @@
             </div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon"><i class="fas fa-file-alt"></i></div>
+            <div class="kpi-icon" style="background:rgba(59,130,246,0.15); color:#3b82f6;"><i class="fas fa-file-alt"></i></div>
             <div class="kpi-content">
               <h3>Total Blogs</h3>
               <strong id="kpi-blogs-count">0</strong>
             </div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="kpi-icon" style="background:rgba(168,85,247,0.15); color:#a855f7;"><i class="fas fa-photo-video"></i></div>
             <div class="kpi-content">
-              <h3>SEO Warnings</h3>
-              <strong id="kpi-seo-warnings">0</strong>
+              <h3>Media Assets</h3>
+              <strong id="kpi-media-count">0</strong>
             </div>
           </div>
           <div class="kpi-card">
-            <div class="kpi-icon ok"><i class="fas fa-check-circle"></i></div>
+            <div class="kpi-icon" style="background:rgba(236,72,153,0.15); color:#ec4899;"><i class="fas fa-cogs"></i></div>
             <div class="kpi-content">
-              <h3>System Status</h3>
-              <strong>Healthy</strong>
+              <h3>Active Rules</h3>
+              <strong id="kpi-rules-count">0</strong>
             </div>
           </div>
         </div>
 
-        <div class="dashboard-activity">
-          <div class="panel-head">
-            <h3>Recent Content Activity</h3>
-          </div>
-          <div class="activity-timeline">
-            <div class="activity-item">
-              <div class="activity-dot"></div>
-              <div class="activity-content">
-                <p><strong>System</strong> initialized admin dashboard shell.</p>
-                <span>Just now</span>
+        <div class="dash-split">
+          <div class="dash-left">
+            <div class="dashboard-activity dash-widget">
+              <div class="panel-head">
+                <h3>Recent System Activity</h3>
+              </div>
+              <div class="activity-timeline" id="dash-timeline">
+                <!-- Injected via renderDashboardLogs -->
               </div>
             </div>
-            <div class="activity-item">
-              <div class="activity-dot"></div>
-              <div class="activity-content">
-                <p><strong>Admin</strong> applied shared theme preloader across all routes.</p>
-                <span>Today</span>
+          </div>
+
+          <div class="dash-right">
+            <div class="dash-widget">
+              <div class="panel-head">
+                <h3>System Health & Resources</h3>
+              </div>
+              <div class="health-metrics">
+                <div class="metric">
+                  <div class="metric-label"><span>Firebase REST API</span> <span class="badge ok">Online</span></div>
+                  <div class="metric-bar"><div class="fill ok" style="width:100%"></div></div>
+                </div>
+                <div class="metric">
+                  <div class="metric-label"><span>SEO Integrity</span> <span class="badge warn" id="kpi-seo-warnings-badge">0 Warnings</span></div>
+                  <div class="metric-bar"><div class="fill warn" id="kpi-seo-bar" style="width:0%"></div></div>
+                </div>
+                <div class="metric">
+                  <div class="metric-label"><span>JSON Payload Size</span> <span class="badge blue" id="kpi-payload-size">0 KB</span></div>
+                  <div class="metric-bar"><div class="fill blue" id="kpi-payload-bar" style="width:5%"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dash-widget">
+              <div class="panel-head">
+                <h3>Quick Operations</h3>
+              </div>
+              <div class="quick-actions-grid">
+                <button class="qa-btn" type="button" onclick="document.querySelector('[data-tab=\\'projects\\']').click(); setTimeout(()=>document.getElementById('add-project').click(), 100);"><i class="fas fa-hard-hat"></i> New Project</button>
+                <button class="qa-btn" type="button" onclick="document.querySelector('[data-tab=\\'blogs\\']').click(); setTimeout(()=>document.getElementById('add-blog').click(), 100);"><i class="fas fa-pen-nib"></i> Publish Article</button>
+                <button class="qa-btn" type="button" onclick="document.querySelector('[data-tab=\\'media\\']').click()"><i class="fas fa-cloud-upload-alt"></i> Upload Media</button>
+                <button class="qa-btn" type="button" onclick="document.querySelector('[data-tab=\\'logs\\']').click()"><i class="fas fa-laptop-code"></i> Live Audit Console</button>
               </div>
             </div>
           </div>
