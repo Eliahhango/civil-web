@@ -185,7 +185,10 @@
       site: {},
       seo: {},
       globalReplacements: [],
-      rules: []
+      rules: [],
+      blogs: [],
+      projects: [],
+      services: []
     };
 
     if (value.site && typeof value.site === "object" && !Array.isArray(value.site)) {
@@ -235,6 +238,24 @@
         return item.selector;
       });
     }
+
+    var parseCollection = function(arr) {
+      if (!Array.isArray(arr)) return [];
+      return arr.slice(0, 300).map(function(item) {
+        return {
+          title: toSafeString(item && item.title, 256),
+          category: toSafeString(item && item.category, 128),
+          image: toSafeString(item && item.image, 1024),
+          url: toSafeString(item && item.url, 1024),
+          excerpt: toSafeString(item && item.excerpt, 2048),
+          date: toSafeString(item && item.date, 64)
+        };
+      }).filter(function(item) { return item.title; });
+    };
+
+    next.blogs = parseCollection(value.blogs);
+    next.projects = parseCollection(value.projects);
+    next.services = parseCollection(value.services);
 
     return next;
   }
@@ -378,15 +399,39 @@
   }
 
   function ruleRow(item, index) {
-    var wrapper = document.createElement("div");
-    wrapper.className = "row-box rule";
-    var joinedPaths = Array.isArray(item.paths) ? item.paths.join(", ") : "";
+      var wrapper = document.createElement("div");
+      wrapper.className = "row-box rule";
+      var joinedPaths = Array.isArray(item.paths) ? item.paths.join(", ") : "";
 
-    wrapper.appendChild(createLabelWithInput("Paths", "paths", joinedPaths, "/elitech/, /elitech/home-version-2/"));
-    wrapper.appendChild(createLabelWithInput("Selector", "selector", item.selector || "", ".class-name h1"));
-    wrapper.appendChild(createLabelWithActionSelect(item.action || "text"));
-    wrapper.appendChild(createLabelWithInput("Value", "value", item.value || ""));
-    wrapper.appendChild(createRemoveButton(index, "rule"));
+      wrapper.appendChild(createLabelWithInput("Paths", "paths", joinedPaths, "/elitech/, /elitech/home-version-2/"));
+      wrapper.appendChild(createLabelWithInput("Selector", "selector", item.selector || "", ".class-name h1"));
+      wrapper.appendChild(createLabelWithActionSelect(item.action || "text"));
+      wrapper.appendChild(createLabelWithInput("Value", "value", item.value || ""));
+      wrapper.appendChild(createRemoveButton(index, "rule"));
+
+      return wrapper;
+    }
+
+  function collectionRow(item, index, type) {
+    var wrapper = document.createElement("div");
+    wrapper.className = "row-box " + type;
+
+    wrapper.appendChild(createLabelWithInput("Title", "title", item.title));
+    wrapper.appendChild(createLabelWithInput("Category", "category", item.category));
+    wrapper.appendChild(createLabelWithInput("Image URL", "image", item.image));
+    wrapper.appendChild(createLabelWithInput("Link URL", "url", item.url));
+    wrapper.appendChild(createLabelWithInput("Date", "date", item.date));
+    
+    var excerptLabel = document.createElement("label");
+    excerptLabel.appendChild(document.createTextNode("Excerpt/Content"));
+    var excerptInput = document.createElement("textarea");
+    excerptInput.setAttribute("data-kind", "excerpt");
+    excerptInput.rows = 2;
+    excerptInput.value = item.excerpt || "";
+    excerptLabel.appendChild(excerptInput);
+    wrapper.appendChild(excerptLabel);
+
+    wrapper.appendChild(createRemoveButton(index, type));
 
     return wrapper;
   }
@@ -406,6 +451,18 @@
 
     (state.rules || []).forEach(function (item, index) {
       list.appendChild(ruleRow(item, index));
+    });
+  }
+
+  function renderCollection(type) {
+    var listName = type + "s-list";
+    var stateName = type + "s";
+    var list = $(listName);
+    if (!list) return;
+    list.replaceChildren();
+
+    (state[stateName] || []).forEach(function (item, index) {
+      list.appendChild(collectionRow(item, index, type));
     });
   }
 
@@ -445,10 +502,29 @@
     });
   }
 
+  function readCollection(type) {
+    var rows = document.querySelectorAll("#" + type + "s-list .row-box." + type);
+    state[type + "s"] = Array.from(rows).map(function (row) {
+      return {
+        title: row.querySelector('[data-kind="title"]').value.trim(),
+        category: row.querySelector('[data-kind="category"]').value.trim(),
+        image: row.querySelector('[data-kind="image"]').value.trim(),
+        url: row.querySelector('[data-kind="url"]').value.trim(),
+        date: row.querySelector('[data-kind="date"]').value.trim(),
+        excerpt: row.querySelector('[data-kind="excerpt"]').value.trim()
+      };
+    }).filter(function (item) {
+      return item.title;
+    });
+  }
+
   function readFormIntoState() {
     readBasics();
     readReplacements();
     readRules();
+    readCollection("blog");
+    readCollection("project");
+    readCollection("service");
   }
 
   function syncRawJson() {
@@ -533,6 +609,23 @@
       syncRawJson();
     });
 
+    var bindAddCollection = function(type) {
+      var btn = $("add-" + type);
+      if (!btn) return;
+      btn.addEventListener("click", function () {
+        readFormIntoState();
+        var arr = state[type + "s"] || [];
+        arr.push({ title: "", category: "", image: "", url: "", date: "", excerpt: "" });
+        state[type + "s"] = arr;
+        renderCollection(type);
+        syncRawJson();
+      });
+    };
+
+    bindAddCollection("blog");
+    bindAddCollection("project");
+    bindAddCollection("service");
+
     document.body.addEventListener("click", function (event) {
       var target = event.target;
       if (!target.classList.contains("remove-btn")) {
@@ -548,6 +641,12 @@
       } else if (type === "rule") {
         state.rules.splice(index, 1);
         renderRules();
+      } else if (type === "blog" || type === "project" || type === "service") {
+        var stateName = type + "s";
+        if (state[stateName]) {
+          state[stateName].splice(index, 1);
+          renderCollection(type);
+        }
       }
 
       syncRawJson();
@@ -559,6 +658,9 @@
         renderBasics();
         renderReplacements();
         renderRules();
+        renderCollection("blog");
+        renderCollection("project");
+        renderCollection("service");
         syncRawJson();
         setStatus("Raw JSON loaded into form.", false);
       } catch (_error) {
@@ -590,6 +692,9 @@
           renderBasics();
           renderReplacements();
           renderRules();
+          renderCollection("blog");
+          renderCollection("project");
+          renderCollection("service");
           syncRawJson();
           setStatus("JSON imported.", false);
         } catch (_error) {
@@ -645,14 +750,20 @@
       renderBasics();
       renderReplacements();
       renderRules();
+      renderCollection("blog");
+      renderCollection("project");
+      renderCollection("service");
       syncRawJson();
       dashboardInitialized = true;
       setStatus("Loaded configuration.", false);
     }).catch(function () {
-      state = { site: {}, seo: {}, globalReplacements: [], rules: [] };
+      state = { site: {}, seo: {}, globalReplacements: [], rules: [], blogs: [], projects: [], services: [] };
       renderBasics();
       renderReplacements();
       renderRules();
+      renderCollection("blog");
+      renderCollection("project");
+      renderCollection("service");
       syncRawJson();
       dashboardInitialized = true;
       setStatus("Could not load CMS data from API or static file. You can still build config here.", true);

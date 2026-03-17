@@ -22,9 +22,9 @@
         <span>EliTechWiz Civil Portal</span>
       </a>
       <nav class="login-topbar-nav" aria-label="Quick links">
-        <a href="/elitech/projects/" target="_blank" rel="noopener">Projects</a>
-        <a href="/elitech/services/" target="_blank" rel="noopener">Services</a>
-        <a href="/elitech/contact-us/" target="_blank" rel="noopener">Contact</a>
+        <a href="support.html" rel="noopener">Support</a>
+        <a href="system-status.html" rel="noopener">System Status</a>
+        <a href="documentation.html" rel="noopener">Documentation</a>
       </nav>
     </header>
 
@@ -38,20 +38,6 @@
           <span class="brand-pill">Infrastructure Focus</span>
           <span class="brand-pill">Project-First Workflow</span>
           <span class="brand-pill">Responsive Dashboard</span>
-        </div>
-
-        <figure class="civil-hero-visual">
-          <img src="/elitech/wp-content/uploads/2025/11/project-image-4-1024x683.jpg" alt="Aerial view of a modern civil engineering development project">
-          <figcaption>Operations Overview: Delivery clarity from concept to construction.</figcaption>
-        </figure>
-
-        <div class="civil-visual-grid">
-          <figure class="civil-thumb">
-            <img src="/elitech/wp-content/uploads/2025/11/service-image-8-1024x683.jpg" alt="Engineers collaborating on structural planning">
-          </figure>
-          <figure class="civil-thumb">
-            <img src="/elitech/wp-content/uploads/2025/11/gallery-7-1024x683.jpg" alt="Contemporary industrial hub and roadway network">
-          </figure>
         </div>
 
         <div class="brand-metrics">
@@ -108,11 +94,11 @@
     </div>
 
     <footer class="login-site-footer" aria-label="Admin login footer">
-      <p>© 2026 EliTechWiz Civil Engineering. Built for precision, safety, and delivery excellence.</p>
+      <p>© 2026 EliTechWiz Internal Dashboard. Built for precision, safety, and delivery excellence.</p>
       <div class="login-footer-links">
-        <a href="/elitech/about-us/" target="_blank" rel="noopener">About</a>
-        <a href="/elitech/video-gallery/" target="_blank" rel="noopener">Media</a>
-        <a href="/elitech/faqs/" target="_blank" rel="noopener">FAQs</a>
+        <a href="privacy-policy.html" rel="noopener">Privacy Policy</a>
+        <a href="terms.html" rel="noopener">Terms of Service</a>
+        <a href="admin-rules.html" rel="noopener">Admin Rules</a>
       </div>
     </footer>
   </section>
@@ -128,6 +114,9 @@
         <button class="nav-btn" data-tab="seo">SEO & Share</button>
         <button class="nav-btn" data-tab="replacements">Text Replacements</button>
         <button class="nav-btn" data-tab="rules">Custom Rules</button>
+        <button class="nav-btn" data-tab="blogs">Blogs</button>
+        <button class="nav-btn" data-tab="projects">Projects</button>
+        <button class="nav-btn" data-tab="services">Services</button>
         <button class="nav-btn" data-tab="json">Raw JSON</button>
       </nav>
       <div class="admin-sidebar-footer">
@@ -187,6 +176,30 @@
         </div>
         <p class="hint">Use for all site content. Path examples: <code>/elitech/</code>, <code>/elitech/home-version-2/</code>, <code>/elitech/*</code>.</p>
         <div id="rules-list" class="list-wrap"></div>
+      </section>
+
+      <section id="tab-blogs" class="tab-panel">
+        <div class="panel-head">
+          <h3>Manage Blogs</h3>
+          <button id="add-blog" class="btn-default">Add Blog</button>
+        </div>
+        <div id="blogs-list" class="list-wrap"></div>
+      </section>
+
+      <section id="tab-projects" class="tab-panel">
+        <div class="panel-head">
+          <h3>Manage Projects</h3>
+          <button id="add-project" class="btn-default">Add Project</button>
+        </div>
+        <div id="projects-list" class="list-wrap"></div>
+      </section>
+
+      <section id="tab-services" class="tab-panel">
+        <div class="panel-head">
+          <h3>Manage Services</h3>
+          <button id="add-service" class="btn-default">Add Service</button>
+        </div>
+        <div id="services-list" class="list-wrap"></div>
       </section>
 
       <section id="tab-json" class="tab-panel">
