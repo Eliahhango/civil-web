@@ -428,6 +428,13 @@
   function renderBasics() {
     $("site-name").value = state.site && state.site.name || "";
     $("site-tagline").value = state.site && state.site.tagline || "";
+    $("site-logo").value = state.site && state.site.logo || "";
+    $("site-phone").value = state.site && state.site.phone || "";
+    $("site-email").value = state.site && state.site.email || "";
+    $("site-address").value = state.site && state.site.address || "";
+    $("site-social-linkedin").value = state.site && state.site.socialLinkedin || "";
+    $("site-social-twitter").value = state.site && state.site.socialTwitter || "";
+    $("site-social-facebook").value = state.site && state.site.socialFacebook || "";
 
     $("seo-title").value = state.seo && state.seo.title || "";
     $("seo-description").value = state.seo && state.seo.description || "";
@@ -491,6 +498,13 @@
 
     state.site.name = $("site-name").value.trim();
     state.site.tagline = $("site-tagline").value.trim();
+    state.site.logo = $("site-logo").value.trim();
+    state.site.phone = $("site-phone").value.trim();
+    state.site.email = $("site-email").value.trim();
+    state.site.address = $("site-address").value.trim();
+    state.site.socialLinkedin = $("site-social-linkedin").value.trim();
+    state.site.socialTwitter = $("site-social-twitter").value.trim();
+    state.site.socialFacebook = $("site-social-facebook").value.trim();
 
     state.seo.title = $("seo-title").value.trim();
     state.seo.description = $("seo-description").value.trim();
