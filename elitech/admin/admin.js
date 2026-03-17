@@ -653,66 +653,80 @@
     return wrapper;
   }
 
-  function collectionRow(item, index, type) {
-    var tr = document.createElement("tr");
-    tr.className = "row-box " + type; // keeeping class for compatibility
+  function collectionCard(item, index, type) {
+    var card = document.createElement("div");
+    card.className = "collection-card " + type; 
 
-    var tdTitle = document.createElement("td");
-    tdTitle.innerHTML = "<strong>" + (item.title || "(Untitled)") + "</strong>";
+    var imgWrap = document.createElement("div");
+    imgWrap.className = "collection-card-img";
+    if (item.image) {
+      imgWrap.innerHTML = "<img src='" + toSafeString(item.image) + "' alt=''><span class='card-badge'>" + (item.category || "Uncategorized") + "</span>";
+    } else {
+      imgWrap.innerHTML = "<div style='width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#e5e7eb;color:#9ca3af;'><i class='fas fa-image' style='font-size:2rem;'></i></div><span class='card-badge'>" + (item.category || "Uncategorized") + "</span>";
+    }
 
-    var tdCat = document.createElement("td");
-    tdCat.innerHTML = "<span class='badge'>" + (item.category || "Uncategorized") + "</span>";
+    var bodyWrap = document.createElement("div");
+    bodyWrap.className = "collection-card-body";
 
-    var tdDate = document.createElement("td");
-    tdDate.textContent = item.date || "-";
+    var titleEl = document.createElement("h4");
+    titleEl.className = "collection-card-title";
+    titleEl.textContent = item.title || "(Untitled)";
 
-    var tdActions = document.createElement("td");
-    tdActions.style.textAlign = "right";
+    var excerptEl = document.createElement("p");
+    excerptEl.className = "collection-card-excerpt";
+    excerptEl.textContent = item.excerpt || "No excerpt provided.";
+
+    var metaWrap = document.createElement("div");
+    metaWrap.className = "collection-card-meta";
+    metaWrap.innerHTML = "<span><i class='far fa-calendar-alt'></i> " + (item.date || "-") + "</span>";
+
+    bodyWrap.appendChild(titleEl);
+    bodyWrap.appendChild(excerptEl);
+    bodyWrap.appendChild(metaWrap);
+
+    var actionsWrap = document.createElement("div");
+    actionsWrap.className = "collection-card-actions";
 
     var editBtn = document.createElement("button");
-    editBtn.className = "btn-default btn-outline btn-sm";
     editBtn.innerHTML = "<i class='fas fa-edit'></i> Edit";
-    editBtn.style.marginRight = "8px";
     editBtn.type = "button";
     editBtn.addEventListener("click", function() {
       openEditorModal(type, index);
     });
 
     var removeBtn = createRemoveButton(index, type);
-    removeBtn.className = "btn-default btn-outline btn-sm remove-btn";
+    removeBtn.innerHTML = "<i class='fas fa-trash-alt'></i> Delete";
+    removeBtn.className = "remove-btn btn-danger-action";
 
-    tdActions.appendChild(editBtn);
-    tdActions.appendChild(removeBtn);
+    actionsWrap.appendChild(editBtn);
+    actionsWrap.appendChild(removeBtn);
 
-    tr.appendChild(tdTitle);
-    tr.appendChild(tdCat);
-    tr.appendChild(tdDate);
-    tr.appendChild(tdActions);
-
-    // Hidden inputs to maintain legacy 'readCollection' reading logic
+    // Hidden inputs
     var hiddenDiv = document.createElement("div");
     hiddenDiv.style.display = "none";
-    
+
     function addHidden(kind, val) {
        var inp = document.createElement("input");
        inp.setAttribute("data-kind", kind);
        inp.value = val || "";
        hiddenDiv.appendChild(inp);
     }
-    
     addHidden("title", item.title);
     addHidden("category", item.category);
     addHidden("image", item.image);
     addHidden("url", item.url);
     addHidden("date", item.date);
-    
+
     var txt = document.createElement("textarea");
     txt.setAttribute("data-kind", "excerpt");
     txt.value = item.excerpt || "";
     hiddenDiv.appendChild(txt);
 
-    tr.appendChild(hiddenDiv);
-    return tr;
+    card.appendChild(imgWrap);
+    card.appendChild(bodyWrap);
+    card.appendChild(actionsWrap);
+    card.appendChild(hiddenDiv);
+    return card;
   }
 
   var currentModalType = null;
@@ -786,25 +800,14 @@
     if (!list) return;
     list.replaceChildren();
 
-    var tableWrapper = document.createElement("div");
-    tableWrapper.className = "data-table-container";
-
-    var table = document.createElement("table");
-    table.className = "data-table";
-
-    var thead = document.createElement("thead");
-    thead.innerHTML = "<tr><th>Title</th><th>Category</th><th>Date</th><th style='text-align:right'>Actions</th></tr>";
-    table.appendChild(thead);
-
-    var tbody = document.createElement("tbody");
+    var grid = document.createElement("div");
+    grid.className = "collection-grid";
 
     (state[stateName] || []).forEach(function (item, index) {
-      tbody.appendChild(collectionRow(item, index, type));
+      grid.appendChild(collectionCard(item, index, type));
     });
 
-    table.appendChild(tbody);
-    tableWrapper.appendChild(table);
-    list.appendChild(tableWrapper);
+    list.appendChild(grid);
   }
 
   function renderMedia(searchQuery) {
@@ -932,7 +935,7 @@
   }
 
   function readCollection(type) {
-    var rows = document.querySelectorAll("#" + type + "s-list .row-box." + type);
+    var rows = document.querySelectorAll("#" + type + "s-list .collection-card." + type);
     state[type + "s"] = Array.from(rows).map(function (row) {
       return {
         title: row.querySelector('[data-kind="title"]').value.trim(),
