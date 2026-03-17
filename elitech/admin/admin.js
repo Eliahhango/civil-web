@@ -109,6 +109,23 @@
     });
   }
 
+  function hideAdminPreloader() {
+    var preloader = $("admin-preloader");
+    if (!preloader) {
+      document.body.classList.remove("admin-loading");
+      return;
+    }
+
+    preloader.classList.add("is-hidden");
+    document.body.classList.remove("admin-loading");
+
+    setTimeout(function () {
+      if (preloader && preloader.parentNode) {
+        preloader.parentNode.removeChild(preloader);
+      }
+    }, 460);
+  }
+
   function showLoginView() {
     var loginView = $("login-view");
     var dashboardView = $("dashboard-view");
@@ -781,6 +798,10 @@
     showLoginView();
     setAuthState(false);
     setStatus("Please sign in with Firebase to access the dashboard.", false);
+
+    setTimeout(hideAdminPreloader, 2000);
+
+    window.addEventListener("load", hideAdminPreloader, { once: true });
 
     window.CMSAdmin = {
       setStatus: setStatus,

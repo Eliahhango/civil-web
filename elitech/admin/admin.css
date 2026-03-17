@@ -28,6 +28,52 @@ body {
   overflow-x: hidden;
 }
 
+body.admin-loading {
+  overflow: hidden;
+}
+
+.admin-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 420ms ease, visibility 420ms ease;
+}
+
+.admin-preloader.is-hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.admin-preloader__ring {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid rgba(17, 24, 39, 0.15);
+  border-top-color: #fed403;
+  animation: adminSpin 0.9s linear infinite;
+}
+
+.admin-preloader__logo {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+}
+
+.admin-preloader__text {
+  margin: 0;
+  color: #111827;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
 /* Base mesh gradient background */
 body::before {
   content: "";
@@ -55,6 +101,11 @@ body::after {
 @keyframes bgZoom {
   0% { transform: scale(1); }
   100% { transform: scale(1.1); }
+}
+
+@keyframes adminSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .hidden {
