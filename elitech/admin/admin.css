@@ -2135,3 +2135,126 @@ code {
   transform: translateY(-2px);
 }
 
+/* Dashboard Layout Upgrades */
+.dash-welcome {
+  margin-bottom: 24px;
+}
+
+.dash-welcome h2 {
+  font-size: 1.5rem;
+  color: #111827;
+  margin: 0 0 6px 0;
+  font-weight: 700;
+}
+
+.dash-welcome p {
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.dash-split {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+@media(max-width: 1024px) {
+  .dash-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dash-widget {
+  background: var(--admin-white);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  padding: 20px;
+  box-shadow: var(--admin-shadow-sm);
+  margin-bottom: 24px;
+}
+
+.health-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.metric-bar {
+  height: 6px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.metric-bar .fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.metric-bar .fill.ok { background: #22c55e; }
+.metric-bar .fill.warn { background: #f59e0b; }
+.metric-bar .fill.blue { background: #3b82f6; }
+
+.badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: rgba(0,0,0,0.05);
+}
+.badge.ok { background: rgba(34, 197, 94, 0.1); color: #16a34a; }
+.badge.warn { background: rgba(245, 158, 11, 0.1); color: #d97706; }
+.badge.blue { background: rgba(59, 130, 246, 0.1); color: #2563eb; }
+
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.qa-btn {
+  background: #f9fafb;
+  border: 1px solid var(--admin-border);
+  color: #374151;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.qa-btn i {
+  font-size: 1.25rem;
+  color: var(--admin-accent);
+}
+
+.qa-btn:hover {
+  background: #fff;
+  border-color: rgba(254, 212, 3, 0.6);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+  transform: translateY(-2px);
+}
