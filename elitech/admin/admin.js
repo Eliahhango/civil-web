@@ -249,9 +249,11 @@
       seo: {},
       globalReplacements: [],
       rules: [],
+      media: [],
       blogs: [],
       projects: [],
-      services: []
+      services: [],
+      sysLogs: Array.isArray(value.sysLogs) ? value.sysLogs.slice(0, 100) : []
     };
 
     if (value.site && typeof value.site === "object" && !Array.isArray(value.site)) {
@@ -316,6 +318,20 @@
       }).filter(function(item) { return item.title; });
     };
 
+    var parseMedia = function(arr) {
+      if (!Array.isArray(arr)) return [];
+      return arr.slice(0, 500).map(function(item) {
+        return {
+          id: toSafeString(item && item.id, 64),
+          url: toSafeString(item && item.url, 1024),
+          name: toSafeString(item && item.name, 256),
+          size: toSafeString(item && item.size, 64),
+          date: toSafeString(item && item.date, 64)
+        };
+      }).filter(function(item) { return item.url; });
+    };
+
+    next.media = parseMedia(value.media);
     next.blogs = parseCollection(value.blogs);
     next.projects = parseCollection(value.projects);
     next.services = parseCollection(value.services);
@@ -687,6 +703,94 @@
     list.appendChild(tableWrapper);
   }
 
+  function renderMedia(searchQuery) {
+    var grid = $("media-grid");
+    if (!grid) return;
+    grid.replaceChildren();
+
+    var mediaList = state.media || [];
+    if (searchQuery) {
+      var lowerQuery = searchQuery.toLowerCase();
+      mediaList = mediaList.filter(function(m) {
+        return (m.name || "").toLowerCase().indexOf(lowerQuery) !== -1 || 
+               (m.url || "").toLowerCase().indexOf(lowerQuery) !== -1;
+      });
+    }
+
+    if (mediaList.length === 0) {
+      grid.innerHTML = '<div class="media-empty"><i class="fas fa-folder-open" style="font-size:3rem; margin-bottom:14px; opacity:0.3;"></i><p>No media files found.</p></div>';
+      return;
+    }
+
+    mediaList.forEach(function (item, index) {
+      var card = document.createElement("div");
+      card.className = "media-card";
+
+      var isImage = item.url.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) != null;
+
+      var preview = document.createElement("div");
+      preview.className = "media-preview";
+      if (isImage) {
+        preview.innerHTML = '<img src="' + toSafeString(item.url, 1024) + '" alt="' + toSafeString(item.name, 100) + '">';
+      } else {
+        preview.innerHTML = '<i class="fas fa-file-alt"></i>';
+      }
+
+      var info = document.createElement("div");
+      info.className = "media-info";
+      
+      var title = document.createElement("div");
+      title.className = "media-title";
+      title.textContent = item.name || "Untitled";
+
+      var meta = document.createElement("div");
+      meta.className = "media-meta";
+      meta.textContent = (item.date || "") + (item.size ? " · " + item.size : "");
+
+      var actions = document.createElement("div");
+      actions.className = "media-actions";
+
+      var copyBtn = document.createElement("button");
+      copyBtn.className = "btn-default btn-outline btn-sm";
+      copyBtn.textContent = "Copy URL";
+      copyBtn.style.flex = "1";
+      copyBtn.type = "button";
+      copyBtn.onclick = function() {
+        navigator.clipboard.writeText(item.url).then(function() {
+          setStatus("Copied to clipboard.", false);
+        });
+      };
+
+      var delBtn = document.createElement("button");
+      delBtn.className = "btn-default btn-outline btn-sm remove-btn";
+      delBtn.innerHTML = '<i class="fas fa-trash"></i>';
+      delBtn.type = "button";
+      delBtn.onclick = function() {
+        if (confirm("Remove this media item from references?")) {
+          // Find actual index in state.media to remove
+          var originalIndex = state.media.findIndex(function(m) { return m.id === item.id; });
+          if(originalIndex > -1) {
+            state.media.splice(originalIndex, 1);
+            renderMedia($("media-search") ? $("media-search").value : "");
+            syncRawJson();
+            logActivity("Delete Media", "Removed media file: " + item.name);
+          }
+        }
+      };
+
+      actions.appendChild(copyBtn);
+      actions.appendChild(delBtn);
+
+      info.appendChild(title);
+      info.appendChild(meta);
+      info.appendChild(actions);
+
+      card.appendChild(preview);
+      card.appendChild(info);
+      grid.appendChild(card);
+    });
+  }
+
   function readReplacements() {
     var rows = document.querySelectorAll("#replacements-list .row-box");
     state.globalReplacements = Array.from(rows).map(function (row) {
@@ -846,6 +950,7 @@
       readFormIntoState();
       state.rules.push({ paths: ["/elitech/*"], selector: "", action: "text", value: "" });
       renderRules();
+        renderMedia();
       syncRawJson();
     });
 
@@ -869,6 +974,35 @@
     bindAddCollection("project");
     bindAddCollection("service");
 
+    var mediaSearch = $("media-search");
+    if (mediaSearch) {
+      mediaSearch.addEventListener("input", function(e) {
+        renderMedia(e.target.value);
+      });
+    }
+
+    var btnUploadMedia = $("btn-upload-media");
+    if (btnUploadMedia) {
+      btnUploadMedia.addEventListener("click", function() {
+        var dummyUrl = prompt("Enter media URL (e.g. /elitech/wp-content/uploads/...):");
+        if (!dummyUrl) return;
+        var dummyName = dummyUrl.split("/").pop() || "uploaded-file.jpg";
+        
+        state.media = state.media || [];
+        state.media.unshift({
+          id: Date.now().toString(),
+          url: dummyUrl,
+          name: dummyName,
+          size: "Unknown Size",
+          date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+        });
+        renderMedia(mediaSearch ? mediaSearch.value : "");
+        syncRawJson();
+        logActivity("Upload Media", "Added new media asset: " + dummyName);
+        setStatus("Media asset added successfully.", false);
+      });
+    }
+
     document.body.addEventListener("click", function (event) {
       var target = event.target;
       if (!target.classList.contains("remove-btn")) {
@@ -885,6 +1019,7 @@
       } else if (type === "rule") {
         state.rules.splice(index, 1);
         renderRules();
+        renderMedia();
         logActivity("Remove", "Deleted a custom formatting rule.");
       } else if (type === "blog" || type === "project" || type === "service") {
         var stateName = type + "s";
@@ -904,6 +1039,7 @@
         renderBasics();
         renderReplacements();
         renderRules();
+        renderMedia();
         renderCollection("blog");
         renderCollection("project");
         renderCollection("service");
@@ -938,6 +1074,7 @@
           renderBasics();
           renderReplacements();
           renderRules();
+        renderMedia();
           renderCollection("blog");
           renderCollection("project");
           renderCollection("service");
@@ -996,6 +1133,7 @@
       renderBasics();
       renderReplacements();
       renderRules();
+        renderMedia();
       renderCollection("blog");
       renderCollection("project");
       renderCollection("service");
@@ -1009,10 +1147,11 @@
         logActivity("System Init", "Admin dashboard initialized and data mapped.");
       }
     }).catch(function () {
-      state = { site: {}, seo: {}, globalReplacements: [], rules: [], blogs: [], projects: [], services: [], sysLogs: [] };
+      state = { site: {}, seo: {}, globalReplacements: [], rules: [], media: [], blogs: [], projects: [], services: [], sysLogs: [] };
       renderBasics();
       renderReplacements();
       renderRules();
+        renderMedia();
       renderCollection("blog");
       renderCollection("project");
       renderCollection("service");

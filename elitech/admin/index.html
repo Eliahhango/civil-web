@@ -125,6 +125,9 @@
         <button class="nav-btn" data-tab="seo">
           <i class="fas fa-search"></i> SEO & Share
         </button>
+        <button class="nav-btn" data-tab="media">
+          <i class="fas fa-images"></i> Media Library
+        </button>
         <button class="nav-btn" data-tab="replacements">
           <i class="fas fa-exchange-alt"></i> Replacements
         </button>
@@ -233,7 +236,7 @@
         <div class="form-grid">
           <label>SEO Title<input id="seo-title" type="text"></label>
           <label>Meta Description<textarea id="seo-description" rows="3"></textarea></label>
-          <label>OG/Twitter Image URL<input id="seo-image" type="url"></label>
+          <label class="form-full-width">OG/Twitter Image URL<input id="seo-image" type="url"></label>
           <label>Canonical URL<input id="seo-url" type="url"></label>
           <label>Twitter Card
             <select id="seo-twitter-card">
@@ -241,6 +244,21 @@
               <option value="summary">summary</option>
             </select>
           </label>
+        </div>
+      </section>
+
+      <section id="tab-media" class="tab-panel">
+        <div class="panel-head">
+          <h3>Media Library</h3>
+          <div class="header-actions">
+            <button id="btn-upload-media" class="btn-default"><i class="fas fa-upload"></i> Upload Asset</button>
+          </div>
+        </div>
+        <div class="media-toolbar">
+          <input type="text" id="media-search" placeholder="Search media assets..." style="max-width: 300px;">
+        </div>
+        <div id="media-grid" class="media-grid">
+          <!-- Populated by JS -->
         </div>
       </section>
 
