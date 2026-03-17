@@ -33,9 +33,18 @@
         "/elitech/",
         "/elitech/home-version-2/"
       ],
-      "selector": ".elementor-widget-text-editor p",
+      "selector": ".elementor-element-b19c744 p",
       "action": "text",
-      "value": "We combine innovative design with precise engineering to create structures that are strong, functional, and built to last."
+      "value": "From site planning to structural delivery, we build civil spaces that are safe, efficient, and ready for long-term use."
+    },
+    {
+      "paths": [
+        "/elitech/",
+        "/elitech/home-version-2/"
+      ],
+      "selector": ".elementor-element-8fac3a6 p",
+      "action": "text",
+      "value": "Our team combines engineering discipline, practical construction expertise, and clear coordination to deliver reliable results on time and within budget."
     }
   ]
 }
