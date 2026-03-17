@@ -7,21 +7,6 @@
     var saveDataEnabled = !!(navigator.connection && navigator.connection.saveData);
     var allowMotionEffects = !prefersReducedMotion && !saveDataEnabled;
 
-    function hidePreloaderFast() {
-        var $preloader = $('.theme-preloader');
-        if ($preloader.length) {
-            $preloader.stop(true, true).fadeOut(120);
-        }
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', hidePreloaderFast, { once: true });
-    } else {
-        hidePreloaderFast();
-    }
-
-    window.setTimeout(hidePreloaderFast, 2000);
-
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('iframe:not([loading])').forEach(function (frame) {
             frame.setAttribute('loading', 'lazy');
@@ -818,7 +803,7 @@
 	$window.on('load', function(){
 		
 		/* Preloader Effect */
-        hidePreloaderFast();
+        $('.theme-preloader').delay(100).fadeOut(1000);
 
 		/* Image Reveal Animation */
         if (allowMotionEffects && $('.at-animation-image-style-1').length) {
