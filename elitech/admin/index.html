@@ -190,7 +190,7 @@
             <div class="kpi-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
             <div class="kpi-content">
               <h3>SEO Warnings</h3>
-              <strong>0</strong>
+              <strong id="kpi-seo-warnings">0</strong>
             </div>
           </div>
           <div class="kpi-card">
@@ -233,17 +233,64 @@
       </section>
 
       <section id="tab-seo" class="tab-panel">
-        <div class="form-grid">
-          <label>SEO Title<input id="seo-title" type="text"></label>
-          <label>Meta Description<textarea id="seo-description" rows="3"></textarea></label>
-          <label class="form-full-width">OG/Twitter Image URL<input id="seo-image" type="url"></label>
-          <label>Canonical URL<input id="seo-url" type="url"></label>
-          <label>Twitter Card
-            <select id="seo-twitter-card">
-              <option value="summary_large_image">summary_large_image</option>
-              <option value="summary">summary</option>
-            </select>
-          </label>
+        <div class="seo-manager-layout">
+          <!-- Left: Editors -->
+          <div class="seo-editors" style="display: flex; flex-direction: column; gap: 14px;">
+            <div class="panel-head" style="margin-bottom: 0;">
+              <h3 style="margin-bottom: 0;">Search & Social Settings</h3>
+            </div>
+            <label>SEO Title
+              <div class="input-with-counter">
+                <input id="seo-title" type="text" placeholder="Optimal length ~60 characters">
+                <span id="seo-title-count" class="char-counter">0 / 60</span>
+              </div>
+            </label>
+            <label>Meta Description
+              <div class="input-with-counter">
+                <textarea id="seo-description" rows="4" placeholder="Optimal length ~160 characters"></textarea>
+                <span id="seo-desc-count" class="char-counter">0 / 160</span>
+              </div>
+            </label>
+            <label>OG/Twitter Image URL
+              <input id="seo-image" type="url" placeholder="https://...">
+            </label>
+            <div class="form-grid" style="margin-top: 0;">
+              <label>Canonical URL<input id="seo-url" type="url"></label>
+              <label>Twitter Card
+                <select id="seo-twitter-card">
+                  <option value="summary_large_image">summary_large_image</option>
+                  <option value="summary">summary</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <!-- Right: Live Previews -->
+          <div class="seo-previews">
+            <div class="panel-head" style="margin-bottom: 0;">
+              <h3 style="margin-bottom: 0;">Live Previews</h3>
+            </div>
+            
+            <div class="preview-card google-preview">
+              <h4 class="preview-label">Google Search</h4>
+              <div class="gp-url" id="gp-url">elitechwiz.com</div>
+              <div class="gp-title" id="gp-title">EliTechWiz | Civil Engineering</div>
+              <div class="gp-desc" id="gp-desc">Providing structural scaling and premium industrial planning...</div>
+            </div>
+
+            <div class="preview-card social-preview">
+              <h4 class="preview-label">LinkedIn / Facebook / Twitter</h4>
+              <div class="sp-image" id="sp-image-container">
+                <img id="sp-image-el" src="" alt="Social Share Image" style="display:none;">
+                <div class="sp-placeholder" id="sp-placeholder"><i class="fas fa-image"></i></div>
+              </div>
+              <div class="sp-content">
+                <div class="sp-domain">elitechwiz.com</div>
+                <div class="sp-title" id="sp-title">EliTechWiz | Civil Engineering</div>
+                <div class="sp-desc" id="sp-desc">Providing structural scaling and premium industrial planning...</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

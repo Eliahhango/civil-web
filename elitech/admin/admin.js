@@ -416,6 +416,13 @@
     if ($("kpi-blogs-count") && state.blogs) {
       $("kpi-blogs-count").textContent = state.blogs.length;
     }
+    if ($("kpi-seo-warnings")) {
+      var warnings = 0;
+      if (!state.seo.title || state.seo.title.length > 60) warnings++;
+      if (!state.seo.description || state.seo.description.length > 160) warnings++;
+      $("kpi-seo-warnings").textContent = warnings;
+      $("kpi-seo-warnings").style.color = warnings > 0 ? "var(--admin-warning)" : "var(--admin-success)";
+    }
   }
 
   function renderBasics() {
@@ -427,6 +434,55 @@
     $("seo-image").value = state.seo && state.seo.image || "";
     $("seo-url").value = state.seo && state.seo.url || "";
     $("seo-twitter-card").value = state.seo && state.seo.twitterCard || "summary_large_image";
+    updateSEOPreviews();
+  }
+
+  function updateSEOPreviews() {
+    var title = $("seo-title") ? $("seo-title").value.trim() : "";
+    var desc = $("seo-description") ? $("seo-description").value.trim() : "";
+    var url = $("seo-url") ? $("seo-url").value.trim() : "";
+    var img = $("seo-image") ? $("seo-image").value.trim() : "";
+
+    var baseDomain = "elitechwiz.com";
+    if (url) {
+      try { baseDomain = new URL(url).hostname; } catch(e) {}
+    }
+
+    if ($("gp-title")) $("gp-title").textContent = title || "EliTechWiz | Civil Engineering";
+    if ($("gp-desc")) $("gp-desc").textContent = desc || "Providing structural scaling and premium industrial planning...";
+    if ($("gp-url")) $("gp-url").textContent = url || baseDomain;
+
+    if ($("sp-title")) $("sp-title").textContent = title || "EliTechWiz | Civil Engineering";
+    if ($("sp-desc")) $("sp-desc").textContent = desc || "Providing structural scaling and premium industrial planning...";
+    if ($("sp-domain")) $("sp-domain").textContent = baseDomain;
+
+    if ($("sp-image-el")) {
+      var imgEl = $("sp-image-el");
+      var plcEl = $("sp-placeholder");
+      if (img) {
+        imgEl.src = img;
+        imgEl.style.display = "block";
+        if (plcEl) plcEl.style.display = "none";
+      } else {
+        imgEl.src = "";
+        imgEl.style.display = "none";
+        if (plcEl) plcEl.style.display = "flex";
+      }
+    }
+
+    var titleCount = title.length;
+    if ($("seo-title-count")) {
+      $("seo-title-count").textContent = titleCount + " / 60";
+      $("seo-title-count").className = "char-counter " + (titleCount > 60 ? "error" : (titleCount > 50 ? "warn" : "success"));
+      if (titleCount === 0) $("seo-title-count").className = "char-counter default";
+    }
+
+    var descCount = desc.length;
+    if ($("seo-desc-count")) {
+      $("seo-desc-count").textContent = descCount + " / 160";
+      $("seo-desc-count").className = "char-counter " + (descCount > 160 ? "error" : (descCount > 140 ? "warn" : "success"));
+      if (descCount === 0) $("seo-desc-count").className = "char-counter default";
+    }
   }
 
   function readBasics() {
@@ -914,6 +970,14 @@
     $("btn-apply").addEventListener("click", applyLocal);
     $("btn-reset").addEventListener("click", resetLocal);
     $("btn-save-server").addEventListener("click", saveToServer);
+    
+    // SEO Live preview bindings
+    ["seo-title", "seo-description", "seo-image", "seo-url"].forEach(function(id) {
+      if ($(id)) {
+        $(id).addEventListener("input", updateSEOPreviews);
+      }
+    });
+
     $("btn-logout").addEventListener("click", function () {
       if (!window.CMSFirebaseAuth || typeof window.CMSFirebaseAuth.logout !== "function") {
         setStatus("Firebase auth is not ready.", true);
