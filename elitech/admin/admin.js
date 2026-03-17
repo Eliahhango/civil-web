@@ -110,13 +110,14 @@
   }
 
   function hideAdminPreloader() {
-    var preloader = $("admin-preloader");
+    var preloader = document.querySelector(".theme-preloader");
     if (!preloader) {
       document.body.classList.remove("admin-loading");
       return;
     }
 
-    preloader.classList.add("is-hidden");
+    preloader.style.transition = "opacity 420ms ease";
+    preloader.style.opacity = "0";
     document.body.classList.remove("admin-loading");
 
     setTimeout(function () {

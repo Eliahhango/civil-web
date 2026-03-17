@@ -51,7 +51,13 @@
     }
   </style>
 </head>
-<body>
+<body class="admin-loading">
+  <div class="theme-preloader" aria-hidden="true">
+    <div class="loading-container">
+      <div class="loading"></div>
+      <div id="loading-icon"><img alt="Preloader" src="/elitech/wp-content/uploads/2025/11/logo.svg"/></div>
+    </div>
+  </div>
   <section id="login-view" class="login-view is-active" aria-hidden="false" style="align-items: flex-start; padding-top: clamp(120px, 15vh, 160px);">
     <header class="login-topbar" aria-label="Admin login header">
       <a class="login-topbar-brand" href="/elitech/home-version-2/" target="_blank" rel="noopener">
@@ -95,5 +101,21 @@
       </div>
     </footer>
   </section>
+  <script>
+    (function () {
+      function hidePreloader() {
+        var preloader = document.querySelector('.theme-preloader');
+        document.body.classList.remove('admin-loading');
+        if (!preloader) return;
+        preloader.style.transition = 'opacity 420ms ease';
+        preloader.style.opacity = '0';
+        setTimeout(function () {
+          if (preloader.parentNode) preloader.parentNode.removeChild(preloader);
+        }, 460);
+      }
+      window.addEventListener('load', hidePreloader, { once: true });
+      setTimeout(hidePreloader, 2200);
+    })();
+  </script>
 </body>
 </html>
