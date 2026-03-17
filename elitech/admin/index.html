@@ -295,6 +295,41 @@
     </main>
   </div>
 
+  <div class="modal-overlay" id="editor-modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="editor-modal-title">Edit Item</h3>
+        <button class="btn-default btn-outline" id="editor-modal-close" style="padding: 6px 12px; border:none"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <label>Title
+            <input id="modal-title-input" type="text" placeholder="Entry Title">
+          </label>
+          <label>Category
+            <input id="modal-category-input" type="text" placeholder="e.g. Industrial">
+          </label>
+          <label class="form-full-width">Image URL
+            <input id="modal-image-input" type="text" placeholder="/path/to/image.jpg">
+          </label>
+          <label>Link URL
+            <input id="modal-url-input" type="text" placeholder="/elitech/projects/slug/">
+          </label>
+          <label>Date
+            <input id="modal-date-input" type="text" placeholder="May 12, 2026">
+          </label>
+          <label class="form-full-width">Excerpt / Content
+            <textarea id="modal-excerpt-input" rows="4" placeholder="Brief summary..."></textarea>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-default btn-outline" id="editor-modal-cancel">Cancel</button>
+        <button class="btn-default" id="editor-modal-save">Save Content</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/elitech/admin/admin.js"></script>
   <script type="module" src="/elitech/admin/firebase-email-auth.js"></script>
 </body>

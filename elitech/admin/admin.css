@@ -651,6 +651,138 @@ body::after {
   gap: 14px;
 }
 
+/* Data Tables */
+.data-table-container {
+  overflow-x: auto;
+  background: var(--admin-white);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow-sm);
+  margin-top: 10px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.94rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--admin-border);
+  vertical-align: middle;
+}
+
+.data-table th {
+  font-weight: 600;
+  color: var(--admin-body-text);
+  background: rgba(13, 13, 13, 0.02);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover td {
+  background: rgba(13, 13, 13, 0.02);
+}
+
+.data-table td {
+  color: var(--admin-primary);
+  font-weight: 500;
+}
+
+.data-table .badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(13, 13, 13, 0.06);
+  font-size: 0.8rem;
+  color: var(--admin-primary);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+/* Modals */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 13, 13, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal-overlay.active {
+  display: flex;
+  animation: panelFade 0.2s ease;
+}
+
+.modal-content {
+  background: var(--admin-white);
+  width: 100%;
+  max-width: 800px;
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow-lg);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--admin-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-family: var(--e-global-typography-primary-font-family, "Space Grotesk", sans-serif);
+  font-size: 1.4rem;
+}
+
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.modal-body .form-grid {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 600px) {
+  .modal-body .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .modal-body .form-full-width {
+    grid-column: 1 / -1;
+  }
+}
+
+.modal-footer {
+  padding: 20px 24px;
+  border-top: 1px solid var(--admin-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: rgba(13, 13, 13, 0.02);
+  border-radius: 0 0 var(--admin-radius) var(--admin-radius);
+}
+
 /* Dashboard KPI Styles */
 .kpi-grid {
   display: grid;

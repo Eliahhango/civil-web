@@ -443,27 +443,107 @@
     }
 
   function collectionRow(item, index, type) {
-    var wrapper = document.createElement("div");
-    wrapper.className = "row-box " + type;
+    var tr = document.createElement("tr");
+    tr.className = "row-box " + type; // keeeping class for compatibility
 
-    wrapper.appendChild(createLabelWithInput("Title", "title", item.title));
-    wrapper.appendChild(createLabelWithInput("Category", "category", item.category));
-    wrapper.appendChild(createLabelWithInput("Image URL", "image", item.image));
-    wrapper.appendChild(createLabelWithInput("Link URL", "url", item.url));
-    wrapper.appendChild(createLabelWithInput("Date", "date", item.date));
+    var tdTitle = document.createElement("td");
+    tdTitle.innerHTML = "<strong>" + (item.title || "(Untitled)") + "</strong>";
+
+    var tdCat = document.createElement("td");
+    tdCat.innerHTML = "<span class='badge'>" + (item.category || "Uncategorized") + "</span>";
+
+    var tdDate = document.createElement("td");
+    tdDate.textContent = item.date || "-";
+
+    var tdActions = document.createElement("td");
+    tdActions.style.textAlign = "right";
+
+    var editBtn = document.createElement("button");
+    editBtn.className = "btn-default btn-outline btn-sm";
+    editBtn.innerHTML = "<i class='fas fa-edit'></i> Edit";
+    editBtn.style.marginRight = "8px";
+    editBtn.type = "button";
+    editBtn.addEventListener("click", function() {
+      openEditorModal(type, index);
+    });
+
+    var removeBtn = createRemoveButton(index, type);
+    removeBtn.className = "btn-default btn-outline btn-sm remove-btn";
+
+    tdActions.appendChild(editBtn);
+    tdActions.appendChild(removeBtn);
+
+    tr.appendChild(tdTitle);
+    tr.appendChild(tdCat);
+    tr.appendChild(tdDate);
+    tr.appendChild(tdActions);
+
+    // Hidden inputs to maintain legacy 'readCollection' reading logic
+    var hiddenDiv = document.createElement("div");
+    hiddenDiv.style.display = "none";
     
-    var excerptLabel = document.createElement("label");
-    excerptLabel.appendChild(document.createTextNode("Excerpt/Content"));
-    var excerptInput = document.createElement("textarea");
-    excerptInput.setAttribute("data-kind", "excerpt");
-    excerptInput.rows = 2;
-    excerptInput.value = item.excerpt || "";
-    excerptLabel.appendChild(excerptInput);
-    wrapper.appendChild(excerptLabel);
+    function addHidden(kind, val) {
+       var inp = document.createElement("input");
+       inp.setAttribute("data-kind", kind);
+       inp.value = val || "";
+       hiddenDiv.appendChild(inp);
+    }
+    
+    addHidden("title", item.title);
+    addHidden("category", item.category);
+    addHidden("image", item.image);
+    addHidden("url", item.url);
+    addHidden("date", item.date);
+    
+    var txt = document.createElement("textarea");
+    txt.setAttribute("data-kind", "excerpt");
+    txt.value = item.excerpt || "";
+    hiddenDiv.appendChild(txt);
 
-    wrapper.appendChild(createRemoveButton(index, type));
+    tr.appendChild(hiddenDiv);
+    return tr;
+  }
 
-    return wrapper;
+  var currentModalType = null;
+  var currentModalIndex = -1;
+
+  function openEditorModal(type, index) {
+    readFormIntoState(); // ensure we don't lose pending changes elsewhere
+    currentModalType = type;
+    currentModalIndex = index;
+    var item = state[type + "s"][index];
+
+    $("editor-modal-title").textContent = "Edit " + type.charAt(0).toUpperCase() + type.slice(1);
+    $("modal-title-input").value = item.title || "";
+    $("modal-category-input").value = item.category || "";
+    $("modal-image-input").value = item.image || "";
+    $("modal-url-input").value = item.url || "";
+    $("modal-date-input").value = item.date || "";
+    $("modal-excerpt-input").value = item.excerpt || "";
+
+    $("editor-modal").classList.add("active");
+  }
+
+  function closeEditorModal() {
+    $("editor-modal").classList.remove("active");
+    currentModalType = null;
+    currentModalIndex = -1;
+  }
+
+  function saveEditorModal() {
+    if (!currentModalType || currentModalIndex < 0) return;
+    
+    var item = state[currentModalType + "s"][currentModalIndex];
+    item.title = $("modal-title-input").value.trim();
+    item.category = $("modal-category-input").value.trim();
+    item.image = $("modal-image-input").value.trim();
+    item.url = $("modal-url-input").value.trim();
+    item.date = $("modal-date-input").value.trim();
+    item.excerpt = $("modal-excerpt-input").value.trim();
+
+    renderCollection(currentModalType);
+    syncRawJson();
+    closeEditorModal();
   }
 
   function renderReplacements() {
@@ -491,9 +571,25 @@
     if (!list) return;
     list.replaceChildren();
 
+    var tableWrapper = document.createElement("div");
+    tableWrapper.className = "data-table-container";
+
+    var table = document.createElement("table");
+    table.className = "data-table";
+
+    var thead = document.createElement("thead");
+    thead.innerHTML = "<tr><th>Title</th><th>Category</th><th>Date</th><th style='text-align:right'>Actions</th></tr>";
+    table.appendChild(thead);
+
+    var tbody = document.createElement("tbody");
+
     (state[stateName] || []).forEach(function (item, index) {
-      list.appendChild(collectionRow(item, index, type));
+      tbody.appendChild(collectionRow(item, index, type));
     });
+
+    table.appendChild(tbody);
+    tableWrapper.appendChild(table);
+    list.appendChild(tableWrapper);
   }
 
   function readReplacements() {
@@ -624,6 +720,10 @@
         setStatus(error.message || "Could not sign out.", true);
       });
     });
+
+    if ($("editor-modal-close")) $("editor-modal-close").addEventListener("click", closeEditorModal);
+    if ($("editor-modal-cancel")) $("editor-modal-cancel").addEventListener("click", closeEditorModal);
+    if ($("editor-modal-save")) $("editor-modal-save").addEventListener("click", saveEditorModal);
 
     $("add-replacement").addEventListener("click", function () {
       readFormIntoState();
