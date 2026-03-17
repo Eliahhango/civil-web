@@ -11,6 +11,26 @@
   var apiBaseUrl = null;
   var statusTimer = null;
 
+  function logActivity(action, message) {
+    if (!state) return;
+    if (!state.sysLogs) state.sysLogs = [];
+    var now = new Date();
+    var formattedDate = now.toLocaleDateString(undefined, {
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
+    state.sysLogs.unshift({
+      date: formattedDate,
+      action: action,
+      message: message
+    });
+    if (state.sysLogs.length > 50) {
+      state.sysLogs = state.sysLogs.slice(0, 50);
+    }
+    renderLogs();
+    renderDashboardLogs();
+  }
+
   var ALLOWED_RULE_ACTIONS = {
     "text": true,
     "addClass": true,
@@ -76,10 +96,35 @@
         return;
       }
       node.textContent = message;
-      node.style.color = error ? "#ff8c95" : "#94a9bf";
-      node.classList.remove("status-success", "status-error", "status-pulse");
-      node.classList.add(error ? "status-error" : "status-success", "status-pulse");
+      if (!node.classList.contains('hidden')) {
+          node.style.color = error ? "#ff8c95" : "#94a9bf";
+          node.classList.remove("status-success", "status-error", "status-pulse");
+          node.classList.add(error ? "status-error" : "status-success", "status-pulse");
+      }
     });
+
+    var toastContainer = $("toast-container");
+    if (toastContainer && message && message !== "Ready." && message !== "Please sign in with Firebase to access the dashboard.") {
+      var toast = document.createElement("div");
+      toast.className = "admin-toast" + (error ? " error-toast" : "");
+      
+      var icon = document.createElement("i");
+      icon.className = error ? "fas fa-exclamation-circle" : "fas fa-check-circle";
+      
+      var text = document.createElement("span");
+      text.textContent = message;
+
+      toast.appendChild(icon);
+      toast.appendChild(text);
+      toastContainer.appendChild(toast);
+
+      setTimeout(function() {
+        toast.style.animation = "toastSlideOut 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards";
+        setTimeout(function() {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 300);
+      }, 4000);
+    }
 
     if (statusTimer) {
       clearTimeout(statusTimer);
@@ -299,6 +344,52 @@
         var titleText = btn.textContent.trim();
         $("tab-title").textContent = titleText;
       });
+    });
+  }
+
+  function renderDashboardLogs() {
+    var timeline = document.querySelector(".activity-timeline");
+    if (!timeline) return;
+    timeline.replaceChildren();
+
+    var recentLogs = (state.sysLogs || []).slice(0, 5);
+    if (recentLogs.length === 0) {
+      timeline.innerHTML = '<p class="hint">No recent activity.</p>';
+      return;
+    }
+
+    recentLogs.forEach(function(log) {
+      var item = document.createElement("div");
+      item.className = "activity-item";
+      item.innerHTML = '<div class="activity-dot"></div><div class="activity-content"><p><strong>' + toSafeString(log.action, 50) + '</strong> ' + toSafeString(log.message, 200) + '</p><span>' + toSafeString(log.date, 50) + '</span></div>';
+      timeline.appendChild(item);
+    });
+  }
+
+  function renderLogs() {
+    var tbody = document.getElementById("logs-tbody");
+    if (!tbody) return;
+    tbody.replaceChildren();
+    
+    var logs = state.sysLogs || [];
+    if (logs.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px;">No system logs recorded yet.</td></tr>';
+      return;
+    }
+
+    logs.forEach(function(log) {
+      var tr = document.createElement("tr");
+      var tdDate = document.createElement("td");
+      tdDate.textContent = log.date;
+      var tdAction = document.createElement("td");
+      tdAction.innerHTML = '<span class="badge">' + toSafeString(log.action, 50) + '</span>';
+      var tdMsg = document.createElement("td");
+      tdMsg.textContent = log.message;
+
+      tr.appendChild(tdDate);
+      tr.appendChild(tdAction);
+      tr.appendChild(tdMsg);
+      tbody.appendChild(tr);
     });
   }
 
@@ -534,6 +625,7 @@
     if (!currentModalType || currentModalIndex < 0) return;
     
     var item = state[currentModalType + "s"][currentModalIndex];
+    var oldTitle = item.title;
     item.title = $("modal-title-input").value.trim();
     item.category = $("modal-category-input").value.trim();
     item.image = $("modal-image-input").value.trim();
@@ -541,9 +633,12 @@
     item.date = $("modal-date-input").value.trim();
     item.excerpt = $("modal-excerpt-input").value.trim();
 
+    logActivity("Edit " + currentModalType, "Modified '" + (item.title || "Untitled") + "'");
+
     renderCollection(currentModalType);
     syncRawJson();
     closeEditorModal();
+    setStatus("Changes applied temporarily. Save to Server to publish.", false);
   }
 
   function renderReplacements() {
@@ -661,10 +756,12 @@
     readFormIntoState();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     syncRawJson();
+    logActivity("Apply Preview", "Applied local preview to state.");
     setStatus("Preview applied locally. Open the website in this browser to see updates.", false);
   }
 
   function resetLocal() {
+    logActivity("Reset", "Cleared local un-saved state.");
     localStorage.removeItem(STORAGE_KEY);
     location.reload();
   }
@@ -672,6 +769,7 @@
   function saveToServer() {
     readFormIntoState();
     syncRawJson();
+    logActivity("Save", "Attempting backend save...");
 
     Promise.resolve().then(function () {
       if (!window.CMSFirebaseAuth || typeof window.CMSFirebaseAuth.getIdToken !== "function") {
@@ -699,9 +797,11 @@
           throw new Error(payload.error || "Failed to save on server");
         }
         localStorage.removeItem(STORAGE_KEY);
+        logActivity("Deploy Success", "Saved live updates to backend database.");
         setStatus("Saved to backend successfully. Live site will use latest content.", false);
       });
     }).catch(function (error) {
+      logActivity("Deploy Error", error.message || "Could not save to server.");
       setStatus(error.message || "Could not save to server.", true);
     });
   }
@@ -725,6 +825,16 @@
     if ($("editor-modal-cancel")) $("editor-modal-cancel").addEventListener("click", closeEditorModal);
     if ($("editor-modal-save")) $("editor-modal-save").addEventListener("click", saveEditorModal);
 
+    if ($("clear-logs")) $("clear-logs").addEventListener("click", function() {
+      if (confirm("Are you sure you want to clear all activity logs?")) {
+        state.sysLogs = [];
+        renderLogs();
+        renderDashboardLogs();
+        syncRawJson();
+        setStatus("Logs cleared.", false);
+      }
+    });
+
     $("add-replacement").addEventListener("click", function () {
       readFormIntoState();
       state.globalReplacements.push({ from: "", to: "", wholeWord: false, caseSensitive: false });
@@ -745,10 +855,13 @@
       btn.addEventListener("click", function () {
         readFormIntoState();
         var arr = state[type + "s"] || [];
-        arr.push({ title: "", category: "", image: "", url: "", date: "", excerpt: "" });
+        arr.push({ title: "New " + type, category: "", image: "", url: "", date: "", excerpt: "" });
         state[type + "s"] = arr;
         renderCollection(type);
         syncRawJson();
+        logActivity("Create " + type, "Added an empty placeholder for a new " + type + ".");
+        // Open it immediately to edit
+        openEditorModal(type, arr.length - 1);
       });
     };
 
@@ -768,14 +881,17 @@
       if (type === "replacement") {
         state.globalReplacements.splice(index, 1);
         renderReplacements();
+        logActivity("Remove", "Deleted a global replacement rule.");
       } else if (type === "rule") {
         state.rules.splice(index, 1);
         renderRules();
+        logActivity("Remove", "Deleted a custom formatting rule.");
       } else if (type === "blog" || type === "project" || type === "service") {
         var stateName = type + "s";
         if (state[stateName]) {
-          state[stateName].splice(index, 1);
+          var removed = state[stateName].splice(index, 1)[0];
           renderCollection(type);
+          logActivity("Delete " + type, "Removed '" + (removed.title || "Untitled") + "'");
         }
       }
 
@@ -884,11 +1000,16 @@
       renderCollection("project");
       renderCollection("service");
       renderDashboard();
+      renderLogs();
+      renderDashboardLogs();
       syncRawJson();
       dashboardInitialized = true;
       setStatus("Loaded configuration.", false);
+      if (state.sysLogs && state.sysLogs.length === 0) {
+        logActivity("System Init", "Admin dashboard initialized and data mapped.");
+      }
     }).catch(function () {
-      state = { site: {}, seo: {}, globalReplacements: [], rules: [], blogs: [], projects: [], services: [] };
+      state = { site: {}, seo: {}, globalReplacements: [], rules: [], blogs: [], projects: [], services: [], sysLogs: [] };
       renderBasics();
       renderReplacements();
       renderRules();
@@ -896,9 +1017,12 @@
       renderCollection("project");
       renderCollection("service");
       renderDashboard();
+      renderLogs();
+      renderDashboardLogs();
       syncRawJson();
       dashboardInitialized = true;
       setStatus("Could not load CMS data from API or static file. You can still build config here.", true);
+      logActivity("System Error", "Failed to load base user configuration");
     });
   }
 

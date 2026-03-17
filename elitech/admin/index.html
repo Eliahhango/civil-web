@@ -140,6 +140,9 @@
         <button class="nav-btn" data-tab="services">
           <i class="fas fa-tools"></i> Services
         </button>
+        <button class="nav-btn" data-tab="logs">
+          <i class="fas fa-history"></i> Activity Logs
+        </button>
         <button class="nav-btn" data-tab="json">
           <i class="fas fa-code"></i> Raw JSON
         </button>
@@ -282,6 +285,23 @@
         <div id="services-list" class="list-wrap"></div>
       </section>
 
+      <section id="tab-logs" class="tab-panel">
+        <div class="panel-head">
+          <h3>Content Activity Log</h3>
+          <button id="clear-logs" class="btn-default btn-outline" style="color:var(--admin-error); border-color:var(--admin-error);">Clear Logs</button>
+        </div>
+        <div id="logs-list" class="list-wrap">
+           <div class="data-table-container">
+             <table class="data-table">
+               <thead><tr><th>Date / Time</th><th>Action</th><th>Message</th></tr></thead>
+               <tbody id="logs-tbody">
+                 <!-- Populated by JS -->
+               </tbody>
+             </table>
+           </div>
+        </div>
+      </section>
+
       <section id="tab-json" class="tab-panel">
         <label>Full JSON<textarea id="raw-json" rows="16"></textarea></label>
         <div class="panel-actions">
@@ -291,9 +311,11 @@
         </div>
       </section>
 
-      <footer class="admin-footer" id="status" aria-live="polite">Ready.</footer>
+      <footer class="admin-footer hidden" id="status" aria-live="polite">Ready.</footer>
     </main>
   </div>
+
+  <div id="toast-container" class="admin-toast-container" aria-live="polite"></div>
 
   <div class="modal-overlay" id="editor-modal" aria-hidden="true">
     <div class="modal-content">

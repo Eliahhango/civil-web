@@ -1255,3 +1255,59 @@ code {
     min-height: 156px;
   }
 }
+
+/* Toast System */
+.admin-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+.admin-toast {
+  background: var(--admin-primary);
+  color: var(--admin-white);
+  padding: 16px 20px;
+  border-radius: var(--admin-radius);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  pointer-events: auto;
+  border-left: 4px solid var(--admin-accent);
+  animation: toastSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  max-width: 400px;
+  word-wrap: break-word;
+}
+
+.admin-toast .fa-check-circle {
+  color: var(--admin-success);
+}
+
+.admin-toast .fa-exclamation-circle {
+  color: var(--admin-warning);
+}
+
+.admin-toast.error-toast {
+  border-left-color: var(--admin-error);
+}
+
+.admin-toast.error-toast i {
+  color: var(--admin-error);
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastSlideOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(20px); }
+}
