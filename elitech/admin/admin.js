@@ -294,9 +294,21 @@
         if (target) {
           target.classList.add("active");
         }
-        $("tab-title").textContent = btn.textContent.trim();
+        
+        // Don't override title if it's the dashboard with icons
+        var titleText = btn.textContent.trim();
+        $("tab-title").textContent = titleText;
       });
     });
+  }
+
+  function renderDashboard() {
+    if ($("kpi-projects-count") && state.projects) {
+      $("kpi-projects-count").textContent = state.projects.length;
+    }
+    if ($("kpi-blogs-count") && state.blogs) {
+      $("kpi-blogs-count").textContent = state.blogs.length;
+    }
   }
 
   function renderBasics() {
@@ -771,6 +783,7 @@
       renderCollection("blog");
       renderCollection("project");
       renderCollection("service");
+      renderDashboard();
       syncRawJson();
       dashboardInitialized = true;
       setStatus("Loaded configuration.", false);
@@ -782,6 +795,7 @@
       renderCollection("blog");
       renderCollection("project");
       renderCollection("service");
+      renderDashboard();
       syncRawJson();
       dashboardInitialized = true;
       setStatus("Could not load CMS data from API or static file. You can still build config here.", true);
