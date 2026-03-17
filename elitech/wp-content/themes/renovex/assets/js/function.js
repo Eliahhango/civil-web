@@ -3,6 +3,39 @@
 	
 	var $window = $(window); 
 	var $body = $('body'); 
+    var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var saveDataEnabled = !!(navigator.connection && navigator.connection.saveData);
+    var allowMotionEffects = !prefersReducedMotion && !saveDataEnabled;
+
+    function hidePreloaderFast() {
+        var $preloader = $('.theme-preloader');
+        if ($preloader.length) {
+            $preloader.stop(true, true).fadeOut(120);
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', hidePreloaderFast, { once: true });
+    } else {
+        hidePreloaderFast();
+    }
+
+    window.setTimeout(hidePreloaderFast, 2000);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('iframe:not([loading])').forEach(function (frame) {
+            frame.setAttribute('loading', 'lazy');
+        });
+
+        document.querySelectorAll('img:not([loading])').forEach(function (img, index) {
+            if (!img.getAttribute('decoding')) {
+                img.setAttribute('decoding', 'async');
+            }
+            if (index > 1) {
+                img.setAttribute('loading', 'lazy');
+            }
+        });
+    }, { once: true });
 	
 	/* Slick library JS */
 	  var
@@ -785,10 +818,10 @@
 	$window.on('load', function(){
 		
 		/* Preloader Effect */
-		$(".theme-preloader").fadeOut(600);
+        hidePreloaderFast();
 
 		/* Image Reveal Animation */
-		if ($('.at-animation-image-style-1').length) {
+        if (allowMotionEffects && $('.at-animation-image-style-1').length) {
 			gsap.registerPlugin(ScrollTrigger);
 			gsap.utils.toArray(".at-animation-image-style-1 img").forEach((img) => {
 				gsap.to(img, {
@@ -805,7 +838,7 @@
 		}
 
 		/* Text Effect Animation */
-		if ($('.at-animation-heading-style-1 .elementor-heading-title, .at-animation-heading-style-1 .ekit-heading--title').length) {
+        if (allowMotionEffects && $('.at-animation-heading-style-1 .elementor-heading-title, .at-animation-heading-style-1 .ekit-heading--title').length) {
 			let staggerAmount 	= 0.05,
 				translateXValue = 0,
 				delayValue 		= 0.5,
@@ -825,7 +858,7 @@
 			
 		}
 		
-		if ($('.at-animation-heading-style-2 .elementor-heading-title, .at-animation-heading-style-2 .ekit-heading--title').length) {
+        if (allowMotionEffects && $('.at-animation-heading-style-2 .elementor-heading-title, .at-animation-heading-style-2 .ekit-heading--title').length) {
 			
 			let	 staggerAmount 		= 0.03,
 				 translateXValue	= 20,
@@ -848,7 +881,7 @@
 			
 		}
 		
-		if ($('.at-animation-heading-style-3 .elementor-heading-title, .at-animation-heading-style-3 .ekit-heading--title').length) {		
+        if (allowMotionEffects && $('.at-animation-heading-style-3 .elementor-heading-title, .at-animation-heading-style-3 .ekit-heading--title').length) {		
 			let	animatedTextElements = document.querySelectorAll('.at-animation-heading-style-3 .elementor-heading-title, .at-animation-heading-style-3 .ekit-heading--title');
 			
 			 animatedTextElements.forEach((element) => {
@@ -882,7 +915,7 @@
 			});		
 		}
 		
-		if($('.at-animation-heading-style-4 .elementor-heading-title, .at-animation-heading-style-4 .ekit-heading--title').length) {
+        if(allowMotionEffects && $('.at-animation-heading-style-4 .elementor-heading-title, .at-animation-heading-style-4 .ekit-heading--title').length) {
 			let	animatedTextElements = document.querySelectorAll('.at-animation-heading-style-4 .elementor-heading-title, .at-animation-heading-style-4 .ekit-heading--title');
 
 			gsap.registerPlugin(SplitText); 
@@ -979,6 +1012,10 @@
 	};
 	
 	const dataItemHover = () => {
+        if (!allowMotionEffects) {
+            return { setupHoverAnimations: function () {} };
+        }
+
         const initHoverEffect = (container, images) => {
             const hoverInstance = new hoverEffect({
                 parent: container.get(0),
