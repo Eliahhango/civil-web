@@ -389,23 +389,30 @@
     
     var logs = state.sysLogs || [];
     if (logs.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px;">No system logs recorded yet.</td></tr>';
+      tbody.innerHTML = '<div class="audit-line empty"><span class="audit-time">--:--</span><span class="audit-msg">No system logs recorded in the current session.</span></div>';
       return;
     }
 
     logs.forEach(function(log) {
-      var tr = document.createElement("tr");
-      var tdDate = document.createElement("td");
-      tdDate.textContent = log.date;
-      var tdAction = document.createElement("td");
-      tdAction.innerHTML = '<span class="badge">' + toSafeString(log.action, 50) + '</span>';
-      var tdMsg = document.createElement("td");
-      tdMsg.textContent = log.message;
+      var lineEl = document.createElement("div");
+      lineEl.className = "audit-line";
+      
+      var timeEl = document.createElement("span");
+      timeEl.className = "audit-time";
+      timeEl.textContent = "[" + log.date + "]";
+      
+      var actionEl = document.createElement("span");
+      actionEl.className = "audit-action";
+      actionEl.textContent = log.action.toUpperCase();
+      
+      var msgEl = document.createElement("span");
+      msgEl.className = "audit-msg";
+      msgEl.textContent = log.message;
 
-      tr.appendChild(tdDate);
-      tr.appendChild(tdAction);
-      tr.appendChild(tdMsg);
-      tbody.appendChild(tr);
+      lineEl.appendChild(timeEl);
+      lineEl.appendChild(actionEl);
+      lineEl.appendChild(msgEl);
+      tbody.appendChild(lineEl);
     });
   }
 

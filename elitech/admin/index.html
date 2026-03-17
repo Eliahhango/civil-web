@@ -381,17 +381,20 @@
 
       <section id="tab-logs" class="tab-panel">
         <div class="panel-head">
-          <h3>Content Activity Log</h3>
-          <button id="clear-logs" class="btn-default btn-outline" style="color:var(--admin-error); border-color:var(--admin-error);">Clear Logs</button>
+          <h3>System Audit Log</h3>
+          <div class="header-actions">
+            <button id="clear-logs" class="btn-default btn-outline" style="color:var(--admin-error); border-color:var(--admin-error);"><i class="fas fa-trash-alt"></i> Clear Logs</button>
+          </div>
         </div>
         <div id="logs-list" class="list-wrap">
-           <div class="data-table-container">
-             <table class="data-table">
-               <thead><tr><th>Date / Time</th><th>Action</th><th>Message</th></tr></thead>
-               <tbody id="logs-tbody">
-                 <!-- Populated by JS -->
-               </tbody>
-             </table>
+           <div class="audit-console">
+             <div class="audit-header">
+               <div class="mac-dots"><span></span><span></span><span></span></div>
+               <div class="audit-title">syslog :: live session</div>
+             </div>
+             <div class="audit-scroll" id="logs-tbody">
+               <!-- Populated by JS -->
+             </div>
            </div>
         </div>
       </section>
