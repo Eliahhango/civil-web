@@ -226,9 +226,37 @@
       </section>
 
       <section id="tab-site" class="tab-panel">
-        <div class="form-grid">
-          <label>Company Name<input id="site-name" type="text"></label>
-          <label>Tagline<input id="site-tagline" type="text"></label>
+        <div class="panel-head">
+          <h3>Global Branding & System Contact Info</h3>
+        </div>
+        
+        <div class="site-settings-grid">
+          <div class="settings-block">
+            <h4>Identity</h4>
+            <div class="form-grid" style="grid-template-columns: 1fr;">
+              <label>Company Name<input id="site-name" type="text" placeholder="EliTechWiz"></label>
+              <label>Tagline / Moto<input id="site-tagline" type="text" placeholder="Engineering the future."></label>
+              <label>Brand Logo URL<input id="site-logo" type="url" placeholder="/elitech/wp-content/uploads/.../logo.svg"></label>
+            </div>
+          </div>
+
+          <div class="settings-block">
+            <h4>Primary Operations Contact</h4>
+            <div class="form-grid" style="grid-template-columns: 1fr;">
+              <label>Main Phone Number<input id="site-phone" type="text" placeholder="+1 (555) 123-4567"></label>
+              <label>Support Email Address<input id="site-email" type="email" placeholder="contact@elitechwiz.com"></label>
+              <label>Headquarters Location<textarea id="site-address" rows="3" placeholder="123 Industrial Ave, Business Dist..."></textarea></label>
+            </div>
+          </div>
+          
+          <div class="settings-block">
+            <h4>Social Network Links</h4>
+            <div class="form-grid" style="grid-template-columns: 1fr;">
+              <label><i class="fab fa-linkedin" style="color: #0077b5"></i> LinkedIn URL<input id="site-social-linkedin" type="url" placeholder="https://linkedin.com/..."></label>
+              <label><i class="fab fa-twitter" style="color: #1da1f2"></i> X (Twitter) URL<input id="site-social-twitter" type="url" placeholder="https://x.com/..."></label>
+              <label><i class="fab fa-facebook" style="color: #1877f2"></i> Facebook URL<input id="site-social-facebook" type="url" placeholder="https://facebook.com/..."></label>
+            </div>
+          </div>
         </div>
       </section>
 
