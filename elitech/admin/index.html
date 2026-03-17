@@ -317,38 +317,68 @@
 
   <div id="toast-container" class="admin-toast-container" aria-live="polite"></div>
 
-  <div class="modal-overlay" id="editor-modal" aria-hidden="true">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="editor-modal-title">Edit Item</h3>
-        <button class="btn-default btn-outline" id="editor-modal-close" style="padding: 6px 12px; border:none"><i class="fas fa-times"></i></button>
+  <!-- Full Screen Split-Pane Editor Workspace -->
+  <div class="editor-workspace-overlay" id="editor-workspace" aria-hidden="true">
+    <header class="editor-header">
+      <div class="editor-breadcrumbs">
+        <button id="editor-back-btn" class="btn-icon" aria-label="Back"><i class="fas fa-arrow-left"></i></button>
+        <span id="editor-workspace-title">Edit Project</span>
       </div>
-      <div class="modal-body">
-        <div class="form-grid">
-          <label>Title
-            <input id="modal-title-input" type="text" placeholder="Entry Title">
-          </label>
-          <label>Category
-            <input id="modal-category-input" type="text" placeholder="e.g. Industrial">
-          </label>
-          <label class="form-full-width">Image URL
-            <input id="modal-image-input" type="text" placeholder="/path/to/image.jpg">
-          </label>
-          <label>Link URL
-            <input id="modal-url-input" type="text" placeholder="/elitech/projects/slug/">
-          </label>
-          <label>Date
-            <input id="modal-date-input" type="text" placeholder="May 12, 2026">
-          </label>
-          <label class="form-full-width">Excerpt / Content
-            <textarea id="modal-excerpt-input" rows="4" placeholder="Brief summary..."></textarea>
-          </label>
+      <div class="editor-actions">
+        <button id="editor-workspace-cancel" class="btn-default btn-outline">Discard Changes</button>
+        <button id="editor-workspace-save" class="btn-default">Save Content</button>
+      </div>
+    </header>
+    <div class="editor-body">
+      
+      <!-- Main Content / Left Pane -->
+      <div class="editor-main">
+        <div class="editor-canvas">
+          <input id="ws-title-input" class="editor-title-h1" type="text" placeholder="Entry Title...">
+          
+          <div class="editor-block-card">
+            <h4>Content Body</h4>
+            <textarea id="ws-excerpt-input" rows="16" placeholder="Write your full content here..."></textarea>
+          </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn-default btn-outline" id="editor-modal-cancel">Cancel</button>
-        <button class="btn-default" id="editor-modal-save">Save Content</button>
-      </div>
+      
+      <!-- Inspector / Right Pane -->
+      <aside class="editor-inspector">
+        <div class="inspector-panel">
+          <h4>Publish Settings</h4>
+          <label>Status
+            <select id="ws-status-input">
+              <option value="published">Published</option>
+              <option value="draft">Draft</option>
+            </select>
+          </label>
+          <label>Date
+             <input id="ws-date-input" type="text" placeholder="May 12, 2026">
+          </label>
+        </div>
+
+        <div class="inspector-panel">
+          <h4>Metadata</h4>
+          <label>Category
+            <input id="ws-category-input" type="text" placeholder="e.g. Industrial">
+          </label>
+          <label>Target URL Slug
+            <input id="ws-url-input" type="text" placeholder="/elitech/projects/slug/">
+          </label>
+        </div>
+
+        <div class="inspector-panel">
+          <h4>Media & Image</h4>
+          <div class="media-placeholder" id="ws-image-preview">
+            <i class="fas fa-image"></i>
+            <span>Provide an image URL below</span>
+          </div>
+          <label>Hero Image Path
+             <input id="ws-image-input" type="text" placeholder="/path/to/image.jpg">
+          </label>
+        </div>
+      </aside>
     </div>
   </div>
 
