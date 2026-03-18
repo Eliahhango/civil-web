@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+﻿import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import {
   getAuth,
   isSignInWithEmailLink,
@@ -232,18 +232,22 @@ function syncAdminAuthState(user) {
     if (typeof window.CMSAdmin.enterDashboard === "function") {
       window.CMSAdmin.enterDashboard();
     }
-      setStatus("Sign-in active. Syncing admin permissions...", false);
-      user.getIdToken().then(function(token) {
-        fetch("/api/admin/auth-sync", {
-          method: "POST",
-          headers: { "Authorization": "Bearer " + token }
-        }).then(res => res.json()).then(data => {
-            console.log("Auth sync complete", data);
-            if(data.success) {
-               setStatus("Sign-in active. Super Admin synced.", false);
-            }
-        }).catch(err => console.error("Sync error", err));
-      });
+    setStatus("Sign-in active. Syncing admin permissions...", false);
+    user.getIdToken().then(function(token) {
+      fetch("/api/admin/auth-sync", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + token }
+      }).then(res => res.json()).then(data => {
+          console.log("Auth sync complete", data);
+          if(data.success) {
+             setStatus("Sign-in active. Super Admin synced.", false);
+          }
+      }).catch(err => console.error("Sync error", err));
+    });
+    return;
+  }
+
+  if (typeof window.CMSAdmin.showLoginView === "function") {
     window.CMSAdmin.showLoginView();
   }
   setStatus("Please sign in to access the dashboard.", false);
@@ -321,4 +325,5 @@ document.addEventListener("DOMContentLoaded", function () {
     setStatus("Failed to initialize sign-in.", true);
   });
 });
+
 
