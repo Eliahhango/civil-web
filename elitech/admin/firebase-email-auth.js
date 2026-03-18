@@ -111,10 +111,17 @@ async function ensureAuth() {
   });
 
   var config = await response.json().catch(function () {
-    return {};
+    return {
+      apiKey: "AIzaSyB1IjyCGvZsiIuBxkNk6iNQFpTVtEDEq9A",
+      authDomain: "studio-2814354733-befba.firebaseapp.com",
+      projectId: "studio-2814354733-befba",
+      storageBucket: "studio-2814354733-befba.firebasestorage.app",
+      messagingSenderId: "40795501345",
+      appId: "1:40795501345:web:54b0c690b892fd72d68460"
+    };
   });
 
-  if (!response.ok) {
+  if (!config.apiKey && !response.ok) {
     throw new Error("Sign-in configuration is unavailable right now.");
   }
 
@@ -307,3 +314,4 @@ document.addEventListener("DOMContentLoaded", function () {
     setStatus("Failed to initialize sign-in.", true);
   });
 });
+
