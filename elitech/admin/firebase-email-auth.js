@@ -232,11 +232,18 @@ function syncAdminAuthState(user) {
     if (typeof window.CMSAdmin.enterDashboard === "function") {
       window.CMSAdmin.enterDashboard();
     }
-    setStatus("Sign-in active. You can now save changes.", false);
-    return;
-  }
-
-  if (typeof window.CMSAdmin.showLoginView === "function") {
+      setStatus("Sign-in active. Syncing admin permissions...", false);
+      user.getIdToken().then(function(token) {
+        fetch("/api/admin/auth-sync", {
+          method: "POST",
+          headers: { "Authorization": "Bearer " + token }
+        }).then(res => res.json()).then(data => {
+            console.log("Auth sync complete", data);
+            if(data.success) {
+               setStatus("Sign-in active. Super Admin synced.", false);
+            }
+        }).catch(err => console.error("Sync error", err));
+      });
     window.CMSAdmin.showLoginView();
   }
   setStatus("Please sign in to access the dashboard.", false);

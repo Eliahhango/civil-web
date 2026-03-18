@@ -5,12 +5,20 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function emailVerified() {
-      return signedIn() && request.auth.token.email_verified == true;
+    function isSuperAdmin() {
+      return signedIn() && (
+        request.auth.uid == '0wirGG8qA3XjkMby3eX62ScE9Ku1' ||
+        get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data.role == 'super_admin' ||
+        request.auth.token.super_admin == true
+      );
     }
-
+    
     function isAdmin() {
-      return (emailVerified() && request.auth.token.admin == true) || request.auth.uid == '0wirGG8qA3XjkMby3eX62ScE9Ku1';
+      return signedIn() && (
+        isSuperAdmin() || 
+        get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data.role == 'admin' ||
+        request.auth.token.admin == true
+      );
     }
 
     match /cms/{document=**} {
@@ -18,13 +26,54 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    match /users/{userId} {
-      allow read, write: if signedIn() && request.auth.uid == userId;
+    match /adminAuditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if isSuperAdmin();
     }
 
-    match /public/{document=**} {
+    match /adminInvites/{inviteId} {
+      allow read, write: if isSuperAdmin();
+    }
+
+    match /adminSessions/{sessionId} {
+      allow read: if isAdmin();
+      allow create, update: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    match /adminUsers/{userId} {
+      allow read: if isAdmin();
+      allow create, update, delete: if isSuperAdmin();
+    }
+
+    match /contactRateLimits/{docId} {
+      allow read, write: if true; // typically rate limits are checked by public
+    }
+
+    match /mediaItems/{itemId} {
       allow read: if true;
       allow write: if isAdmin();
+    }
+
+    match /membershipApplications/{appId} {
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    match /siteSettings/{settingId} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+
+    match /siteVisitorLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if true;
+    }
+
+    match /users/{userId} {
+      allow read, write: if signedIn() && request.auth.uid == userId;
     }
 
     match /{document=**} {
