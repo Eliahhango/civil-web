@@ -117,7 +117,22 @@ export async function signInWithGoogle() {
 
 // Email/Password Sign In
 export async function signInWithPassword(email, password) {
+  const btnLoginPassword = document.getElementById("btn-login-password");
+  const btnText = btnLoginPassword?.querySelector(".btn-text");
+  const btnLoader = btnLoginPassword?.querySelector(".btn-loader");
+
   try {
+    // Show loading state
+    if (btnLoginPassword) {
+      btnLoginPassword.disabled = true;
+    }
+    if (btnText) {
+      btnText.style.display = "none";
+    }
+    if (btnLoader) {
+      btnLoader.style.display = "inline-block";
+    }
+
     console.log("[Email Auth] Starting email/password sign-in");
     const result = await signInWithEmailAndPassword(auth, email, password);
     const user = result.user;
@@ -126,11 +141,13 @@ export async function signInWithPassword(email, password) {
     const authorized = await syncAdminAuth(user);
 
     if (authorized) {
+      console.log("[Email Auth] Authorization successful");
       setStatus("Welcome!", "success");
       if (uiManager) {
         uiManager.enterDashboard(user.email);
       }
     }
+    // syncAdminAuth handles unauthorized case
   } catch (error) {
     console.error("[Email Auth Error]", error.code, error.message);
 
@@ -144,6 +161,17 @@ export async function signInWithPassword(email, password) {
       setStatus("Too many attempts. Try again later.", "error");
     } else {
       setStatus("Sign-in failed. Please try again.", "error");
+    }
+  } finally {
+    // Hide loading state
+    if (btnLoginPassword) {
+      btnLoginPassword.disabled = false;
+    }
+    if (btnText) {
+      btnText.style.display = "inline";
+    }
+    if (btnLoader) {
+      btnLoader.style.display = "none";
     }
   }
 }
@@ -244,17 +272,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Register event listeners
   const btnGoogle = document.getElementById("btn-google-signin");
+  const btnLoginPassword = document.getElementById("btn-login-password");
   const btnForgotPassword = document.getElementById("btn-forgot-password");
   const emailPasswordForm = document.getElementById("email-password-form");
+  const emailInput = document.getElementById("email-password-input");
+  const passwordInput = document.getElementById("password-input");
 
   if (btnGoogle) {
     btnGoogle.addEventListener("click", signInWithGoogle);
   }
 
+  if (btnLoginPassword) {
+    btnLoginPassword.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (!emailInput || !passwordInput) {
+        console.error("[Email Auth] Missing email or password input elements");
+        setStatus("Form elements not found. Please refresh the page.", "error");
+        return;
+      }
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!email || !password) {
+        setStatus("Enter email and password.", "error");
+        return;
+      }
+
+      signInWithPassword(email, password);
+    });
+  }
+
   if (btnForgotPassword) {
     btnForgotPassword.addEventListener("click", (e) => {
       e.preventDefault();
-      const email = document.getElementById("email-input").value.trim();
+      if (!emailInput) {
+        console.error("[Password Reset] Missing email input element");
+        setStatus("Email input not found. Please refresh the page.", "error");
+        return;
+      }
+      const email = emailInput.value.trim();
       if (email) {
         sendPasswordReset(email);
       } else {
@@ -266,8 +322,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (emailPasswordForm) {
     emailPasswordForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      const email = document.getElementById("email-input").value.trim();
-      const password = document.getElementById("password-input").value;
+      if (!emailInput || !passwordInput) {
+        console.error("[Email Auth] Missing email or password input elements");
+        setStatus("Form elements not found. Please refresh the page.", "error");
+        return;
+      }
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
 
       if (!email || !password) {
         setStatus("Enter email and password.", "error");
