@@ -3,20 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EliTechWiz Admin Panel</title>
+  <title>Admin Panel</title>
   <meta name="robots" content="noindex,nofollow">
-  <link rel="stylesheet" href="/elitech/wp-content/themes/renovex/assets/css/all.min.css">
   <link rel="stylesheet" href="/elitech/admin/admin.css">
   
-  <!-- Safety mechanism: Hide loading overlay after 15 seconds if not hidden by app -->
   <script>
     window.hideLoadingOverlayTimer = setTimeout(function() {
-      console.warn("[Safety] Loading overlay timeout - hiding overlay");
       var overlay = document.getElementById("loading-overlay");
       if (overlay) {
         overlay.style.display = "none";
         overlay.classList.add("hidden");
-        overlay.style.pointerEvents = "none";
       }
       var loginView = document.getElementById("login-view");
       if (loginView) {
@@ -28,34 +24,34 @@
 </head>
 <body class="admin-body">
   <!-- Loading Overlay -->
-  <div class="admin-loading-overlay" id="loading-overlay" aria-hidden="true">
+  <div class="admin-loading-overlay" id="loading-overlay">
     <div class="loader-container">
       <div class="loader"></div>
-      <p class="loader-text">Loading...</p>
     </div>
   </div>
 
-  <!-- Login View: Dribbble-Inspired Premium Design -->
-  <section id="login-view" class="login-view is-active" aria-hidden="false">
+  <!-- Login View -->
+  <section id="login-view" class="login-view is-active">
     <div class="login-container">
-      <!-- Left Panel: Login Card -->
+      <!-- Left Panel: Login Form -->
       <div class="login-panel">
         <div class="login-card">
           <!-- Brand -->
           <div class="login-brand">
-            <img src="/elitech/wp-content/uploads/2025/11/logo.svg" alt="EliTechWiz" class="logo-img">
-            <span class="logo-text">EliTechWiz Admin</span>
+            <svg class="brand-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+              <rect width="40" height="40" rx="8" fill="#111827"/>
+              <text x="20" y="26" font-family="system-ui" font-size="20" font-weight="bold" fill="white" text-anchor="middle">ET</text>
+            </svg>
           </div>
 
-          <!-- Welcome Header -->
+          <!-- Heading -->
           <div class="login-heading">
-            <h1>Welcome back</h1>
-            <p>Sign in to access the admin portal</p>
+            <h1>Welcome</h1>
           </div>
 
           <!-- Google Sign-In Button -->
-          <button type="button" id="btn-google-signin" class="btn-google" aria-label="Continue with Google">
-            <svg class="google-icon" viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
+          <button type="button" id="btn-google-signin" class="btn-google">
+            <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -65,671 +61,92 @@
           </button>
 
           <!-- Divider -->
-          <div class="login-divider">
-            <span>or</span>
-          </div>
+          <div class="login-divider">or</div>
 
           <!-- Email/Password Form -->
           <form id="email-password-form" class="login-form">
             <div class="form-group">
-              <label for="email-password-input" class="form-label">Email Address</label>
-              <input 
-                type="email" 
-                id="email-password-input" 
-                class="form-input" 
-                placeholder="admin@example.com"
-                required
-                autocomplete="email">
+              <label for="email-password-input">Email</label>
+              <input type="email" id="email-password-input" placeholder="you@example.com" required autocomplete="email">
             </div>
 
             <div class="form-group">
-              <div class="form-label-row">
-                <label for="password-input" class="form-label">Password</label>
-                <button type="button" id="btn-forgot-password" class="link-button">Forgot password?</button>
+              <div class="form-group-header">
+                <label for="password-input">Password</label>
+                <button type="button" id="btn-forgot-password" class="link-button">Forgot?</button>
               </div>
-              <input 
-                type="password" 
-                id="password-input" 
-                class="form-input" 
-                placeholder="••••••••"
-                required
-                autocomplete="current-password">
+              <input type="password" id="password-input" placeholder="••••••••" required autocomplete="current-password">
             </div>
 
-            <button type="button" id="btn-login-password" class="btn-primary" aria-label="Sign in with email">
+            <button type="button" id="btn-login-password" class="btn-primary">
               <span class="btn-text">Sign in</span>
-              <span class="btn-loader" id="btn-loader" style="display: none;">
-                <i class="fas fa-spinner fa-spin"></i>
-              </span>
+              <span class="btn-loader" style="display: none;"><i class="spinner"></i></span>
             </button>
           </form>
 
-          <!-- Status/Error Messages -->
-          <div id="status" class="auth-status" style="display: none;" role="alert" aria-live="polite"></div>
-
-          <!-- Footer -->
-          <div class="login-footer">
-            <p class="footer-text">Protected by Firebase & Secure Serverless APIs</p>
-          </div>
+          <!-- Status Messages -->
+          <div id="status" class="auth-status" style="display: none;"></div>
         </div>
       </div>
 
-      <!-- Right Panel: Premium Visual/Branding -->
+      <!-- Right Panel: Visual -->
       <div class="visual-panel">
-        <div class="visual-content">
-          <div class="gradient-background"></div>
-          <div class="shape-container">
-            <div class="shape shape-1"></div>
-            <div class="shape shape-2"></div>
-            <div class="shape shape-3"></div>
-          </div>
-          <div class="visual-text">
-            <h2>Secure Admin Access</h2>
-            <p>Manage your platform with confidence. Industry-leading security and enterprise-grade controls.</p>
-          </div>
+        <div class="visual-bg"></div>
+        <div class="visual-shapes">
+          <div class="shape s1"></div>
+          <div class="shape s2"></div>
+          <div class="shape s3"></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Dashboard View -->
-  <section id="dashboard-view" class="dashboard-view" aria-hidden="true" style="display: none;">
+  <section id="dashboard-view" class="dashboard-view" style="display: none;">
     <header class="dashboard-header">
       <div class="header-left">
-        <img src="/elitech/wp-content/uploads/2025/11/logo.svg" alt="EliTechWiz" class="header-logo">
-        <span class="header-title">EliTechWiz CMS</span>
+        <div class="brand-icon"></div>
+        <span>Admin Panel</span>
       </div>
       <div class="header-right">
-        <span id="user-email" class="user-email"></span>
-        <button id="btn-logout" class="btn-logout" aria-label="Sign out">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
+        <span id="user-email"></span>
+        <button id="btn-logout" class="btn-logout">Logout</button>
       </div>
     </header>
 
     <main class="dashboard-content">
       <nav class="dashboard-nav">
-        <button class="nav-btn active" data-tab="dashboard"><i class="fas fa-home"></i> Dashboard</button>
-        <button class="nav-btn" data-tab="users"><i class="fas fa-users-cog"></i> Users & Admins</button>
-        <button class="nav-btn" data-tab="logs"><i class="fas fa-history"></i> Audit Logs</button>
+        <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
+        <button class="nav-btn" data-tab="users">Users & Admins</button>
+        <button class="nav-btn" data-tab="logs">Audit Logs</button>
       </nav>
 
       <div class="dashboard-tabs">
         <section id="tab-dashboard" class="tab-panel active">
           <div class="panel-header">
             <h2>Dashboard</h2>
-            <p class="text-muted">Welcome to the EliTechWiz admin portal</p>
           </div>
+          <p>Welcome to the admin panel</p>
         </section>
 
         <section id="tab-users" class="tab-panel">
           <div class="panel-header">
             <h2>Users & Admins</h2>
-            <p class="text-muted">Manage administrator accounts</p>
           </div>
-
-          <div class="users-management">
-            <div class="card add-admin-card">
-              <h3><i class="fas fa-user-plus"></i> Add Admin User</h3>
-              <p class="card-description">Create a new administrator account.</p>
-              
-              <form id="add-admin-form" class="admin-form">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="new-user-email" class="form-label">Email Address</label>
-                    <input type="email" id="new-user-email" class="form-input" placeholder="admin@example.com" required>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="new-user-password" class="form-label">Temporary Password</label>
-                    <input type="password" id="new-user-password" class="form-input" placeholder="Min 6 characters" required>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="new-user-role" class="form-label">Role</label>
-                    <select id="new-user-role" class="form-input" required>
-                      <option value="super_admin">Super Admin</option>
-                      <option value="admin">Content Admin</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="form-actions">
-                  <button type="submit" id="btn-create-user" class="btn-primary">Create Admin</button>
-                </div>
-
-                <div id="add-user-error" class="alert alert-error" style="display: none;"></div>
-              </form>
-            </div>
-
-            <div class="card users-list-card">
-              <h3><i class="fas fa-list"></i> Registered Administrators</h3>
-              <div class="table-container">
-                <table class="users-table">
-                  <thead>
-                    <tr>
-                      <th>Email</th>
-                      <th>Role</th>
-                      <th>Status</th>
-                      <th>Created</th>
-                    </tr>
-                  </thead>
-                  <tbody id="admin-users-list">
-                    <tr>
-                      <td colspan="4" class="text-center text-muted">
-                        <i class="fas fa-spinner fa-spin"></i> Loading users...
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+          <div id="admin-users-list"></div>
         </section>
 
         <section id="tab-logs" class="tab-panel">
           <div class="panel-header">
             <h2>Audit Logs</h2>
-            <p class="text-muted">Admin authentication and activity log</p>
           </div>
-          <div class="card">
-            <div id="logs-container" class="logs-container">
-              <p class="text-muted">Loading audit logs...</p>
-            </div>
-          </div>
+          <div id="logs-container"></div>
         </section>
       </div>
     </main>
   </section>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
   <script type="module" src="/elitech/admin/firebase-email-auth.js"></script>
-  <script src="/elitech/admin/admin.js"></script>
+  <script type="module" src="/elitech/admin/admin.js"></script>
 </body>
 </html>
-              <div class="health-metrics">
-                <div class="metric">
-                  <div class="metric-label"><span>Firebase REST API</span> <span class="badge ok">Online</span></div>
-                  <div class="metric-bar"><div class="fill ok" style="width:100%"></div></div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label"><span>SEO Integrity</span> <span class="badge warn" id="kpi-seo-warnings-badge">0 Warnings</span></div>
-                  <div class="metric-bar"><div class="fill warn" id="kpi-seo-bar" style="width:0%"></div></div>
-                </div>
-                <div class="metric">
-                  <div class="metric-label"><span>JSON Payload Size</span> <span class="badge blue" id="kpi-payload-size">0 KB</span></div>
-                  <div class="metric-bar"><div class="fill blue" id="kpi-payload-bar" style="width:5%"></div></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="dash-widget">
-              <div class="panel-head">
-                <h3>Quick Operations</h3>
-              </div>
-              <div class="quick-actions-grid">
-                <button class="qa-btn" type="button" onclick="document.querySelector('[data-tab=\\'projects\\']').click(); setTimeout(()=>document.getElementById('add-project').click(), 100);"><i class="fas fa-hard-hat"></i> New Project</button>
-                <button class="qa-btn" type="button" onclick="document.querySelector('[data-tab=\\'blogs\\']').click(); setTimeout(()=>document.getElementById('add-blog').click(), 100);"><i class="fas fa-pen-nib"></i> Publish Article</button>
-                <button class="qa-btn" type="button" onclick="document.querySelector('[data-tab=\\'media\\']').click()"><i class="fas fa-cloud-upload-alt"></i> Upload Media</button>
-                <button class="qa-btn" type="button" onclick="document.querySelector('[data-tab=\\'logs\\']').click()"><i class="fas fa-laptop-code"></i> Live Audit Console</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="tab-site" class="tab-panel">
-        <div class="panel-head">
-          <h3>Global Protocol & Branding Engine</h3>
-          <p class="hint">Configure root-level identity mappings and system contact schemas.</p>
-        </div>
-
-        <div class="site-settings-grid">
-          <!-- Block 1 -->
-          <div class="settings-block">
-            <div class="block-header">
-              <i class="fas fa-fingerprint block-icon"></i>
-              <div>
-                <h4>Core Identity</h4>
-                <p>Public-facing nomenclature & branding assets</p>
-              </div>
-            </div>
-            <div class="form-wrapper">
-              <label>Company Name
-                <div class="icon-input">
-                  <i class="fas fa-building"></i>
-                  <input id="site-name" type="text" placeholder="EliTechWiz">
-                </div>
-              </label>
-              <label>Global Tagline
-                <div class="icon-input">
-                  <i class="fas fa-quote-right"></i>
-                  <input id="site-tagline" type="text" placeholder="Engineering the future.">
-                </div>
-              </label>
-              <label>Primary Logo (URL)
-                <div class="icon-input">
-                  <i class="fas fa-image"></i>
-                  <input id="site-logo" type="url" placeholder="/elitech/wp-content/uploads/logo.svg">
-                </div>
-              </label>
-            </div>
-          </div>
-
-          <!-- Block 2 -->
-          <div class="settings-block">
-            <div class="block-header">
-              <i class="fas fa-headset block-icon"></i>
-              <div>
-                <h4>Operations Control</h4>
-                <p>Customer acquisition and support routing</p>
-              </div>
-            </div>
-            <div class="form-wrapper">
-              <label>Main Phone Directory
-                <div class="icon-input">
-                  <i class="fas fa-phone-alt"></i>
-                  <input id="site-phone" type="text" placeholder="+1 (555) 123-4567">
-                </div>
-              </label>
-              <label>Business Email Node
-                <div class="icon-input">
-                  <i class="fas fa-envelope"></i>
-                  <input id="site-email" type="email" placeholder="contact@elitechwiz.com">
-                </div>
-              </label>
-              <label>Physical Infrastructure (HQ)
-                <div class="icon-input align-top">
-                  <i class="fas fa-map-marker-alt" style="margin-top:4px;"></i>
-                  <textarea id="site-address" rows="3" placeholder="123 Industrial Ave, Business Dist..."></textarea>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          <!-- Block 3 -->
-          <div class="settings-block full-width">
-            <div class="block-header">
-              <i class="fas fa-project-diagram block-icon"></i>
-              <div>
-                <h4>Social Network Topology</h4>
-                <p>Connect official brand channels across networks</p>
-              </div>
-            </div>
-            <div class="form-wrapper social-grid">
-              <label>LinkedIn Subnet
-                <div class="icon-input">
-                  <i class="fab fa-linkedin" style="color: #0077b5"></i>
-                  <input id="site-social-linkedin" type="url" placeholder="https://linkedin.com/...">
-                </div>
-              </label>
-              <label>X (Twitter) Relay
-                <div class="icon-input">
-                  <i class="fab fa-twitter" style="color: #1da1f2"></i>
-                  <input id="site-social-twitter" type="url" placeholder="https://x.com/...">
-                </div>
-              </label>
-              <label>Facebook Hub
-                <div class="icon-input">
-                  <i class="fab fa-facebook" style="color: #1877f2"></i>
-                  <input id="site-social-facebook" type="url" placeholder="https://facebook.com/...">
-                </div>
-              </label>
-        </div>
-      </section>
-
-      <section id="tab-seo" class="tab-panel">
-        <div class="panel-head">
-          <h3>Global SEO & Indexing Protocols</h3>
-          <p class="hint">Tweak OpenGraph metadata, search engine index limits, and canonical pointers.</p>
-        </div>
-        <div class="seo-manager-layout">
-          <!-- Left: Editors -->
-          <div class="seo-editors" style="display: flex; flex-direction: column; gap: 20px;">
-            <div class="settings-block" style="margin: 0; padding: 20px;">
-              <div class="block-header" style="margin-bottom: 16px; padding-bottom: 12px;">
-                <i class="fas fa-search block-icon" style="width: 40px; height: 40px; font-size: 1.2rem;"></i>
-                <div>
-                  <h4 style="margin:0; font-size: 1rem;">Primary Metadata</h4>
-                </div>
-              </div>
-              <label>SEO Title
-                <div class="input-with-counter">
-                  <div class="icon-input">
-                    <i class="fas fa-heading"></i>
-                    <input id="seo-title" type="text" placeholder="Optimal length ~60 characters">
-                  </div>
-                  <span id="seo-title-count" class="char-counter">0 / 60</span>
-                </div>
-              </label>
-              <label style="margin-top: 14px;">Meta Description
-                <div class="input-with-counter">
-                  <div class="icon-input align-top">
-                    <i class="fas fa-align-left" style="margin-top:4px;"></i>
-                    <textarea id="seo-description" rows="4" placeholder="Optimal length ~160 characters"></textarea>
-                  </div>
-                  <span id="seo-desc-count" class="char-counter">0 / 160</span>
-                </div>
-              </label>
-            </div>
-
-            <div class="settings-block" style="margin: 0; padding: 20px;">
-              <div class="block-header" style="margin-bottom: 16px; padding-bottom: 12px;">
-                <i class="fas fa-share-alt block-icon" style="width: 40px; height: 40px; font-size: 1.2rem;"></i>
-                <div>
-                  <h4 style="margin:0; font-size: 1rem;">Social Graph Assets</h4>
-                </div>
-              </div>
-              <label>OG/Twitter Cover Image URL
-                <div class="icon-input">
-                  <i class="fas fa-image"></i>
-                  <input id="seo-image" type="url" placeholder="https://...">
-                </div>
-              </label>
-              <div class="form-grid" style="margin-top: 14px; gap: 14px;">
-                <label>Canonical Pointers
-                  <div class="icon-input">
-                    <i class="fas fa-link"></i>
-                    <input id="seo-url" type="url">
-                  </div>
-                </label>
-                <label>Twitter Relays
-                  <div class="icon-input">
-                    <i class="fab fa-twitter"></i>
-                    <select id="seo-twitter-card" style="width: 100%; padding-left: 42px !important; appearance: none;">
-                      <option value="summary_large_image">summary_large_image</option>
-                      <option value="summary">summary</option>
-                    </select>
-                  </div>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right: Live Previews -->
-          <div class="seo-previews">
-            <div class="panel-head" style="margin-bottom: 0;">
-              <h3 style="margin-bottom: 0;">Live Previews</h3>
-            </div>
-            
-            <div class="preview-card google-preview">
-              <h4 class="preview-label">Google Search</h4>
-              <div class="gp-url" id="gp-url">elitechwiz.com</div>
-              <div class="gp-title" id="gp-title">EliTechWiz | Civil Engineering</div>
-              <div class="gp-desc" id="gp-desc">Providing structural scaling and premium industrial planning...</div>
-            </div>
-
-            <div class="preview-card social-preview">
-              <h4 class="preview-label">LinkedIn / Facebook / Twitter</h4>
-              <div class="sp-image" id="sp-image-container">
-                <img id="sp-image-el" src="" alt="Social Share Image" style="display:none;">
-                <div class="sp-placeholder" id="sp-placeholder"><i class="fas fa-image"></i></div>
-              </div>
-              <div class="sp-content">
-                <div class="sp-domain">elitechwiz.com</div>
-                <div class="sp-title" id="sp-title">EliTechWiz | Civil Engineering</div>
-                <div class="sp-desc" id="sp-desc">Providing structural scaling and premium industrial planning...</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="tab-media" class="tab-panel">
-        <div class="panel-head">
-          <h3>Media Library</h3>
-          <div class="header-actions">
-            <button id="btn-upload-media" class="btn-default"><i class="fas fa-upload"></i> Upload Asset</button>
-          </div>
-        </div>
-        <div class="media-toolbar">
-          <input type="text" id="media-search" placeholder="Search media assets..." style="max-width: 300px;">
-        </div>
-        <div id="media-grid" class="media-grid">
-          <!-- Populated by JS -->
-        </div>
-      </section>
-
-      <section id="tab-replacements" class="tab-panel">
-        <div class="panel-head">
-          <h3>Global Text Replacements</h3>
-          <button id="add-replacement" class="btn-default"><i class="fas fa-plus"></i> Add Rule</button>
-        </div>
-        <p class="hint">Define string sequences to be automatically found and replaced on runtime globally across all site pages.</p>
-        <div id="replacements-list" class="list-wrap"></div>
-      </section>
-
-      <section id="tab-rules" class="tab-panel">
-        <div class="panel-head">
-          <h3>Custom Page Rules</h3>
-          <button id="add-rule" class="btn-default"><i class="fas fa-plus"></i> Add Path Route</button>
-        </div>
-        <p class="hint">Use for all site content. Path examples: <code>/elitech/</code>, <code>/elitech/home-version-2/</code>, <code>/elitech/*</code>.</p>
-        <div id="rules-list" class="list-wrap"></div>
-      </section>
-
-      <section id="tab-blogs" class="tab-panel">
-        <div class="panel-head">
-          <h3>Manage Blogs</h3>
-          <button id="add-blog" class="btn-default">Add Blog</button>
-        </div>
-        <div id="blogs-list" class="list-wrap"></div>
-      </section>
-
-      <section id="tab-projects" class="tab-panel">
-        <div class="panel-head">
-          <h3>Manage Projects</h3>
-          <button id="add-project" class="btn-default">Add Project</button>
-        </div>
-        <div id="projects-list" class="list-wrap"></div>
-      </section>
-
-      <section id="tab-services" class="tab-panel">
-        <div class="panel-head">
-          <h3>Manage Services</h3>
-          <button id="add-service" class="btn-default">Add Service</button>
-        </div>
-        <div id="services-list" class="list-wrap"></div>
-      </section>
-
-            <section id="tab-users" class="tab-panel">
-    <div class="panel-head mb-6 flex justify-between items-center">
-        <div>
-            <h2 class="text-xl font-semibold m-0 text-gray-900">User Management</h2>
-            <p class="text-sm text-gray-500 mt-1">Manage administrators and their roles.</p>
-        </div>
-    </div>
-    
-    <div class="kibaha-container space-y-6">
-        <div id="admin-invite" class="card-outline rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h3 class="text-lg font-semibold text-gray-900 m-0">Add Admin User</h3>
-            <p class="mt-1 text-sm text-gray-500">
-                Create new administrator accounts here. They will receive an email to sign in.
-            </p>
-
-            <div class="mt-5 flex flex-wrap items-end gap-4" id="add-user-modal">
-                <div class="form-group flex-1 min-w-[200px]">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                    <input type="email" id="new-user-email" class="admin-input block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="admin@example.com">
-                </div>
-                
-                <div class="form-group flex-1 min-w-[200px]">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Temporary Password</label>
-                    <input type="password" id="new-user-password" class="admin-input block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Min 6 characters">
-                </div>
-
-                <div class="form-group min-w-[150px]">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                    <select id="new-user-role" class="admin-input block w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none">
-                        <option value="admin">Content Admin</option>
-                        <option value="super_admin">Super Admin</option>
-                    </select>
-                </div>
-
-                <button id="add-admin-user" class="btn-primary rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2">
-                    Save Admin
-                </button>
-            </div>
-            <div id="add-user-error" class="hidden mt-3 text-sm text-red-600 bg-red-50 p-2 rounded"></div>
-        </div>
-
-        <div class="card-outline rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm whitespace-nowrap">
-                    <thead class="bg-gray-50 text-gray-600 border-b border-gray-200">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 font-medium">Email</th>
-                            <th scope="col" class="px-6 py-3 font-medium">Role</th>
-                            <th scope="col" class="px-6 py-3 font-medium">Status</th>
-                            <th scope="col" class="px-6 py-3 font-medium">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-users-list" class="divide-y divide-gray-200 bg-white">
-                        <tr>
-                            <td colspan="4" class="px-6 py-8 text-center text-gray-500">
-                                <div class="inline-flex items-center justify-center">
-                                    <i class="fas fa-circle-notch fa-spin mr-2"></i> Loading users...
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-1"><i class="fas fa-shield-alt text-gray-500 mr-1"></i> Super Admin</h4>
-                        <p class="text-gray-600 mb-0 mt-0">Full database structural control, global settings, & user management.</p>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-900 mb-1"><i class="fas fa-edit text-gray-500 mr-1"></i> Content Admin</h4>
-                        <p class="text-gray-600 mb-0 mt-0">Manage projects, blogs, services, media, and general content.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-            <section id="tab-logs" class="tab-panel">
-        <div class="panel-head">
-          <h3>System Audit Log</h3>
-          <div class="header-actions">
-            <button id="clear-logs" class="btn-default btn-outline" style="color:var(--admin-error); border-color:var(--admin-error);"><i class="fas fa-trash-alt"></i> Clear Logs</button>
-          </div>
-        </div>
-        <div id="logs-list" class="list-wrap">
-           <div class="audit-console">
-             <div class="audit-header">
-               <div class="mac-dots"><span></span><span></span><span></span></div>
-               <div class="audit-title">syslog :: live session</div>
-             </div>
-             <div class="audit-scroll" id="logs-tbody">
-               <!-- Populated by JS -->
-             </div>
-           </div>
-        </div>
-      </section>
-
-      <section id="tab-json" class="tab-panel">
-        <div class="panel-head">
-          <h3>Advanced System State</h3>
-          <div class="header-actions">
-            <button id="btn-load-json" class="btn-default btn-outline" style="padding: 6px 12px; font-size: 0.8rem;"><i class="fas fa-sync"></i> Re-Hydrate Form</button>
-            <button id="btn-export" class="btn-default btn-outline" style="padding: 6px 12px; font-size: 0.8rem;"><i class="fas fa-download"></i> Download Export</button>
-            <label class="btn-default" style="margin: 0; padding: 6px 12px; font-size: 0.8rem; cursor: pointer;">
-              <i class="fas fa-upload"></i> Import Configuration
-              <input id="file-import" type="file" accept="application/json" style="display: none;">
-            </label>
-          </div>
-        </div>
-        
-        <div class="code-editor-wrap">
-          <div class="code-editor-header">
-            <div class="mac-dots"><span></span><span></span><span></span></div>
-            <div class="code-title">content.json — Read-Only Mode (Auto-Synced)</div>
-          </div>
-          <textarea id="raw-json" rows="24" class="code-textarea" spellcheck="false"></textarea>
-        </div>
-      </section>
-
-      <footer class="admin-footer hidden" id="status" aria-live="polite">Ready.</footer>
-    </main>
-  </div>
-
-  <div id="toast-container" class="admin-toast-container" aria-live="polite"></div>
-
-  <!-- Full Screen Split-Pane Editor Workspace -->
-  <div class="editor-workspace-overlay" id="editor-workspace" aria-hidden="true">
-    <header class="editor-header">
-      <div class="editor-breadcrumbs">
-        <button id="editor-back-btn" class="btn-icon" aria-label="Back"><i class="fas fa-arrow-left"></i></button>
-        <span id="editor-workspace-title">Edit Project</span>
-      </div>
-      <div class="editor-actions">
-        <button id="editor-workspace-cancel" class="btn-default btn-outline">Discard Changes</button>
-        <button id="editor-workspace-save" class="btn-default">Save Content</button>
-      </div>
-    </header>
-    <div class="editor-body">
-      
-      <!-- Main Content / Left Pane -->
-      <div class="editor-main">
-        <div class="editor-canvas">
-          <input id="ws-title-input" class="editor-title-h1" type="text" placeholder="Entry Title...">
-          
-          <div class="editor-block-card">
-            <h4>Content Body</h4>
-            <textarea id="ws-excerpt-input" rows="16" placeholder="Write your full content here..."></textarea>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Inspector / Right Pane -->
-      <aside class="editor-inspector">
-        <div class="inspector-panel">
-          <h4>Publish Settings</h4>
-          <label>Status
-            <select id="ws-status-input">
-              <option value="published">Published</option>
-              <option value="draft">Draft</option>
-            </select>
-          </label>
-          <label>Date
-             <input id="ws-date-input" type="text" placeholder="May 12, 2026">
-          </label>
-        </div>
-
-        <div class="inspector-panel">
-          <h4>Metadata</h4>
-          <label>Category
-            <input id="ws-category-input" type="text" placeholder="e.g. Industrial">
-          </label>
-          <label>Target URL Slug
-            <input id="ws-url-input" type="text" placeholder="/elitech/projects/slug/">
-          </label>
-        </div>
-
-        <div class="inspector-panel">
-          <h4>Media & Image</h4>
-          <div class="media-placeholder" id="ws-image-preview">
-            <i class="fas fa-image"></i>
-            <span>Provide an image URL below</span>
-          </div>
-          <label>Hero Image Path
-             <input id="ws-image-input" type="text" placeholder="/path/to/image.jpg">
-          </label>
-        </div>
-      </aside>
-    </div>
-  </div>
-
-  <script src="/elitech/admin/admin.js"></script>
-  <script type="module" src="/elitech/admin/firebase-email-auth.js"></script>
-</body>
-</html>
-
-
-
-
