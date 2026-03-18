@@ -2512,3 +2512,108 @@ code {
   transform: translateY(-2px);
 }
 
+
+/* ==============================================================
+   5. SITE PROTOCOL (TAB-SITE)
+============================================================== */
+.site-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 24px;
+}
+
+.settings-block {
+  background: var(--admin-white);
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  padding: 24px;
+  box-shadow: var(--admin-shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.settings-block:hover {
+  border-color: rgba(254, 212, 3, 0.5);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+}
+
+.settings-block.full-width {
+  grid-column: 1 / -1;
+}
+
+.block-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.block-icon {
+  font-size: 1.5rem;
+  color: var(--admin-accent);
+  background: rgba(254, 212, 3, 0.08);
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.block-header h4 {
+  margin: 0 0 4px 0;
+  font-size: 1.1rem;
+  color: #111827;
+  font-weight: 700;
+}
+
+.block-header p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+
+.form-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.social-grid {
+  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.icon-input {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.icon-input i {
+  position: absolute;
+  left: 14px;
+  color: #9ca3af;
+  font-size: 1rem;
+  pointer-events: none;
+  transition: color 0.2s;
+}
+
+.icon-input.align-top i {
+  top: 14px;
+}
+
+.icon-input input,
+.icon-input textarea {
+  padding-left: 42px !important;
+  width: 100%;
+}
+
+.icon-input input:focus + i,
+.icon-input textarea:focus + i {
+  color: var(--admin-accent);
+}

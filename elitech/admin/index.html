@@ -257,69 +257,169 @@
 
       <section id="tab-site" class="tab-panel">
         <div class="panel-head">
-          <h3>Global Branding & System Contact Info</h3>
+          <h3>Global Protocol & Branding Engine</h3>
+          <p class="hint">Configure root-level identity mappings and system contact schemas.</p>
         </div>
-        
+
         <div class="site-settings-grid">
+          <!-- Block 1 -->
           <div class="settings-block">
-            <h4>Identity</h4>
-            <div class="form-grid" style="grid-template-columns: 1fr;">
-              <label>Company Name<input id="site-name" type="text" placeholder="EliTechWiz"></label>
-              <label>Tagline / Moto<input id="site-tagline" type="text" placeholder="Engineering the future."></label>
-              <label>Brand Logo URL<input id="site-logo" type="url" placeholder="/elitech/wp-content/uploads/.../logo.svg"></label>
+            <div class="block-header">
+              <i class="fas fa-fingerprint block-icon"></i>
+              <div>
+                <h4>Core Identity</h4>
+                <p>Public-facing nomenclature & branding assets</p>
+              </div>
+            </div>
+            <div class="form-wrapper">
+              <label>Company Name
+                <div class="icon-input">
+                  <i class="fas fa-building"></i>
+                  <input id="site-name" type="text" placeholder="EliTechWiz">
+                </div>
+              </label>
+              <label>Global Tagline
+                <div class="icon-input">
+                  <i class="fas fa-quote-right"></i>
+                  <input id="site-tagline" type="text" placeholder="Engineering the future.">
+                </div>
+              </label>
+              <label>Primary Logo (URL)
+                <div class="icon-input">
+                  <i class="fas fa-image"></i>
+                  <input id="site-logo" type="url" placeholder="/elitech/wp-content/uploads/logo.svg">
+                </div>
+              </label>
             </div>
           </div>
 
+          <!-- Block 2 -->
           <div class="settings-block">
-            <h4>Primary Operations Contact</h4>
-            <div class="form-grid" style="grid-template-columns: 1fr;">
-              <label>Main Phone Number<input id="site-phone" type="text" placeholder="+1 (555) 123-4567"></label>
-              <label>Support Email Address<input id="site-email" type="email" placeholder="contact@elitechwiz.com"></label>
-              <label>Headquarters Location<textarea id="site-address" rows="3" placeholder="123 Industrial Ave, Business Dist..."></textarea></label>
+            <div class="block-header">
+              <i class="fas fa-headset block-icon"></i>
+              <div>
+                <h4>Operations Control</h4>
+                <p>Customer acquisition and support routing</p>
+              </div>
+            </div>
+            <div class="form-wrapper">
+              <label>Main Phone Directory
+                <div class="icon-input">
+                  <i class="fas fa-phone-alt"></i>
+                  <input id="site-phone" type="text" placeholder="+1 (555) 123-4567">
+                </div>
+              </label>
+              <label>Business Email Node
+                <div class="icon-input">
+                  <i class="fas fa-envelope"></i>
+                  <input id="site-email" type="email" placeholder="contact@elitechwiz.com">
+                </div>
+              </label>
+              <label>Physical Infrastructure (HQ)
+                <div class="icon-input align-top">
+                  <i class="fas fa-map-marker-alt" style="margin-top:4px;"></i>
+                  <textarea id="site-address" rows="3" placeholder="123 Industrial Ave, Business Dist..."></textarea>
+                </div>
+              </label>
             </div>
           </div>
-          
-          <div class="settings-block">
-            <h4>Social Network Links</h4>
-            <div class="form-grid" style="grid-template-columns: 1fr;">
-              <label><i class="fab fa-linkedin" style="color: #0077b5"></i> LinkedIn URL<input id="site-social-linkedin" type="url" placeholder="https://linkedin.com/..."></label>
-              <label><i class="fab fa-twitter" style="color: #1da1f2"></i> X (Twitter) URL<input id="site-social-twitter" type="url" placeholder="https://x.com/..."></label>
-              <label><i class="fab fa-facebook" style="color: #1877f2"></i> Facebook URL<input id="site-social-facebook" type="url" placeholder="https://facebook.com/..."></label>
+
+          <!-- Block 3 -->
+          <div class="settings-block full-width">
+            <div class="block-header">
+              <i class="fas fa-project-diagram block-icon"></i>
+              <div>
+                <h4>Social Network Topology</h4>
+                <p>Connect official brand channels across networks</p>
+              </div>
             </div>
-          </div>
+            <div class="form-wrapper social-grid">
+              <label>LinkedIn Subnet
+                <div class="icon-input">
+                  <i class="fab fa-linkedin" style="color: #0077b5"></i>
+                  <input id="site-social-linkedin" type="url" placeholder="https://linkedin.com/...">
+                </div>
+              </label>
+              <label>X (Twitter) Relay
+                <div class="icon-input">
+                  <i class="fab fa-twitter" style="color: #1da1f2"></i>
+                  <input id="site-social-twitter" type="url" placeholder="https://x.com/...">
+                </div>
+              </label>
+              <label>Facebook Hub
+                <div class="icon-input">
+                  <i class="fab fa-facebook" style="color: #1877f2"></i>
+                  <input id="site-social-facebook" type="url" placeholder="https://facebook.com/...">
+                </div>
+              </label>
         </div>
       </section>
 
       <section id="tab-seo" class="tab-panel">
+        <div class="panel-head">
+          <h3>Global SEO & Indexing Protocols</h3>
+          <p class="hint">Tweak OpenGraph metadata, search engine index limits, and canonical pointers.</p>
+        </div>
         <div class="seo-manager-layout">
           <!-- Left: Editors -->
-          <div class="seo-editors" style="display: flex; flex-direction: column; gap: 14px;">
-            <div class="panel-head" style="margin-bottom: 0;">
-              <h3 style="margin-bottom: 0;">Search & Social Settings</h3>
-            </div>
-            <label>SEO Title
-              <div class="input-with-counter">
-                <input id="seo-title" type="text" placeholder="Optimal length ~60 characters">
-                <span id="seo-title-count" class="char-counter">0 / 60</span>
+          <div class="seo-editors" style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="settings-block" style="margin: 0; padding: 20px;">
+              <div class="block-header" style="margin-bottom: 16px; padding-bottom: 12px;">
+                <i class="fas fa-search block-icon" style="width: 40px; height: 40px; font-size: 1.2rem;"></i>
+                <div>
+                  <h4 style="margin:0; font-size: 1rem;">Primary Metadata</h4>
+                </div>
               </div>
-            </label>
-            <label>Meta Description
-              <div class="input-with-counter">
-                <textarea id="seo-description" rows="4" placeholder="Optimal length ~160 characters"></textarea>
-                <span id="seo-desc-count" class="char-counter">0 / 160</span>
-              </div>
-            </label>
-            <label>OG/Twitter Image URL
-              <input id="seo-image" type="url" placeholder="https://...">
-            </label>
-            <div class="form-grid" style="margin-top: 0;">
-              <label>Canonical URL<input id="seo-url" type="url"></label>
-              <label>Twitter Card
-                <select id="seo-twitter-card">
-                  <option value="summary_large_image">summary_large_image</option>
-                  <option value="summary">summary</option>
-                </select>
+              <label>SEO Title
+                <div class="input-with-counter">
+                  <div class="icon-input">
+                    <i class="fas fa-heading"></i>
+                    <input id="seo-title" type="text" placeholder="Optimal length ~60 characters">
+                  </div>
+                  <span id="seo-title-count" class="char-counter">0 / 60</span>
+                </div>
               </label>
+              <label style="margin-top: 14px;">Meta Description
+                <div class="input-with-counter">
+                  <div class="icon-input align-top">
+                    <i class="fas fa-align-left" style="margin-top:4px;"></i>
+                    <textarea id="seo-description" rows="4" placeholder="Optimal length ~160 characters"></textarea>
+                  </div>
+                  <span id="seo-desc-count" class="char-counter">0 / 160</span>
+                </div>
+              </label>
+            </div>
+
+            <div class="settings-block" style="margin: 0; padding: 20px;">
+              <div class="block-header" style="margin-bottom: 16px; padding-bottom: 12px;">
+                <i class="fas fa-share-alt block-icon" style="width: 40px; height: 40px; font-size: 1.2rem;"></i>
+                <div>
+                  <h4 style="margin:0; font-size: 1rem;">Social Graph Assets</h4>
+                </div>
+              </div>
+              <label>OG/Twitter Cover Image URL
+                <div class="icon-input">
+                  <i class="fas fa-image"></i>
+                  <input id="seo-image" type="url" placeholder="https://...">
+                </div>
+              </label>
+              <div class="form-grid" style="margin-top: 14px; gap: 14px;">
+                <label>Canonical Pointers
+                  <div class="icon-input">
+                    <i class="fas fa-link"></i>
+                    <input id="seo-url" type="url">
+                  </div>
+                </label>
+                <label>Twitter Relays
+                  <div class="icon-input">
+                    <i class="fab fa-twitter"></i>
+                    <select id="seo-twitter-card" style="width: 100%; padding-left: 42px !important; appearance: none;">
+                      <option value="summary_large_image">summary_large_image</option>
+                      <option value="summary">summary</option>
+                    </select>
+                  </div>
+                </label>
+              </div>
             </div>
           </div>
 
