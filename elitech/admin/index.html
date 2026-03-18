@@ -143,6 +143,12 @@
         <button class="nav-btn" data-tab="services">
           <i class="fas fa-tools"></i> Services
         </button>
+                <button class="nav-btn" data-tab="users">
+          <i class="fas fa-users-cog"></i> Users & Admins
+        </button>
+                <button class="nav-btn" data-tab="users">
+          <i class="fas fa-users-cog"></i> Users & Admins
+        </button>
         <button class="nav-btn" data-tab="logs">
           <i class="fas fa-history"></i> Activity Logs
         </button>
@@ -509,6 +515,98 @@
         <div id="services-list" class="list-wrap"></div>
       </section>
 
+            <section id="tab-users" class="tab-panel">
+        <div class="panel-head">
+          <h3>User Management</h3>
+          <button id="add-admin-user" class="btn-default"><i class="fas fa-user-plus"></i> Add Admin</button>
+        </div>
+        <div class="split-layout">
+          <div class="form-container" style="flex: 2;">
+            <div class="form-group" style="margin-bottom: 2rem;">
+              <h4 style="color: var(--text-color); margin-bottom: 1rem;"><i class="fas fa-users"></i> Registered Administrators</h4>
+              <div id="admin-users-list" class="list-wrap" style="background: var(--admin-panel-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 10px;">
+                <p style="color: var(--text-hint); text-align: center; padding: 20px;">Loading users...</p>
+              </div>
+            </div>
+            
+            <div id="add-user-modal" style="display: none; background: var(--admin-panel-bg); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
+              <h4 style="color: white; margin-bottom: 15px;"><i class="fas fa-user-plus"></i> Create New Administrator</h4>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="new-user-email" class="icon-input" placeholder="admin@elitechwiz.com" />
+              </div>
+              <div class="form-group">
+                <label>Temporary Password</label>
+                <input type="password" id="new-user-password" class="icon-input" placeholder="Min 6 characters" />
+              </div>
+              <div class="form-group">
+                <label>Role</label>
+                <select id="new-user-role" class="icon-input">
+                  <option value="admin">Admin (Read/Write)</option>
+                  <option value="super_admin">Super Admin (Full Access)</option>
+                </select>
+              </div>
+              <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button id="submit-new-user" class="btn-default">Create User</button>
+                <button id="cancel-new-user" class="btn-default btn-outline">Cancel</button>
+              </div>
+            </div>
+          </div>
+          <div class="sidebar-help" style="flex: 1;">
+            <div class="help-card">
+              <h4><i class="fas fa-shield-alt"></i> Role Policies</h4>
+              <p><strong>Super Admin:</strong> Full database structural control, global settings, and user management.</p>
+              <p><strong>Admin:</strong> Manage projects, blogs, services, media, and general content.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+            <section id="tab-users" class="tab-panel">
+        <div class="panel-head">
+          <h3>User Management</h3>
+          <button id="add-admin-user" class="btn-default"><i class="fas fa-user-plus"></i> Add Admin</button>
+        </div>
+        <div class="split-layout">
+          <div class="form-container" style="flex: 2;">
+            <div class="form-group" style="margin-bottom: 2rem;">
+              <h4 style="color: var(--text-color); margin-bottom: 1rem;"><i class="fas fa-users"></i> Registered Administrators</h4>
+              <div id="admin-users-list" class="list-wrap" style="background: var(--admin-panel-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 10px;">
+                <p style="color: var(--text-hint); text-align: center; padding: 20px;">Loading users...</p>
+              </div>
+            </div>
+            
+            <div id="add-user-modal" style="display: none; background: var(--admin-panel-bg); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
+              <h4 style="color: white; margin-bottom: 15px;"><i class="fas fa-user-plus"></i> Create New Administrator</h4>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="new-user-email" class="icon-input" placeholder="admin@elitechwiz.com" />
+              </div>
+              <div class="form-group">
+                <label>Temporary Password</label>
+                <input type="password" id="new-user-password" class="icon-input" placeholder="Min 6 characters" />
+              </div>
+              <div class="form-group">
+                <label>Role</label>
+                <select id="new-user-role" class="icon-input">
+                  <option value="admin">Admin (Read/Write)</option>
+                  <option value="super_admin">Super Admin (Full Access)</option>
+                </select>
+              </div>
+              <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button id="submit-new-user" class="btn-default">Create User</button>
+                <button id="cancel-new-user" class="btn-default btn-outline">Cancel</button>
+              </div>
+            </div>
+          </div>
+          <div class="sidebar-help" style="flex: 1;">
+            <div class="help-card">
+              <h4><i class="fas fa-shield-alt"></i> Role Policies</h4>
+              <p><strong>Super Admin:</strong> Full database structural control, global settings, and user management.</p>
+              <p><strong>Admin:</strong> Manage projects, blogs, services, media, and general content.</p>
+            </div>
+          </div>
+        </div>
+      </section>
       <section id="tab-logs" class="tab-panel">
         <div class="panel-head">
           <h3>System Audit Log</h3>
@@ -626,3 +724,7 @@
   <script type="module" src="/elitech/admin/firebase-email-auth.js"></script>
 </body>
 </html>
+
+
+
+
