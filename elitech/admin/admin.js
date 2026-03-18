@@ -60,21 +60,36 @@ class CMSAdmin {
   }
 
   switchTab(tabName) {
+    // Validate tab name
+    if (!tabName || typeof tabName !== "string") {
+      console.warn("[Admin] Invalid tab name:", tabName);
+      return;
+    }
+
     console.log("[Admin] Switching to tab:", tabName);
     this.currentTab = tabName;
 
-    // Update nav buttons
+    // Update nav buttons - only in dashboard view
     this.navButtons.forEach((btn) => {
-      if (btn.dataset.tab === tabName) {
+      const btnTab = btn.dataset.tab;
+      if (!btnTab) return;
+
+      if (btnTab === tabName) {
         btn.classList.add("active");
       } else {
         btn.classList.remove("active");
       }
     });
 
-    // Update tab panels
+    // Update tab panels - ensure only one is active
     this.tabPanels.forEach((panel) => {
-      if (panel.dataset.panel === tabName) {
+      const panelTab = panel.dataset.panel;
+      if (!panelTab) {
+        console.warn("[Admin] Panel missing data-panel attribute:", panel.id);
+        return;
+      }
+
+      if (panelTab === tabName) {
         panel.classList.add("active");
       } else {
         panel.classList.remove("active");
@@ -126,7 +141,28 @@ class CMSAdmin {
       module.logout();
     });
   }
-}
+
+  // Debug helper: verify tab navigation setup
+  verifyTabMapping() {
+    console.group("[Admin] Tab Navigation Mapping");
+    console.log("Current tab:", this.currentTab);
+    console.log("Nav buttons found:", this.navButtons.length);
+    this.navButtons.forEach((btn, idx) => {
+      console.log(`  Button ${idx}:`, {
+        tab: btn.dataset.tab,
+        active: btn.classList.contains("active"),
+      });
+    });
+    console.log("Tab panels found:", this.tabPanels.length);
+    this.tabPanels.forEach((panel, idx) => {
+      console.log(`  Panel ${idx}:`, {
+        id: panel.id,
+        dataPanel: panel.dataset.panel,
+        active: panel.classList.contains("active"),
+      });
+    });
+    console.groupEnd();
+  }
 
 // Initialize when DOM is ready
 let adminUI = null;
