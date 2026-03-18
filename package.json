@@ -19,9 +19,9 @@
   },
   "homepage": "https://github.com/Eliahhango/civil-web#readme",
   "devDependencies": {
-    "firebase-tools": "^15.10.0"
+    "firebase-tools": "^13.31.0"
   },
   "dependencies": {
-    "firebase-admin": "^13.7.0"
+    "firebase-admin": "^12.1.0"
   }
 }

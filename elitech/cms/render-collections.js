@@ -1,8 +1,12 @@
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        const response = await fetch('/elitech/admin/content.json');
-        if (!response.ok) return;
+        // Attempt to fetch fresh data from the Cloud API
+        let response = await fetch('/api/cms/content');
         
+        // Fallback to local cached compiled JSON if API fails
+        if (!response.ok) {
+            response = await fetch('/elitech/cms/content.json');
+        }
         const data = await response.json();
 
         // 1. Render Blogs
