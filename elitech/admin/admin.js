@@ -21,13 +21,46 @@ class CMSAdmin {
     this.userEmail = document.getElementById("user-email");
     this.statusEl = document.getElementById("status");
 
+    // Users tab elements
+    this.usersLoadingEl = document.getElementById("users-loading");
+    this.usersErrorEl = document.getElementById("users-error");
+    this.usersEmptyEl = document.getElementById("users-empty");
+    this.usersListContainerEl = document.getElementById("users-list-container");
+    this.adminUsersListEl = document.getElementById("admin-users-list");
+    this.usersErrorMessageEl = this.usersErrorEl?.querySelector(".error-message");
+    this.btnRetryUsers = document.getElementById("btn-retry-users");
+    this.createAdminSectionEl = document.getElementById("create-admin-section");
+    this.formCreateAdmin = document.getElementById("form-create-admin");
+    this.inputNewAdminEmail = document.getElementById("input-new-admin-email");
+    this.inputNewAdminRole = document.getElementById("input-new-admin-role");
+    this.btnCreateAdmin = document.getElementById("btn-create-admin");
+    this.createAdminStatusEl = document.getElementById("create-admin-status");
+
+    // Store user role for permission checks
+    this.currentUserRole = null;
+
     if (this.btnLogout) {
       this.btnLogout.addEventListener("click", () => this.handleLogout());
     }
 
     this.navButtons.forEach((btn) => {
-      btn.addEventListener("click", (e) => this.switchTab(e.currentTarget.dataset.tab));
+      btn.addEventListener("click", (e) => {
+        const tabName = e.currentTarget.dataset.tab;
+        this.switchTab(tabName);
+        // Load data when switching to users tab
+        if (tabName === "users") {
+          this.loadUsers();
+        }
+      });
     });
+
+    if (this.btnRetryUsers) {
+      this.btnRetryUsers.addEventListener("click", () => this.loadUsers());
+    }
+
+    if (this.formCreateAdmin) {
+      this.formCreateAdmin.addEventListener("submit", (e) => this.handleCreateAdmin(e));
+    }
   }
 
   showLoginView() {
@@ -132,6 +165,219 @@ class CMSAdmin {
       clearTimeout(this.safetyTimeout);
       this.safetyTimeout = null;
     }
+  }
+
+  // Load users from API
+  async loadUsers() {
+    console.log("[Admin] Loading users list");
+    
+    // Show loading state
+    this.showUsersState("loading");
+
+    try {
+      // Import Firebase auth to get token
+      const { getIdToken } = await import("./firebase-email-auth.js");
+      const token = await getIdToken();
+
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      // Fetch users from API
+      const response = await fetch("/api/admin/users", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 403) {
+        console.warn("[Admin] User not authorized to view users");
+        this.showUsersState("error", "You don't have permission to view users");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("[Admin] Users loaded successfully:", data.users?.length || 0);
+
+      // Store current user role for permission checks
+      if (data.currentUserRole) {
+        this.currentUserRole = data.currentUserRole;
+      }
+
+      // Render users or show empty state
+      if (!data.users || data.users.length === 0) {
+        this.showUsersState("empty");
+      } else {
+        this.renderUsers(data.users);
+        this.showUsersState("list");
+      }
+
+      // Show create admin form only to super_admin
+      this.showCreateAdminForm(this.currentUserRole === "super_admin");
+    } catch (error) {
+      console.error("[Admin] Failed to load users:", error);
+      this.showUsersState("error", "Failed to load users. Please try again.");
+    }
+  }
+
+  // Show/hide users state containers
+  showUsersState(state, errorMessage = "") {
+    // Hide all states
+    if (this.usersLoadingEl) this.usersLoadingEl.style.display = "none";
+    if (this.usersErrorEl) this.usersErrorEl.style.display = "none";
+    if (this.usersEmptyEl) this.usersEmptyEl.style.display = "none";
+    if (this.usersListContainerEl) this.usersListContainerEl.style.display = "none";
+
+    // Show requested state
+    if (state === "loading" && this.usersLoadingEl) {
+      this.usersLoadingEl.style.display = "block";
+    } else if (state === "error" && this.usersErrorEl) {
+      if (this.usersErrorMessageEl) {
+        this.usersErrorMessageEl.textContent = errorMessage;
+      }
+      this.usersErrorEl.style.display = "block";
+    } else if (state === "empty" && this.usersEmptyEl) {
+      this.usersEmptyEl.style.display = "block";
+    } else if (state === "list" && this.usersListContainerEl) {
+      this.usersListContainerEl.style.display = "block";
+    }
+  }
+
+  // Render users list
+  renderUsers(users) {
+    if (!this.adminUsersListEl) return;
+
+    const html = users.map((user) => `
+      <div class="user-row">
+        <div class="user-email">${this.escapeHtml(user.email)}</div>
+        <div class="user-role">
+          <span class="role-badge role-${this.escapeHtml(user.role)}">${this.escapeHtml(user.role)}</span>
+        </div>
+        <div class="user-created">${this.formatDate(user.createdAt)}</div>
+      </div>
+    `).join("");
+
+    this.adminUsersListEl.innerHTML = html;
+  }
+
+  // Show/hide create admin form based on user role
+  showCreateAdminForm(isVisible) {
+    if (!this.createAdminSectionEl) return;
+
+    if (isVisible) {
+      this.createAdminSectionEl.style.display = "block";
+    } else {
+      this.createAdminSectionEl.style.display = "none";
+    }
+  }
+
+  // Handle create admin form submission
+  async handleCreateAdmin(e) {
+    e.preventDefault();
+
+    if (!this.inputNewAdminEmail || !this.inputNewAdminRole) {
+      console.error("[Admin] Missing form inputs");
+      return;
+    }
+
+    const email = this.inputNewAdminEmail.value.trim();
+    const role = this.inputNewAdminRole.value;
+
+    if (!email || !role) {
+      this.showCreateAdminStatus("Please fill in all fields", "error");
+      return;
+    }
+
+    try {
+      // Disable button during submission
+      if (this.btnCreateAdmin) {
+        this.btnCreateAdmin.disabled = true;
+      }
+
+      this.showCreateAdminStatus("Creating admin...", "loading");
+
+      const { getIdToken } = await import("./firebase-email-auth.js");
+      const token = await getIdToken();
+
+      if (!token) {
+        throw new Error("No authentication token");
+      }
+
+      const response = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          role,
+        }),
+      });
+
+      if (response.status === 403) {
+        throw new Error("You don't have permission to create admins");
+      }
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || `HTTP ${response.status}`);
+      }
+
+      console.log("[Admin] Admin created successfully");
+      this.showCreateAdminStatus("Admin created successfully!", "success");
+
+      // Clear form
+      if (this.formCreateAdmin) {
+        this.formCreateAdmin.reset();
+      }
+
+      // Reload users list
+      setTimeout(() => this.loadUsers(), 1000);
+    } catch (error) {
+      console.error("[Admin] Failed to create admin:", error);
+      this.showCreateAdminStatus(error.message || "Failed to create admin", "error");
+    } finally {
+      if (this.btnCreateAdmin) {
+        this.btnCreateAdmin.disabled = false;
+      }
+    }
+  }
+
+  // Show status message in create admin form
+  showCreateAdminStatus(message, type = "error") {
+    if (!this.createAdminStatusEl) return;
+
+    this.createAdminStatusEl.textContent = message;
+    this.createAdminStatusEl.className = `status-message status-${type}`;
+    this.createAdminStatusEl.style.display = "block";
+
+    // Auto-hide success messages
+    if (type === "success") {
+      setTimeout(() => {
+        this.createAdminStatusEl.style.display = "none";
+      }, 3000);
+    }
+  }
+
+  // Utility: escape HTML to prevent XSS
+  escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Utility: format timestamp
+  formatDate(timestamp) {
+    if (!timestamp) return "Unknown";
+    const date = new Date(timestamp);
+    return date.toLocaleDateString() + " " + date.toLocaleTimeString();
   }
 
   handleLogout() {

@@ -227,6 +227,26 @@ export function registerUIManager(manager) {
   uiManager = manager;
 }
 
+// Get current Firebase user
+export function getCurrentUser() {
+  return auth.currentUser;
+}
+
+// Get current user's ID token
+export async function getIdToken() {
+  const user = auth.currentUser;
+  if (!user) {
+    console.error("[Auth] No user currently logged in");
+    return null;
+  }
+  try {
+    return await user.getIdToken();
+  } catch (error) {
+    console.error("[Auth] Failed to get ID token:", error);
+    return null;
+  }
+}
+
 // Initialize on DOM load
 let initTimeout = null;
 

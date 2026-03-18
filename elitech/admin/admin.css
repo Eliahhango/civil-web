@@ -521,6 +521,196 @@ html, body {
   margin-bottom: 4px;
 }
 
+/* State Containers */
+.state-container {
+  padding: 32px;
+  text-align: center;
+}
+
+.state-container.loading,
+.state-container.error,
+.state-container.empty {
+  display: none;
+}
+
+.state-container.empty {
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+.spinner-small {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(17, 24, 39, 0.1);
+  border-top: 3px solid var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 12px;
+}
+
+.error-message {
+  color: var(--error);
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+/* Users Table */
+.users-table {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.user-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.user-row:last-child {
+  border-bottom: none;
+}
+
+.user-row:hover {
+  background: var(--bg-light);
+}
+
+.user-email {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.user-role {
+  text-align: center;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.role-admin {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.role-super_admin {
+  background: #fce7f3;
+  color: #831843;
+}
+
+.user-created {
+  text-align: right;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Create Admin Form */
+.create-admin-form {
+  margin-top: 32px;
+  padding: 24px;
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.create-admin-form h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+.create-admin-form .form-group {
+  margin-bottom: 16px;
+}
+
+.create-admin-form .form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.create-admin-form .form-group input,
+.create-admin-form .form-group select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-white);
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.create-admin-form .form-group input:focus,
+.create-admin-form .form-group select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.btn-small {
+  padding: 10px 16px;
+  background: var(--primary);
+  color: var(--bg-white);
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-small:hover:not(:disabled) {
+  background: var(--primary-light);
+}
+
+.btn-small:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.status-message {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  animation: slideUp 0.3s ease-out;
+}
+
+.status-message.status-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border-left: 3px solid var(--error);
+}
+
+.status-message.status-success {
+  background: #ecfdf5;
+  color: #065f46;
+  border-left: 3px solid var(--success);
+}
+
+.status-message.status-loading {
+  background: #f0f1ff;
+  color: #3730a3;
+  border-left: 3px solid var(--accent);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .visual-panel {
@@ -543,6 +733,16 @@ html, body {
 
   .tab-panel {
     padding: 16px;
+  }
+
+  .user-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .user-role,
+  .user-created {
+    text-align: left;
   }
 }
 
