@@ -268,7 +268,7 @@ async function handlePost(req, res) {
         email,
         role
       },
-      message: "Admin created. They can use Forgot Password on the admin login page to set their password."
+      message: "Admin created. They can use the Forgot Password flow on the admin login page to set their password."
     });
   } catch (error) {
     console.error("[Admin Users] Failed to create admin user:", error.message || error);

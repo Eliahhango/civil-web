@@ -9,7 +9,6 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signInWithEmailAndPassword,
-  sendPasswordResetEmail,
   signOut,
   onAuthStateChanged,
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -292,20 +291,38 @@ export async function signInWithPassword(email, password) {
 
 // Password Reset
 export async function sendPasswordReset(email) {
-  try {
-    console.log("[Password Reset] Sending reset email to:", email);
-    ensureInitialized();
-    await sendPasswordResetEmail(auth, email);
-    setStatus("Check your email for reset instructions.", "success");
-  } catch (error) {
-    console.error("[Password Reset Error]", error.code, error.message);
+  const btnForgotPassword = document.getElementById("btn-forgot-password");
+  const originalLabel = btnForgotPassword ? btnForgotPassword.textContent : "";
 
-    if (error.code === "auth/user-not-found") {
-      setStatus("Check your email for reset instructions.", "success");
-    } else if (error.code === "auth/invalid-email") {
-      setStatus("Invalid email address.", "error");
-    } else {
-      setStatus("Could not send reset email. Try again.", "error");
+  try {
+    console.log("[Password Reset] Sending secure reset request for:", email);
+
+    if (btnForgotPassword) {
+      btnForgotPassword.disabled = true;
+      btnForgotPassword.textContent = "Sending...";
+    }
+
+    const response = await fetch("/api/admin/password-reset", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || payload.success === false) {
+      throw new Error(payload.error || `HTTP ${response.status}`);
+    }
+
+    setStatus(payload.message || "Password reset email sent. Check your inbox and spam folder.", "success");
+  } catch (error) {
+    console.error("[Password Reset Error]", error.message || error);
+    setStatus(error.message || "Could not send reset email. Try again.", "error");
+  } finally {
+    if (btnForgotPassword) {
+      btnForgotPassword.disabled = false;
+      btnForgotPassword.textContent = originalLabel || "Forgot?";
     }
   }
 }

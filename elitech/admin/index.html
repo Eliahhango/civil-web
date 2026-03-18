@@ -231,7 +231,7 @@
 
           <div id="create-admin-section" class="create-admin-form" style="display: none;">
             <h3>Create New Admin</h3>
-            <p class="text-muted">New admins can use the login page's Forgot Password action to set their initial password.</p>
+            <p class="text-muted">New admins can use the secure Forgot Password action to set their initial password after they are allowlisted.</p>
             <form id="form-create-admin">
               <div class="form-group">
                 <label for="input-new-admin-email">Email</label>
@@ -265,6 +265,8 @@
                 <option value="admin.auth.success">Admin Auth Success</option>
                 <option value="admin.auth.denied">Admin Auth Denied</option>
                 <option value="admin.user.created">User Created</option>
+                <option value="admin.password_reset.sent">Password Reset Sent</option>
+                <option value="admin.password_reset.denied">Password Reset Denied</option>
                 <option value="admin.user.creation.rollback.failed">Creation Rollback Failed</option>
               </select>
             </div>

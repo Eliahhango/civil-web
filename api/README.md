@@ -60,8 +60,26 @@ See [SECURITY_ROTATION.md](SECURITY_ROTATION.md) for the credential rotation and
 
 1. Open `/elitech/admin/`.
 2. Sign in with email link (send link and complete from email) or with email/password.
-3. If needed, use **Forgot Password** to receive a Firebase reset email.
+3. If needed, use **Forgot Password** to request a secure admin reset email.
 4. Edit content and click **Save To Server**.
+
+## Secure Admin Password Reset
+
+The admin login page no longer sends Firebase password-reset emails directly from the browser.
+`POST /api/admin/password-reset` now:
+
+- normalizes the submitted email
+- verifies the email belongs to an allowlisted `adminUsers` record
+- verifies the Firebase Auth user exists and is not disabled
+- prefers a server-generated reset link sent through Resend
+- falls back to Firebase Auth email delivery only after the admin allowlist check passes
+
+Set these environment variables in Vercel to enable the preferred secure reset flow:
+
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL`
+- `ADMIN_EMAIL_BRAND` (optional)
+- `ADMIN_PASSWORD_RESET_CONTINUE_URL` (optional)
 
 The website runtime reads from `/api/cms/content` first, then falls back to static `/elitech/cms/content.json`.
 
