@@ -163,6 +163,7 @@ class CMSAdmin {
     });
     console.groupEnd();
   }
+}
 
 // Initialize when DOM is ready
 let adminUI = null;
