@@ -1338,32 +1338,65 @@
 
 /* --- User Management Tab Logic (Serverless API) --- */
 document.addEventListener("DOMContentLoaded", function () {
-  const usersTabBtn = document.querySelector('[data-tab="tab-users"]');
+  const usersTabBtn = document.querySelector('[data-tab="users"]');
   const addAdminBtn = document.getElementById("add-admin-user");
-  const modal = document.getElementById("add-user-modal");
-  const saveBtn = document.getElementById("save-new-user");
-  const cancelBtn = document.getElementById("cancel-new-user");
+  const emailInput = document.getElementById("new-user-email");
+  const passwordInput = document.getElementById("new-user-password");
+  const roleInput = document.getElementById("new-user-role");
   const listContainer = document.getElementById("admin-users-list");
+  const errorDiv = document.getElementById("add-user-error");
 
-  if (!usersTabBtn || !addAdminBtn) return;
+  if (!usersTabBtn || !listContainer) return;
 
   function fetchUsers() {
-    firebase.auth().currentUser.getIdToken().then(token => {
-      fetch("/api/admin/users", {
-        headers: { "Authorization": "Bearer " + token }
-      }).then(r => r.json()).then(data => {
-        if (data.users) {
-          listContainer.innerHTML = data.users.map(u => 
-            `<div style="padding: 10px; border-bottom: 1px solid #333; display: flex; justify-content: space-between;">
-              <div><strong>${u.email}</strong><br><small style="color:#aaa;">Role: ${u.role}</small></div>
-            </div>`
-          ).join("");
-        } else if (data.error) {
-           listContainer.innerHTML = `<p style="color: red; padding: 20px;">${data.error}</p>`;
-        }
-      }).catch(err => {
-         listContainer.innerHTML = `<p style="color: red; padding: 20px;">Error loading users.</p>`;
-      });
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        user.getIdToken().then(token => {
+          fetch("/api/admin/users", {
+            headers: { "Authorization": "Bearer " + token }
+          }).then(r => r.json()).then(data => {
+            if (data.users && data.users.length > 0) {
+              let html = "";
+              data.users.forEach(u => {
+                const isSelf = u.email === user.email;
+                const roleLabel = u.role === "super_admin" ? "Super Admin" : "Content Admin";
+                const statusClass = u.active !== false ? "text-emerald-700" : "text-gray-500";
+                const statusText = u.active !== false ? "Active" : "Disabled";
+
+                html += `
+                  <tr>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                          <div class="flex items-center">
+                              <div class="font-medium text-gray-900">${u.email}</div>
+                              ${isSelf ? '<span class="ml-2 rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary uppercase">You</span>' : ''}
+                              ${u.role === "super_admin" ? '<span class="ml-2 rounded bg-gray-100 border border-gray-200 px-2 py-0.5 text-[10px] font-semibold text-gray-600 uppercase">Primary</span>' : ''}
+                          </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          ${roleLabel}
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap">
+                          <span class="inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${statusClass}">
+                              ${statusText}
+                          </span>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-left">
+                         ${!isSelf ? '<button class="text-blue-600 hover:text-blue-900 mx-1 border-0 bg-transparent cursor-pointer">Edit</button>' : '<span class="text-gray-400">Current</span>'}
+                      </td>
+                  </tr>
+                `;
+              });
+              listContainer.innerHTML = html;
+            } else if (data.error) {
+               listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">${data.error}</td></tr>`;
+            } else {
+               listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No users found.</td></tr>`;
+            }
+          }).catch(err => {
+             listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Error loading users.</td></tr>`;
+          });
+        });
+      }
     });
   }
 
@@ -1371,48 +1404,62 @@ document.addEventListener("DOMContentLoaded", function () {
     fetchUsers();
   });
 
-  addAdminBtn.addEventListener("click", () => {
-    modal.style.display = "block";
-  });
+  if (addAdminBtn) {
+    addAdminBtn.addEventListener("click", () => {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value.trim();
+      const role = roleInput.value;
 
-  cancelBtn.addEventListener("click", () => {
-    modal.style.display = "none";
-  });
-
-  saveBtn.addEventListener("click", () => {
-    const email = document.getElementById("new-user-email").value;
-    const password = document.getElementById("new-user-password").value;
-    const role = document.getElementById("new-user-role").value;
-
-    if (!email || !password) {
-      alert("Email and password required.");
-      return;
-    }
-
-    saveBtn.innerText = "Creating...";
-    firebase.auth().currentUser.getIdToken().then(token => {
-      fetch("/api/admin/users", {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + token 
-        },
-        body: JSON.stringify({ email, password, role })
-      }).then(r => r.json()).then(res => {
-        saveBtn.innerText = "Create User";
-        if (res.success) {
-          alert("User created successfully!");
-          modal.style.display = "none";
-          document.getElementById("new-user-email").value = "";
-          document.getElementById("new-user-password").value = "";
-          fetchUsers();
-        } else {
-          alert("Error: " + res.error);
+      if (!email || !password) {
+        if(errorDiv) {
+           errorDiv.innerText = "Email and temporary password are required.";
+           errorDiv.classList.remove("hidden");
+           errorDiv.style.display = "block";
         }
-      }).catch(err => {
-        saveBtn.innerText = "Create User";
-        alert("Server error.");
+        return;
+      }
+      
+      if(errorDiv) {
+         errorDiv.classList.add("hidden");
+         errorDiv.style.display = "none";
+      }
+
+      addAdminBtn.innerText = "Saving...";
+      addAdminBtn.disabled = true;
+
+      firebase.auth().currentUser.getIdToken().then(token => {
+        fetch("/api/admin/users", {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token 
+          },
+          body: JSON.stringify({ email, password, role })
+        }).then(r => r.json()).then(res => {
+          addAdminBtn.innerText = "Save Admin";
+          addAdminBtn.disabled = false;
+          
+          if (res.success || res.message || res.users) {
+            emailInput.value = "";
+            passwordInput.value = "";
+            fetchUsers();
+          } else {
+            if(errorDiv) {
+               errorDiv.innerText = "Error: " + (res.error || "Failed to create");
+               errorDiv.classList.remove("hidden");
+               errorDiv.style.display = "block";
+            }
+          }
+        }).catch(err => {
+          addAdminBtn.innerText = "Save Admin";
+          addAdminBtn.disabled = false;
+          if(errorDiv) {
+             errorDiv.innerText = "Error processing request.";
+             errorDiv.classList.remove("hidden");
+             errorDiv.style.display = "block";
+          }
+        });
       });
     });
-  });
+  }
 });
