@@ -1,4 +1,4 @@
-module.exports = function handler(req, res) {
+﻿module.exports = function handler(req, res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", "no-store");
 
@@ -8,7 +8,7 @@ module.exports = function handler(req, res) {
   }
 
   const payload = {
-    apiKey: process.env.FIREBASE_WEB_API_KEY || "AIzaSyB1IjyCGvZsiIuBxkNk6iNQFpTVtEDEq9A",
+    apiKey: process.env.FIREBASE_WEB_API_KEY || "",
     authDomain: process.env.FIREBASE_WEB_AUTH_DOMAIN || "studio-2814354733-befba.firebaseapp.com",
     projectId: process.env.FIREBASE_WEB_PROJECT_ID || "studio-2814354733-befba",
     storageBucket: process.env.FIREBASE_WEB_STORAGE_BUCKET || "studio-2814354733-befba.firebasestorage.app",
@@ -18,4 +18,3 @@ module.exports = function handler(req, res) {
 
   return res.status(200).send(JSON.stringify(payload));
 };
-
