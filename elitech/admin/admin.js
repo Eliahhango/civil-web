@@ -1,6 +1,6 @@
 /* ====================================================================
    Admin UI State Manager
-   Handles login/dashboard visibility, users, and audit logs
+   Handles login/dashboard visibility, website content, users, and logs
    ==================================================================== */
 
 class CMSAdmin {
@@ -10,6 +10,7 @@ class CMSAdmin {
     this.currentTab = "dashboard";
     this.currentLogsPage = 1;
     this.currentLogsFilters = {};
+    this.contentConfig = null;
     this.init();
   }
 
@@ -23,6 +24,26 @@ class CMSAdmin {
     this.btnLogout = document.getElementById("btn-logout");
     this.userEmail = document.getElementById("user-email");
     this.statusEl = document.getElementById("status");
+    this.btnOpenContent = document.getElementById("btn-open-content");
+
+    this.contentLoadingEl = document.getElementById("content-loading");
+    this.contentErrorEl = document.getElementById("content-error");
+    this.contentEditorEl = document.getElementById("content-editor");
+    this.contentErrorMessageEl = this.contentErrorEl ? this.contentErrorEl.querySelector(".error-message") : null;
+    this.btnRetryContent = document.getElementById("btn-retry-content");
+    this.formContentEditor = document.getElementById("form-content-editor");
+    this.btnReloadContent = document.getElementById("btn-reload-content");
+    this.btnSaveContent = document.getElementById("btn-save-content");
+    this.contentStatusEl = document.getElementById("content-status");
+    this.inputSiteName = document.getElementById("input-site-name");
+    this.inputSiteTagline = document.getElementById("input-site-tagline");
+    this.inputSeoTitle = document.getElementById("input-seo-title");
+    this.inputSeoDescription = document.getElementById("input-seo-description");
+    this.inputSeoImage = document.getElementById("input-seo-image");
+    this.inputSeoUrl = document.getElementById("input-seo-url");
+    this.inputSeoTwitterCard = document.getElementById("input-seo-twitter-card");
+    this.inputGlobalReplacements = document.getElementById("input-global-replacements");
+    this.inputContentRules = document.getElementById("input-content-rules");
 
     this.usersLoadingEl = document.getElementById("users-loading");
     this.usersErrorEl = document.getElementById("users-error");
@@ -56,12 +77,28 @@ class CMSAdmin {
       this.btnLogout.addEventListener("click", () => this.handleLogout());
     }
 
+    if (this.btnOpenContent) {
+      this.btnOpenContent.addEventListener("click", () => this.switchTab("content"));
+    }
+
     this.navButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const tabName = button.dataset.tab || "";
         this.switchTab(tabName);
       });
     });
+
+    if (this.btnRetryContent) {
+      this.btnRetryContent.addEventListener("click", () => this.loadContent(true));
+    }
+
+    if (this.btnReloadContent) {
+      this.btnReloadContent.addEventListener("click", () => this.loadContent(true));
+    }
+
+    if (this.formContentEditor) {
+      this.formContentEditor.addEventListener("submit", (event) => this.handleSaveContent(event));
+    }
 
     if (this.btnRetryUsers) {
       this.btnRetryUsers.addEventListener("click", () => this.loadUsers());
@@ -148,6 +185,10 @@ class CMSAdmin {
       panel.classList.toggle("active", panel.dataset.panel === tabName);
     });
 
+    if (tabName === "content") {
+      this.loadContent();
+    }
+
     if (tabName === "users") {
       this.loadUsers();
     }
@@ -181,6 +222,202 @@ class CMSAdmin {
     const overlay = document.getElementById("loading-overlay");
     if (overlay) {
       overlay.classList.add("hidden");
+    }
+  }
+
+  normalizeContentConfig(data) {
+    const value = data && typeof data === "object" ? data : {};
+
+    return {
+      site: value.site && typeof value.site === "object" && !Array.isArray(value.site) ? { ...value.site } : {},
+      seo: value.seo && typeof value.seo === "object" && !Array.isArray(value.seo) ? { ...value.seo } : {},
+      globalReplacements: Array.isArray(value.globalReplacements) ? value.globalReplacements : [],
+      rules: Array.isArray(value.rules) ? value.rules : []
+    };
+  }
+
+  async loadContent(force = false) {
+    if (!force && this.contentConfig) {
+      this.populateContentForm(this.contentConfig);
+      this.showContentState("editor");
+      return;
+    }
+
+    this.showContentState("loading");
+    this.showContentStatus("", "success", true);
+
+    try {
+      const response = await fetch("/api/cms/content", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        cache: "no-store"
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP ${response.status}`);
+      }
+
+      this.contentConfig = this.normalizeContentConfig(data);
+      this.populateContentForm(this.contentConfig);
+      this.showContentState("editor");
+    } catch (error) {
+      console.error("[Admin] Failed to load website content:", error);
+      this.showContentState("error", error.message || "Failed to load website content.");
+    }
+  }
+
+  showContentState(state, errorMessage = "") {
+    if (this.contentLoadingEl) this.contentLoadingEl.style.display = "none";
+    if (this.contentErrorEl) this.contentErrorEl.style.display = "none";
+    if (this.contentEditorEl) this.contentEditorEl.style.display = "none";
+
+    if (state === "loading" && this.contentLoadingEl) {
+      this.contentLoadingEl.style.display = "block";
+    }
+
+    if (state === "error" && this.contentErrorEl) {
+      if (this.contentErrorMessageEl) {
+        this.contentErrorMessageEl.textContent = errorMessage;
+      }
+      this.contentErrorEl.style.display = "block";
+    }
+
+    if (state === "editor" && this.contentEditorEl) {
+      this.contentEditorEl.style.display = "block";
+    }
+  }
+
+  populateContentForm(data) {
+    if (!data) {
+      return;
+    }
+
+    if (this.inputSiteName) this.inputSiteName.value = String(data.site.name || "");
+    if (this.inputSiteTagline) this.inputSiteTagline.value = String(data.site.tagline || "");
+    if (this.inputSeoTitle) this.inputSeoTitle.value = String(data.seo.title || "");
+    if (this.inputSeoDescription) this.inputSeoDescription.value = String(data.seo.description || "");
+    if (this.inputSeoImage) this.inputSeoImage.value = String(data.seo.image || "");
+    if (this.inputSeoUrl) this.inputSeoUrl.value = String(data.seo.url || "");
+    if (this.inputSeoTwitterCard) this.inputSeoTwitterCard.value = String(data.seo.twitterCard || "");
+    if (this.inputGlobalReplacements) this.inputGlobalReplacements.value = JSON.stringify(data.globalReplacements || [], null, 2);
+    if (this.inputContentRules) this.inputContentRules.value = JSON.stringify(data.rules || [], null, 2);
+  }
+
+  parseJsonArray(rawValue, label) {
+    const raw = String(rawValue || "").trim();
+    if (!raw) {
+      return [];
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (_error) {
+      throw new Error(`${label} must be valid JSON.`);
+    }
+
+    if (!Array.isArray(parsed)) {
+      throw new Error(`${label} must be a JSON array.`);
+    }
+
+    return parsed;
+  }
+
+  buildContentPayload() {
+    const current = this.normalizeContentConfig(this.contentConfig);
+    const site = {
+      ...current.site,
+      name: this.inputSiteName ? this.inputSiteName.value.trim() : "",
+      tagline: this.inputSiteTagline ? this.inputSiteTagline.value.trim() : ""
+    };
+
+    const seo = {
+      ...current.seo,
+      title: this.inputSeoTitle ? this.inputSeoTitle.value.trim() : "",
+      description: this.inputSeoDescription ? this.inputSeoDescription.value.trim() : "",
+      image: this.inputSeoImage ? this.inputSeoImage.value.trim() : "",
+      url: this.inputSeoUrl ? this.inputSeoUrl.value.trim() : "",
+      twitterCard: this.inputSeoTwitterCard ? this.inputSeoTwitterCard.value.trim() : ""
+    };
+
+    return {
+      site,
+      seo,
+      globalReplacements: this.parseJsonArray(this.inputGlobalReplacements ? this.inputGlobalReplacements.value : "[]", "Global Replacements"),
+      rules: this.parseJsonArray(this.inputContentRules ? this.inputContentRules.value : "[]", "Rules")
+    };
+  }
+
+  async handleSaveContent(event) {
+    event.preventDefault();
+
+    try {
+      if (this.btnSaveContent) {
+        this.btnSaveContent.disabled = true;
+      }
+
+      this.showContentStatus("Saving website content...", "loading");
+      const payload = this.buildContentPayload();
+
+      const { getIdToken } = await import("./firebase-email-auth.js");
+      const token = await getIdToken();
+
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      const response = await fetch("/api/cms/content", {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP ${response.status}`);
+      }
+
+      this.contentConfig = this.normalizeContentConfig(payload);
+      this.populateContentForm(this.contentConfig);
+      this.showContentStatus("Website content saved. Refresh the public page to verify the change.", "success");
+    } catch (error) {
+      console.error("[Admin] Failed to save website content:", error);
+      this.showContentStatus(error.message || "Failed to save website content.", "error");
+    } finally {
+      if (this.btnSaveContent) {
+        this.btnSaveContent.disabled = false;
+      }
+    }
+  }
+
+  showContentStatus(message, type = "error", hide = false) {
+    if (!this.contentStatusEl) {
+      return;
+    }
+
+    if (hide || !message) {
+      this.contentStatusEl.style.display = "none";
+      this.contentStatusEl.textContent = "";
+      this.contentStatusEl.className = "status-message";
+      return;
+    }
+
+    this.contentStatusEl.textContent = message;
+    this.contentStatusEl.className = `status-message status-${type}`;
+    this.contentStatusEl.style.display = "block";
+
+    if (type === "success") {
+      window.setTimeout(() => {
+        if (this.contentStatusEl) {
+          this.contentStatusEl.style.display = "none";
+        }
+      }, 4000);
     }
   }
 
@@ -449,7 +686,7 @@ class CMSAdmin {
       <div class="log-row">
         <div class="log-timestamp">${this.formatDate(log.timestamp)}</div>
         <div class="log-event">
-          <span class="event-badge event-${this.escapeHtml(log.eventType)}">${this.getEventTypeLabel(log.eventType)}</span>
+          <span class="event-badge ${this.getEventBadgeClass(log.eventType)}">${this.getEventTypeLabel(log.eventType)}</span>
         </div>
         <div class="log-actor">${this.escapeHtml(log.email || "Unknown")}</div>
         <div class="log-target">${this.escapeHtml(log.targetEmail || "None")}</div>
@@ -508,13 +745,35 @@ class CMSAdmin {
   getEventTypeLabel(eventType) {
     const labels = {
       "admin.auth.success": "Auth Success",
+      "admin.auth.success.degraded": "Auth Success",
       "admin.auth.denied": "Auth Denied",
+      "admin.auth.error": "Auth Error",
       "admin.user.created": "User Created",
       "admin.user.creation.rollback.failed": "Rollback Failed",
-      "admin.user.create.denied": "Create Denied"
+      "admin.user.create.denied": "Create Denied",
+      "admin.user.bootstrap.created": "Bootstrap Created",
+      "admin.user.bootstrap.updated": "Bootstrap Updated"
     };
 
     return labels[eventType] || eventType || "Unknown";
+  }
+
+  getEventBadgeClass(eventType) {
+    const value = String(eventType || "");
+
+    if (value.includes("denied") || value.includes("error")) {
+      return "event-error";
+    }
+
+    if (value.includes("rollback") || value.includes("degraded")) {
+      return "event-warning";
+    }
+
+    if (value.includes("created") || value.includes("bootstrap") || value.includes("updated")) {
+      return "event-info";
+    }
+
+    return "event-success";
   }
 
   escapeHtml(value) {

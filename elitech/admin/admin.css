@@ -521,6 +521,110 @@ html, body {
   margin-bottom: 4px;
 }
 
+.dashboard-card {
+  max-width: 760px;
+}
+
+.content-editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.editor-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.editor-card {
+  background: var(--bg-white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.editor-card h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.editor-card .form-group {
+  margin-bottom: 16px;
+}
+
+.editor-card .form-group:last-child {
+  margin-bottom: 0;
+}
+
+.editor-card .form-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.editor-card .form-group input,
+.editor-card .form-group textarea,
+.editor-card .form-group select {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-white);
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.editor-card .form-group textarea {
+  min-height: 108px;
+  resize: vertical;
+}
+
+.editor-card .form-group input:focus,
+.editor-card .form-group textarea:focus,
+.editor-card .form-group select:focus,
+.code-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.editor-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.code-textarea {
+  width: 100%;
+  min-height: 220px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 13px;
+  line-height: 1.6;
+  font-family: Consolas, 'Courier New', monospace;
+  resize: vertical;
+}
+
+.content-editor-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 /* State Containers */
 .state-container {
   padding: 32px;
@@ -744,6 +848,10 @@ html, body {
     gap: 8px;
   }
 
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
+
   .user-role,
   .user-created {
     text-align: left;
@@ -837,6 +945,11 @@ html, body {
 
   .header-right {
     flex-wrap: wrap;
+  }
+
+  .content-editor-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 
@@ -933,29 +1046,24 @@ html, body {
   white-space: nowrap;
 }
 
-.event-admin\.auth\.success {
+.event-success {
   background: #d1fae5;
   color: #065f46;
 }
 
-.event-admin\.auth\.denied {
+.event-error {
   background: #fee2e2;
   color: #7f1d1d;
 }
 
-.event-admin\.user\.created {
+.event-info {
   background: #dbeafe;
   color: #1e3a8a;
 }
 
-.event-admin\.user\.creation\.rollback\.failed {
+.event-warning {
   background: #fef3c7;
   color: #92400e;
-}
-
-.event-admin\.user\.create\.denied {
-  background: #e0e7ff;
-  color: #3730a3;
 }
 
 .log-actor {
