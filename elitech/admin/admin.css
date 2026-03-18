@@ -330,7 +330,7 @@ html, body {
   position: relative;
   overflow: hidden;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: none;
+  display: block;
 }
 
 .visual-bg {
@@ -433,7 +433,7 @@ html, body {
   gap: 16px;
 }
 
-.user-email {
+#user-email {
   font-size: 13px;
   color: var(--text-secondary);
 }
@@ -630,6 +630,10 @@ html, body {
   font-weight: 600;
   margin-bottom: 20px;
   color: var(--text-primary);
+}
+
+.create-admin-form .text-muted {
+  margin-bottom: 16px;
 }
 
 .create-admin-form .form-group {
@@ -947,6 +951,11 @@ html, body {
 .event-admin\.user\.creation\.rollback\.failed {
   background: #fef3c7;
   color: #92400e;
+}
+
+.event-admin\.user\.create\.denied {
+  background: #e0e7ff;
+  color: #3730a3;
 }
 
 .log-actor {

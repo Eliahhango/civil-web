@@ -424,7 +424,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Register event listeners
   const btnGoogle = document.getElementById("btn-google-signin");
-  const btnLoginPassword = document.getElementById("btn-login-password");
   const btnForgotPassword = document.getElementById("btn-forgot-password");
   const emailPasswordForm = document.getElementById("email-password-form");
   const emailInput = document.getElementById("email-password-input");
@@ -432,26 +431,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (btnGoogle) {
     btnGoogle.addEventListener("click", signInWithGoogle);
-  }
-
-  if (btnLoginPassword) {
-    btnLoginPassword.addEventListener("click", (e) => {
-      e.preventDefault();
-      if (!emailInput || !passwordInput) {
-        console.error("[Email Auth] Missing email or password input elements");
-        setStatus("Form elements not found. Please refresh the page.", "error");
-        return;
-      }
-      const email = emailInput.value.trim();
-      const password = passwordInput.value;
-
-      if (!email || !password) {
-        setStatus("Enter email and password.", "error");
-        return;
-      }
-
-      signInWithPassword(email, password);
-    });
   }
 
   if (btnForgotPassword) {
