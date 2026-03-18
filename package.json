@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "check:firebase": "node scripts/check-firebase-setup.js",
+    "bootstrap:super-admin": "node scripts/bootstrap-super-admin.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

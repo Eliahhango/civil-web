@@ -8,6 +8,7 @@ const TEMP_CONTENT_PATH = "/tmp/elitech-cms-content.json";
 const CONTENT_KEY = "elitech_cms_content";
 const FIRESTORE_COLLECTION = "cms";
 const FIRESTORE_DOC_ID = "content";
+const ALLOWED_ADMIN_ROLES = new Set(["admin", "super_admin"]);
 
 function readJsonSafe(raw) {
   try {
@@ -56,11 +57,27 @@ async function verifyAuthorizedUser(req) {
     }
 
     const adminResult = isAdminUser(decoded);
-    if (!adminResult.ok) {
+    if (adminResult.ok) {
+      return { ok: true, user: decoded, role: adminResult.role || "" };
+    }
+
+    const db = getFirestore();
+    if (!db) {
+      return { ok: false, status: 500, error: "Firestore is not configured" };
+    }
+
+    const adminDoc = await db.collection("adminUsers").doc(decoded.uid).get();
+    if (!adminDoc.exists) {
       return { ok: false, status: 403, error: "Forbidden: admin access required" };
     }
 
-    return { ok: true, user: decoded };
+    const adminData = adminDoc.data() || {};
+    const role = String(adminData.role || "").trim();
+    if (!ALLOWED_ADMIN_ROLES.has(role)) {
+      return { ok: false, status: 403, error: "Forbidden: admin access required" };
+    }
+
+    return { ok: true, user: decoded, role };
   } catch (error) {
     return { ok: false, status: 401, error: "Invalid Firebase ID token" };
   }

@@ -5,7 +5,7 @@ function getRequiredEnv(name) {
   return value && String(value).trim() ? String(value).trim() : "";
 }
 
-function getFirebaseCredentials() {
+function getFirebaseCredentialsFromEnv() {
   const projectId = getRequiredEnv("FIREBASE_PROJECT_ID");
   const clientEmail = getRequiredEnv("FIREBASE_CLIENT_EMAIL");
   const privateKeyRaw = getRequiredEnv("FIREBASE_PRIVATE_KEY");
@@ -21,23 +21,104 @@ function getFirebaseCredentials() {
   };
 }
 
+function getFirebaseCredentialsFromJson() {
+  const raw = getRequiredEnv("FIREBASE_SERVICE_ACCOUNT_JSON");
+  if (!raw) {
+    return { credentials: null, error: "" };
+  }
+
+  try {
+    const parsed = JSON.parse(raw);
+    const projectId = String(parsed.project_id || parsed.projectId || "").trim();
+    const clientEmail = String(parsed.client_email || parsed.clientEmail || "").trim();
+    const privateKey = String(parsed.private_key || parsed.privateKey || "").replace(/\\n/g, "\n");
+
+    if (!projectId || !clientEmail || !privateKey) {
+      return {
+        credentials: null,
+        error: "FIREBASE_SERVICE_ACCOUNT_JSON is missing project_id, client_email, or private_key"
+      };
+    }
+
+    return {
+      credentials: {
+        projectId,
+        clientEmail,
+        privateKey
+      },
+      error: ""
+    };
+  } catch (error) {
+    return {
+      credentials: null,
+      error: `FIREBASE_SERVICE_ACCOUNT_JSON is not valid JSON: ${error.message || error}`
+    };
+  }
+}
+
+function canUseApplicationDefault() {
+  const flag = getRequiredEnv("FIREBASE_USE_APPLICATION_DEFAULT").toLowerCase() === "true";
+  const googleCredentialsPath = getRequiredEnv("GOOGLE_APPLICATION_CREDENTIALS");
+  return flag || Boolean(googleCredentialsPath);
+}
+
+function getFirebaseAdminConfigState() {
+  const explicitCredentials = getFirebaseCredentialsFromEnv();
+  const jsonCredentialsResult = getFirebaseCredentialsFromJson();
+  const projectId =
+    getRequiredEnv("FIREBASE_PROJECT_ID") ||
+    (explicitCredentials && explicitCredentials.projectId) ||
+    (jsonCredentialsResult.credentials && jsonCredentialsResult.credentials.projectId) ||
+    getRequiredEnv("FIREBASE_WEB_PROJECT_ID");
+  const storageBucket = getRequiredEnv("FIREBASE_STORAGE_BUCKET") || getRequiredEnv("FIREBASE_WEB_STORAGE_BUCKET");
+
+  return {
+    projectId,
+    storageBucket,
+    hasExplicitCredentials: Boolean(explicitCredentials),
+    missingExplicitEnv: [
+      "FIREBASE_PROJECT_ID",
+      "FIREBASE_CLIENT_EMAIL",
+      "FIREBASE_PRIVATE_KEY"
+    ].filter((name) => !getRequiredEnv(name)),
+    hasServiceAccountJson: Boolean(jsonCredentialsResult.credentials),
+    serviceAccountJsonError: jsonCredentialsResult.error,
+    canUseApplicationDefault: canUseApplicationDefault(),
+    ready: Boolean(explicitCredentials || jsonCredentialsResult.credentials || canUseApplicationDefault())
+  };
+}
+
 function initializeFirebase() {
   const existing = admin.apps.length ? admin.app() : null;
   if (existing) {
     return existing;
   }
 
-  const credentials = getFirebaseCredentials();
-  if (!credentials) {
+  const explicitCredentials = getFirebaseCredentialsFromEnv();
+  const jsonCredentialsResult = getFirebaseCredentialsFromJson();
+  const configState = getFirebaseAdminConfigState();
+
+  if (!configState.ready) {
     return null;
   }
 
-  const storageBucket = getRequiredEnv("FIREBASE_STORAGE_BUCKET");
+  const storageBucket = configState.storageBucket;
   const databaseURL = getRequiredEnv("FIREBASE_DATABASE_URL");
+  const options = {};
 
-  const options = {
-    credential: admin.credential.cert(credentials)
-  };
+  if (explicitCredentials) {
+    options.credential = admin.credential.cert(explicitCredentials);
+  } else if (jsonCredentialsResult.credentials) {
+    options.credential = admin.credential.cert(jsonCredentialsResult.credentials);
+  } else if (canUseApplicationDefault()) {
+    options.credential = admin.credential.applicationDefault();
+  } else {
+    return null;
+  }
+
+  if (configState.projectId) {
+    options.projectId = configState.projectId;
+  }
 
   if (storageBucket) {
     options.storageBucket = storageBucket;
@@ -101,6 +182,7 @@ function isAdminUser(decodedToken) {
 module.exports = {
   getFirestore,
   getFirebaseAuth,
-  isAdminUser
+  isAdminUser,
+  getFirebaseAdminConfigState
 };
 

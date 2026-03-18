@@ -1,159 +1,171 @@
-# Admin Panel Security Overhaul - Complete Implementation Summary
+# Admin Setup Guide
 
-## What Was Fixed
+This project uses:
 
-### 1. **Removed Magic-Link Auth Vulnerability** ✅
-- **Problem:** Users could send themselves login links without admin pre-authorization
-- **Solution:** Completely removed email-link auth flow:
-  - Removed `sendSignInLinkToEmail()` function
-  - Removed `signInWithEmailLink()` function
-  - Removed `isSignInWithEmailLink()` check
-  - Removed magic-link UI elements and handling code
-  - Now only supports: Google OAuth + Email/Password
+- Firebase Authentication for admin sign-in
+- Firestore for `adminUsers` and `adminAuditLogs`
+- Vercel serverless functions under `/api/*`
+- The admin panel at `/elitech/admin/`
 
-### 2. **Enforced Server-Side Authorization** ✅
-- **Problem:** Frontend-only auth checks insufficient; unauthorized users could access admin
-- **Solution:** Hardened `/api/admin/auth-sync` endpoint:
-  - Mandatory call after ANY successful Firebase login
-  - Queries Firestore `adminUsers` collection (single source of truth)
-  - Returns 403 if user NOT pre-authorized (never auto-creates)
-  - Never defaults unknown users to super_admin
-  - Frontend signs out user on 403 response
+## What Already Exists
 
-### 3. **Comprehensive Audit Logging** ✅
-- **What's Logged:** Every auth attempt with email, uid, eventType, IP, user-agent, timestamp
-- **Events:** `admin.auth.success`, `admin.auth.denied`, `admin.auth.error`
-- **Storage:** Firestore `adminAuditLogs` collection (immutable audit trail)
+The current codebase already includes:
 
-### 4. **Premium Minimal UI Redesign** ✅
-- **Removed:** 500+ lines of bloated dashboard HTML
-- **Removed:** "Protected by Firebase & Secure Serverless APIs" footer text
-- **Removed:** All developer-style labels and backend-exposure text
-- **Reduced:** HTML from 698 → 139 lines (production-ready minimal)
-- **Added:** Dribbble-inspired split-pane responsive layout
-- **Added:** 600+ lines of premium CSS with soft shadows, elegant typography, clean spacing
+- Google sign-in and email/password sign-in on the admin page
+- `/api/admin/auth-sync` to authorize admins after Firebase login
+- `/api/admin/users` to list and create admin users
+- `/api/admin/logs` to read audit logs
+- Firestore and Storage rules that use `request.auth.token.role`
 
-### 5. **Fixed Loading Screen Bug** ✅
-- **Problem:** Admin panel stuck on loading overlay perpetually
-- **Solution:**
-  - Added `type="module"` to Firebase auth script
-  - Implemented 15-second safety timeout (auto-hides overlay if Firebase hangs)
-  - Proper admin.js UI state management (CMSAdmin class)
-  - onAuthStateChanged handler clears overlay when auth check completes
+## Local Environment
 
----
+The local file [`.env.local`](/C:/Users/hango/Desktop/civil-web/.env.local) has already been created with your Firebase Web SDK values.
 
-## Firebase Console Setup Checklist
+It still needs one server-side credential source before the backend can work:
 
-### Step 1: Enable Authentication Providers
+1. `FIREBASE_CLIENT_EMAIL` and `FIREBASE_PRIVATE_KEY`
+2. `FIREBASE_SERVICE_ACCOUNT_JSON`
+3. `GOOGLE_APPLICATION_CREDENTIALS` plus `FIREBASE_USE_APPLICATION_DEFAULT=true`
 
-**Google OAuth:**
-1. Firebase Console → Authentication → Sign-in method
-2. Enable "Google"
-3. Select project support email
-4. Add authorized domains: localhost:3000, yourdomain.com
+Tracked reference file: [`.env.example`](/C:/Users/hango/Desktop/civil-web/.env.example)
 
-**Email/Password:**
-1. Enable "Email/Password"
-2. Keep "Email enumeration protection" ON
-3. **DISABLE** "Email link (passwordless sign-in)" - NOT USED
+## Firebase Console Setup
 
-### Step 2: Create Required Firestore Collections
+### 1. Enable Authentication Providers
 
-**adminUsers Collection:**
-- Document ID: Firebase UID
-- Fields: `uid`, `email`, `role` (string: 'admin' or 'super_admin'), `createdAt`, `lastLogin`
+In Firebase Console, enable:
 
-**adminAuditLogs Collection:**
-- Auto-generated IDs
-- Fields: `uid`, `email`, `eventType`, `ipAddress`, `userAgent`, `role` (if success), `reason` (if denied), `timestamp`
+- Email/Password
+- Google
 
-### Step 3: Firestore Security Rules
+Do not use passwordless email-link sign-in for this admin flow.
 
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Audit logs: Server write only, admins can read
-    match /adminAuditLogs/{document=**} {
-      allow read: if request.auth != null && 
-                     request.auth.customClaims.isAdmin == true;
-      allow create: if request.auth.uid != null;
-    }
-    
-    // Admin users: Server manages, admins can read
-    match /adminUsers/{uid} {
-      allow read: if request.auth.uid == uid || 
-                     request.auth.customClaims.isAdmin == true;
-      allow write: if false;
-    }
-  }
-}
-```
+### 2. Authorized Domains
 
----
+Add these domains in Firebase Authentication:
 
-## Safe Admin User Pre-Creation
+- `localhost`
+- your Vercel production domain
+- your Vercel preview domain if you use previews
 
-### Firebase Console Method:
-1. Go to Cloud Firestore
-2. Create `adminUsers` collection
-3. Add document with ID = Firebase UID
-4. Fields: `uid`, `email`, `role: "super_admin"`, `createdAt`
+### 3. Firestore Database
 
-### Node.js Method:
-```javascript
-import admin from 'firebase-admin';
+Create Firestore in production mode and deploy the rules from:
 
-const db = admin.firestore();
-await db.collection('adminUsers').doc(uid).set({
-  uid: 'firebase-uid',
-  email: 'admin@example.com',
-  role: 'super_admin',
-  createdAt: admin.firestore.FieldValue.serverTimestamp(),
-  lastLogin: null
-});
-```
+- [firestore.rules](/C:/Users/hango/Desktop/civil-web/firestore.rules)
+- [storage.rules](/C:/Users/hango/Desktop/civil-web/storage.rules)
 
-**Important:** Pre-create admin users BEFORE they attempt first login.
+## Verify Backend Connectivity
 
----
-
-## Key Files Changed
-
-| File | Size | Changes |
-|------|------|---------|
-| `elitech/admin/index.html` | 139 lines | Minimal structure, removed clutter |
-| `elitech/admin/admin.css` | ~600 lines | Premium Dribbble styling |
-| `elitech/admin/firebase-email-auth.js` | Clean module | No magic-link, proper error handling |
-| `elitech/admin/admin.js` | UI Manager | CMSAdmin class, state control |
-| `functions/api/admin/auth-sync.js` | Backend | 403 enforcement, audit logging |
-
----
-
-## Deployment
+Run:
 
 ```bash
-# Deploy frontend (automatic on git push)
-firebase deploy --only hosting
-
-# Deploy backend functions
-firebase deploy --only functions
-
-# Verify function works
-curl https://yourdomain.vercel.app/api/admin/auth-sync
-# Expected: 401 error (no token provided)
+npm run check:firebase
 ```
 
----
+This checks:
 
-## Security Summary
+- required `FIREBASE_WEB_*` values
+- Firebase Admin SDK credential availability
+- Firebase Auth Admin access
+- Firestore access
 
-✅ Magic-link vulnerability removed  
-✅ Server-side authorization enforced  
-✅ No auto-creation of admin users  
-✅ Comprehensive audit logging  
-✅ Generic error messages (no email enumeration)  
-✅ 403 properly handled on frontend  
+If this command fails, the admin dashboard backend is not ready yet.
 
-All code is production-ready and committed to GitHub.
+## Create The First Super Admin
+
+After the Admin SDK credentials are configured, run:
+
+```bash
+npm run bootstrap:super-admin -- --email you@example.com --name "Your Name"
+```
+
+Optional password:
+
+```bash
+npm run bootstrap:super-admin -- --email you@example.com --password YourPassword123 --name "Your Name"
+```
+
+What the script does:
+
+- creates the Firebase Auth user if it does not already exist
+- writes `adminUsers/{uid}` in Firestore
+- sets the custom claim `role`
+- writes an audit log entry
+
+If you do not pass a password and the user does not exist yet, the script generates a temporary password and prints it in the terminal.
+
+Bootstrap script:
+
+- [scripts/bootstrap-super-admin.js](/C:/Users/hango/Desktop/civil-web/scripts/bootstrap-super-admin.js)
+
+## Admin Login Flow
+
+1. Go to `/elitech/admin/`
+2. Sign in with Google or email/password
+3. The frontend calls `/api/admin/auth-sync`
+4. The backend verifies the user exists in `adminUsers`
+5. The backend sets the Firebase custom claim `role`
+6. The dashboard opens
+
+If the user is missing from `adminUsers`, login is rejected with `403`.
+
+## Add More Admins From The Dashboard
+
+After the first `super_admin` logs in:
+
+1. Open the `Users & Admins` tab
+2. Create additional admins
+3. New admins can use the admin login page
+4. If they were created without a known password, they can use `Forgot Password`
+
+## Vercel Environment Variables
+
+Set these in Vercel:
+
+### Firebase Admin SDK
+
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_PRIVATE_KEY`
+
+Optional alternatives:
+
+- `FIREBASE_SERVICE_ACCOUNT_JSON`
+- `FIREBASE_USE_APPLICATION_DEFAULT`
+
+### Firebase Web SDK
+
+- `FIREBASE_WEB_API_KEY`
+- `FIREBASE_WEB_AUTH_DOMAIN`
+- `FIREBASE_WEB_PROJECT_ID`
+- `FIREBASE_WEB_STORAGE_BUCKET`
+- `FIREBASE_WEB_MESSAGING_SENDER_ID`
+- `FIREBASE_WEB_APP_ID`
+
+## Key Files
+
+- [api/cms/firebase.js](/C:/Users/hango/Desktop/civil-web/api/cms/firebase.js)
+- [api/cms/firebase-web-config.js](/C:/Users/hango/Desktop/civil-web/api/cms/firebase-web-config.js)
+- [api/admin/auth-sync.js](/C:/Users/hango/Desktop/civil-web/api/admin/auth-sync.js)
+- [api/admin/users.js](/C:/Users/hango/Desktop/civil-web/api/admin/users.js)
+- [api/admin/logs.js](/C:/Users/hango/Desktop/civil-web/api/admin/logs.js)
+- [elitech/admin/firebase-email-auth.js](/C:/Users/hango/Desktop/civil-web/elitech/admin/firebase-email-auth.js)
+
+## Common Failures
+
+### "Firebase Web configuration is incomplete"
+
+At least one `FIREBASE_WEB_*` variable is missing in Vercel or local env.
+
+### "Firebase Admin SDK is not configured on the server"
+
+The backend still does not have a usable service account source.
+
+### "Access denied. Contact administrator."
+
+The Firebase user signed in successfully but is not present in `adminUsers`.
+
+### Dashboard loads but admin creation fails
+
+The signed-in user is an `admin`, not a `super_admin`.

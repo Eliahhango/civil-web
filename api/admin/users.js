@@ -14,6 +14,69 @@ function createTemporaryPassword() {
   return `Tmp-${Math.random().toString(36).slice(2, 8)}${Date.now().toString(36).slice(-6)}`;
 }
 
+function isAuthPermissionError(error) {
+  const message = String((error && error.message) || error || "").toLowerCase();
+  const code = String((error && error.code) || "").toLowerCase();
+
+  return (
+    code === "auth/internal-error" &&
+    (
+      message.includes("serviceusage.serviceusageconsumer") ||
+      message.includes("serviceusage.services.use") ||
+      message.includes("permission_denied") ||
+      message.includes("caller does not have required permission")
+    )
+  );
+}
+
+async function createUserViaIdentityToolkit(email, password) {
+  const apiKey = String(process.env.FIREBASE_WEB_API_KEY || "").trim();
+  if (!apiKey) {
+    throw new Error("FIREBASE_WEB_API_KEY is required for Auth REST fallback");
+  }
+
+  const response = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${encodeURIComponent(apiKey)}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email,
+      password,
+      returnSecureToken: true
+    })
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const message = payload && payload.error && payload.error.message ? payload.error.message : `HTTP ${response.status}`;
+    const error = new Error(`Firebase Auth REST signup failed: ${message}`);
+    error.code = payload && payload.error && payload.error.message === "EMAIL_EXISTS" ? "auth/email-already-exists" : "";
+    throw error;
+  }
+
+  return {
+    uid: String(payload.localId || ""),
+    email: String(payload.email || email),
+    idToken: String(payload.idToken || "")
+  };
+}
+
+async function deleteUserViaIdentityToolkit(idToken) {
+  const apiKey = String(process.env.FIREBASE_WEB_API_KEY || "").trim();
+  if (!apiKey || !idToken) {
+    return;
+  }
+
+  await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:delete?key=${encodeURIComponent(apiKey)}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ idToken })
+  });
+}
+
 async function handleGet(req, res) {
   const authResult = await verifyAdminRequest(req);
   if (!authResult.ok) {
@@ -104,6 +167,9 @@ async function handlePost(req, res) {
   const { db, auth, decodedToken } = authResult;
   let targetUser = null;
   let createdAuthUser = false;
+  let createdViaRest = false;
+  let createdRestIdToken = "";
+  let authLookupBlocked = false;
 
   try {
     const existingAdminByEmail = await db.collection("adminUsers").where("email", "==", email).limit(1).get();
@@ -117,17 +183,47 @@ async function handlePost(req, res) {
     try {
       targetUser = await auth.getUserByEmail(email);
     } catch (error) {
-      if (String(error && error.code || "") !== "auth/user-not-found") {
+      if (String(error && error.code || "") === "auth/user-not-found") {
+        targetUser = null;
+      } else if (isAuthPermissionError(error)) {
+        authLookupBlocked = true;
+      } else {
         throw error;
       }
     }
 
     if (!targetUser) {
-      targetUser = await auth.createUser({
-        email,
-        password: createTemporaryPassword(),
-        emailVerified: true
-      });
+      const temporaryPassword = createTemporaryPassword();
+
+      try {
+        if (authLookupBlocked) {
+          throw Object.assign(new Error("Firebase Auth Admin permissions unavailable"), {
+            code: "auth/internal-error"
+          });
+        }
+
+        targetUser = await auth.createUser({
+          email,
+          password: temporaryPassword,
+          emailVerified: true
+        });
+      } catch (error) {
+        if (!isAuthPermissionError(error)) {
+          throw error;
+        }
+
+        const restUser = await createUserViaIdentityToolkit(email, temporaryPassword);
+        if (!restUser.uid) {
+          throw new Error("Firebase Auth REST signup did not return a user ID.");
+        }
+
+        targetUser = {
+          uid: restUser.uid,
+          email: restUser.email
+        };
+        createdViaRest = true;
+        createdRestIdToken = restUser.idToken;
+      }
       createdAuthUser = true;
     }
 
@@ -179,7 +275,11 @@ async function handlePost(req, res) {
 
     if (createdAuthUser && targetUser) {
       try {
-        await auth.deleteUser(targetUser.uid);
+        if (createdViaRest) {
+          await deleteUserViaIdentityToolkit(createdRestIdToken);
+        } else {
+          await auth.deleteUser(targetUser.uid);
+        }
       } catch (rollbackError) {
         console.error("[Admin Users] Failed to roll back Auth user:", rollbackError.message || rollbackError);
 
