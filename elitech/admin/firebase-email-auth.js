@@ -1,16 +1,14 @@
 ﻿import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import {
   getAuth,
-  isSignInWithEmailLink,
+  GoogleAuthProvider,
   onAuthStateChanged,
   sendPasswordResetEmail,
-  sendSignInLinkToEmail,
   signOut,
   signInWithEmailAndPassword,
-  signInWithEmailLink
+  signInWithPopup
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-const EMAIL_STORAGE_KEY = "emailForSignIn";
 const BACKEND_CONFIG_URL = "/elitech/cms/backend.json";
 const FIREBASE_WEB_CONFIG_PATH = "/api/cms/firebase-web-config";
 
@@ -52,18 +50,30 @@ async function loadBackendConfig() {
 }
 
 function setStatus(message, isError) {
+  console.log(`[Status] ${isError ? "ERROR" : "INFO"}: ${message}`);
+  
+  // Try the CMS callback if available
   if (window.CMSAdmin && typeof window.CMSAdmin.setStatus === "function") {
     window.CMSAdmin.setStatus(message, isError);
     return;
   }
 
+  // Otherwise, show in login view status message
   const statusNode = document.getElementById("status");
   if (!statusNode) {
+    console.warn("[Status] Status element not found in DOM");
     return;
   }
 
   statusNode.textContent = message;
-  statusNode.style.color = isError ? "#ff8c95" : "#94a9bf";
+  
+  // Show/hide and style the status message
+  if (message && message.trim()) {
+    statusNode.style.display = "block";
+    statusNode.className = isError ? "auth-status error" : "auth-status success";
+  } else {
+    statusNode.style.display = "none";
+  }
 }
 
 function getSafeAuthMessage(error, fallbackMessage) {
@@ -89,13 +99,6 @@ function getSafeAuthMessage(error, fallbackMessage) {
   }
 
   return fallbackMessage;
-}
-
-function getActionCodeSettings() {
-  return {
-    url: `${window.location.origin}/elitech/admin/`,
-    handleCodeInApp: true
-  };
 }
 
 async function ensureAuth() {
@@ -133,26 +136,68 @@ async function ensureAuth() {
   return auth;
 }
 
-async function sendLink() {
-  var authInstance = await ensureAuth();
-  const emailNode = document.getElementById("email-link-input");
-  const email = String((emailNode && emailNode.value) || "").trim();
-
-  if (!email) {
-    setStatus("Enter your admin email before sending link.", true);
-    return;
-  }
-
+async function signInWithGoogle() {
   try {
-    await sendSignInLinkToEmail(authInstance, email, getActionCodeSettings());
-    window.localStorage.setItem(EMAIL_STORAGE_KEY, email);
-    setStatus("Sign-in link sent. Check your email and open the link.", false);
+    const authInstance = await ensureAuth();
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    
+    console.log("[Google Auth] Starting sign-in...");
+    const result = await signInWithPopup(authInstance, provider);
+    const user = result.user;
+    
+    console.log("[Google Auth] Sign-in successful for:", user.email);
+    setStatus("Google sign-in successful. Checking authorization...", false);
+    
+    // After successful Google signin, sync with backend to verify authorization
+    try {
+      const token = await user.getIdToken(true); // Force refresh to ensure token is fresh
+      const response = await fetch("/api/admin/auth-sync", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + token }
+      });
+      
+      const data = await response.json();
+      console.log("[Google Auth] Auth sync response:", data);
+      
+      if (response.status === 403) {
+        console.error("[Google Auth] User not authorized (403)");
+        await signOut(authInstance);
+        setStatus("You are not authorized to access the admin dashboard.", true);
+        return;
+      }
+      
+      if (!data.success) {
+        console.error("[Google Auth] Auth sync failed:", data.error);
+        await signOut(authInstance);
+        setStatus("Authorization check failed. " + (data.error || "Please contact support."), true);
+        return;
+      }
+      
+      console.log("[Google Auth] User authorized - entering dashboard");
+      // Force token refresh to get custom claims
+      await user.getIdToken(true);
+      setStatus("Authenticated and authorized. Welcome!", false);
+      if (window.CMSAdmin && typeof window.CMSAdmin.enterDashboard === "function") {
+        window.CMSAdmin.enterDashboard();
+      }
+    } catch (syncError) {
+      console.error("[Google Auth] Sync error:", syncError);
+      await signOut(authInstance);
+      setStatus("Failed to verify authorization. Please try again.", true);
+    }
   } catch (error) {
-    if (error && error.code === "auth/unauthorized-continue-uri") {
-      setStatus("This domain is not authorized for email links.", true);
+    if (error.code === "auth/popup-closed-by-user") {
+      console.log("[Google Auth] Sign-in popup was closed by user");
+      setStatus("Sign-in cancelled.", false);
       return;
     }
-    setStatus(getSafeAuthMessage(error, "Failed to send sign-in link."), true);
+    if (error.code === "auth/popup-blocked") {
+      setStatus("Pop-up was blocked. Please allow pop-ups for this site.", true);
+      return;
+    }
+    console.error("[Google Auth] Sign-in error:", error);
+    setStatus(getSafeAuthMessage(error, "Google sign-in failed. Please try again."), true);
   }
 }
 
@@ -170,15 +215,58 @@ async function signInWithPassword() {
   }
 
   try {
-    await signInWithEmailAndPassword(authInstance, email, password);
+    console.log("[Email Auth] Signing in with email:", email);
+    const result = await signInWithEmailAndPassword(authInstance, email, password);
+    const user = result.user;
+    
     if (passwordNode) {
       passwordNode.value = "";
     }
-    setStatus("Signed in with email and password.", false);
+    
+    setStatus("Email sign-in successful. Checking authorization...", false);
+    
+    // After successful email signin, sync with backend to verify authorization
+    try {
+      const token = await user.getIdToken(true); // Force refresh to ensure token is fresh
+      const response = await fetch("/api/admin/auth-sync", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + token }
+      });
+      
+      const data = await response.json();
+      console.log("[Email Auth] Auth sync response:", data);
+      
+      if (response.status === 403) {
+        console.error("[Email Auth] User not authorized (403)");
+        await signOut(authInstance);
+        setStatus("You are not authorized to access the admin dashboard.", true);
+        return;
+      }
+      
+      if (!data.success) {
+        console.error("[Email Auth] Auth sync failed:", data.error);
+        await signOut(authInstance);
+        setStatus("Authorization check failed. " + (data.error || "Please contact support."), true);
+        return;
+      }
+      
+      console.log("[Email Auth] User authorized - entering dashboard");
+      // Force token refresh to get custom claims
+      await user.getIdToken(true);
+      setStatus("Authenticated and authorized. Welcome!", false);
+      if (window.CMSAdmin && typeof window.CMSAdmin.enterDashboard === "function") {
+        window.CMSAdmin.enterDashboard();
+      }
+    } catch (syncError) {
+      console.error("[Email Auth] Sync error:", syncError);
+      await signOut(authInstance);
+      setStatus("Failed to verify authorization. Please try again.", true);
+    }
   } catch (error) {
-    setStatus(getSafeAuthMessage(error, "Sign-in failed."), true);
+    setStatus(getSafeAuthMessage(error, "Email sign-in failed."), true);
   }
 }
+
 
 async function sendPasswordReset() {
   var authInstance = await ensureAuth();
@@ -229,86 +317,28 @@ function syncAdminAuthState(user) {
   }
 
   if (user) {
-    if (typeof window.CMSAdmin.enterDashboard === "function") {
-      window.CMSAdmin.enterDashboard();
-    }
-    setStatus("Sign-in active. Syncing admin permissions...", false);
-    user.getIdToken().then(function(token) {
-      fetch("/api/admin/auth-sync", {
-        method: "POST",
-        headers: { "Authorization": "Bearer " + token }
-      }).then(res => res.json()).then(data => {
-          console.log("[Auth Sync] Sync complete:", data);
-          if(data.success) {
-             // CRITICAL: Force refresh token to include the newly set custom claims
-             // This is necessary because setCustomUserClaims on the server won't be
-             // reflected in the current token until we force a refresh
-             user.getIdToken(true).then(refreshedToken => {
-               console.log("[Auth Sync] Token refreshed with custom claims");
-               setStatus("Sign-in active. Super Admin synced. Ready to manage users.", false);
-             }).catch(err => {
-               console.error("[Auth Sync] Token refresh failed:", err);
-               setStatus("Warning: Could not refresh authentication token. Some features may be limited.", false);
-             });
-          } else {
-             setStatus("Warning: Admin sync returned success=false. " + (data.error || ""), false);
-          }
-      }).catch(err => {
-        console.error("[Auth Sync] Sync error:", err);
-        setStatus("Warning: Could not sync admin permissions. " + err.message, false);
-      });
-    });
+    // User is signed in, but authorization is checked during the signin process
+    // This function is called by onAuthStateChanged to maintain state
+    console.log("[Auth State] User authenticated:", user.email);
+    setStatus("Authenticated. Dashboard is ready.", false);
     return;
   }
 
+  // User is not signed in
   if (typeof window.CMSAdmin.showLoginView === "function") {
     window.CMSAdmin.showLoginView();
   }
   setStatus("Please sign in to access the dashboard.", false);
 }
 
-async function completeSignInFromLink() {
-  var authInstance = await ensureAuth();
-  if (!isSignInWithEmailLink(authInstance, window.location.href)) {
-    setStatus("Current URL is not a Firebase email sign-in link.", true);
-    return;
-  }
-
-  let email = window.localStorage.getItem(EMAIL_STORAGE_KEY);
-  if (!email) {
-    email = window.prompt("Please provide your email for confirmation");
-  }
-
-  email = String(email || "").trim();
-  if (!email) {
-    setStatus("Email is required to complete sign-in.", true);
-    return;
-  }
-
-  try {
-    await signInWithEmailLink(authInstance, email, window.location.href);
-    window.localStorage.removeItem(EMAIL_STORAGE_KEY);
-
-    const cleanUrl = `${window.location.origin}${window.location.pathname}`;
-    window.history.replaceState({}, document.title, cleanUrl);
-    setStatus("Email link verified. Loading dashboard.", false);
-  } catch (error) {
-    setStatus(getSafeAuthMessage(error, "Failed to complete email link sign-in."), true);
-  }
-}
 
 function bindAuthButtons() {
-  const sendBtn = document.getElementById("btn-send-email-link");
-  const completeBtn = document.getElementById("btn-complete-email-link");
+  const googleBtn = document.getElementById("btn-google-signin");
   const passwordBtn = document.getElementById("btn-login-password");
   const forgotPasswordBtn = document.getElementById("btn-forgot-password");
 
-  if (sendBtn) {
-    sendBtn.addEventListener("click", sendLink);
-  }
-
-  if (completeBtn) {
-    completeBtn.addEventListener("click", completeSignInFromLink);
+  if (googleBtn) {
+    googleBtn.addEventListener("click", signInWithGoogle);
   }
 
   if (passwordBtn) {
@@ -331,13 +361,10 @@ document.addEventListener("DOMContentLoaded", function () {
     onAuthStateChanged(authInstance, function (user) {
       syncAdminAuthState(user);
     });
-
-    if (isSignInWithEmailLink(authInstance, window.location.href)) {
-      completeSignInFromLink();
-    }
   }).catch(function (_error) {
     setStatus("Failed to initialize sign-in.", true);
   });
 });
+
 
 
