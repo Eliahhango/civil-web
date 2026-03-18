@@ -229,7 +229,9 @@ class CMSAdmin {
       const token = await getIdToken();
 
       if (!token) {
-        throw new Error("No authentication token available");
+        console.error("[Admin] No ID token available - user may not be logged in");
+        this.showUsersState("error", "Authentication token missing. Please log in again.");
+        return;
       }
 
       // Fetch users from API
@@ -241,9 +243,21 @@ class CMSAdmin {
         },
       });
 
+      if (response.status === 401) {
+        console.warn("[Admin] Invalid or expired token (401)");
+        this.showUsersState("error", "Your session has expired. Please log in again.");
+        // Trigger logout to clear auth state
+        setTimeout(() => {
+          import("./firebase-email-auth.js").then((module) => {
+            module.logout();
+          });
+        }, 2000);
+        return;
+      }
+
       if (response.status === 403) {
-        console.warn("[Admin] User not authorized to view users");
-        this.showUsersState("error", "You don't have permission to view users");
+        console.warn("[Admin] User not authorized to view users (403)");
+        this.showUsersState("error", "You don't have permission to view users. Contact administrator.");
         return;
       }
 
@@ -355,7 +369,7 @@ class CMSAdmin {
       const token = await getIdToken();
 
       if (!token) {
-        throw new Error("No authentication token");
+        throw new Error("Authentication token missing. Please log in again.");
       }
 
       const response = await fetch("/api/admin/users", {
@@ -370,13 +384,22 @@ class CMSAdmin {
         }),
       });
 
+      if (response.status === 401) {
+        throw new Error("Session expired. Please log in again.");
+      }
+
       if (response.status === 403) {
-        throw new Error("You don't have permission to create admins");
+        throw new Error("You must be a Super Admin to create new admins.");
+      }
+
+      if (response.status === 409) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || "Email already exists in admin users.");
       }
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || `HTTP ${response.status}`);
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || `Server error (HTTP ${response.status})`);
       }
 
       console.log("[Admin] Admin created successfully");
@@ -442,7 +465,9 @@ class CMSAdmin {
       const token = await getIdToken();
 
       if (!token) {
-        throw new Error("No authentication token available");
+        console.error("[Admin] No ID token available - user may not be logged in");
+        this.showLogsState("error", "Authentication token missing. Please log in again.");
+        return;
       }
 
       // Build query params
@@ -467,9 +492,21 @@ class CMSAdmin {
         },
       });
 
+      if (response.status === 401) {
+        console.warn("[Admin] Invalid or expired token (401)");
+        this.showLogsState("error", "Your session has expired. Please log in again.");
+        // Trigger logout to clear auth state
+        setTimeout(() => {
+          import("./firebase-email-auth.js").then((module) => {
+            module.logout();
+          });
+        }, 2000);
+        return;
+      }
+
       if (response.status === 403) {
-        console.warn("[Admin] User not authorized to view logs");
-        this.showLogsState("error", "You don't have permission to view logs");
+        console.warn("[Admin] User not authorized to view logs (403)");
+        this.showLogsState("error", "You don't have permission to view logs. Contact administrator.");
         return;
       }
 

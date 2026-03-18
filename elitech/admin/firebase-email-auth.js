@@ -155,11 +155,23 @@ function ensureInitialized() {
 
 // Sync admin authorization with backend
 async function syncAdminAuth(user) {
-  if (!user) return false;
+  if (!user) {
+    console.error("[Auth Sync] No user provided");
+    setStatus("User authentication failed. Please try again.", "error");
+    return false;
+  }
 
   try {
     console.log("[Auth Sync] Starting admin authorization for:", user.email);
-    const token = await user.getIdToken();
+    let token;
+    try {
+      token = await user.getIdToken();
+    } catch (tokenError) {
+      console.error("[Auth Sync] Failed to get ID token:", tokenError);
+      setStatus("Failed to get authentication token. Please try again.", "error");
+      await signOut(auth);
+      return false;
+    }
 
     const response = await fetch("/api/admin/auth-sync", {
       method: "POST",
@@ -173,27 +185,41 @@ async function syncAdminAuth(user) {
       }),
     });
 
-    if (response.status === 403) {
-      console.warn("[Auth Sync] User not authorized (403)");
+    if (response.status === 401) {
+      console.warn("[Auth Sync] Invalid or expired token (401)");
       await signOut(auth);
-      setStatus("Access denied. Contact administrator.", "error");
+      setStatus("Your authentication token is invalid. Please try again.", "error");
+      return false;
+    }
+
+    if (response.status === 403) {
+      console.warn("[Auth Sync] User not authorized (403) -", user.email);
+      await signOut(auth);
+      setStatus("Access denied. Your account is not registered as an admin. Contact administrator.", "error");
       return false;
     }
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      console.error("[Auth Sync] HTTP error:", response.status, errorData);
+      throw new Error(`HTTP ${response.status}: ${errorData.error || "Auth sync failed"}`);
     }
 
     const data = await response.json();
     console.log("[Auth Sync] Admin authorization successful");
 
     // Force refresh token to include custom claims
-    await user.getIdToken(true);
+    try {
+      await user.getIdToken(true);
+    } catch (refreshError) {
+      console.warn("[Auth Sync] Token refresh failed (non-critical):", refreshError);
+    }
+    
     return data.success === true;
   } catch (error) {
     console.error("[Auth Sync Error]", error);
-    setStatus("Authorization check failed. Please try again.", "error");
-    await signOut(auth);
+    setStatus("Authorization check failed. Please try again or contact support.", "error");
+    await signOut(auth).catch(() => {});
     return false;
   }
 }
@@ -215,6 +241,7 @@ export async function signInWithGoogle() {
         uiManager.enterDashboard(user.email);
       }
     }
+    // syncAdminAuth handles unauthorized case with detailed error message
   } catch (error) {
     console.error("[Google Auth Error]", error.code, error.message);
 
@@ -222,8 +249,10 @@ export async function signInWithGoogle() {
       setStatus("Sign-in cancelled.", "error");
     } else if (error.code === "auth/popup-blocked") {
       setStatus("Sign-in popup blocked. Please allow popups.", "error");
+    } else if (error.code === "auth/network-request-failed") {
+      setStatus("Network error. Please check your connection.", "error");
     } else {
-      setStatus("Google sign-in failed. Please try again.", "error");
+      setStatus("Google sign-in failed. Please try again or use email/password.", "error");
     }
   }
 }
@@ -248,6 +277,11 @@ export async function signInWithPassword(email, password) {
 
     console.log("[Email Auth] Starting email/password sign-in");
     ensureInitialized();
+    
+    if (!email || !password) {
+      throw new Error("Email and password are required");
+    }
+
     const result = await signInWithEmailAndPassword(auth, email, password);
     const user = result.user;
 
@@ -261,18 +295,24 @@ export async function signInWithPassword(email, password) {
         uiManager.enterDashboard(user.email);
       }
     }
-    // syncAdminAuth handles unauthorized case
+    // syncAdminAuth handles unauthorized case with detailed error message
   } catch (error) {
     console.error("[Email Auth Error]", error.code, error.message);
 
     if (error.code === "auth/invalid-email") {
       setStatus("Invalid email address.", "error");
     } else if (error.code === "auth/user-disabled") {
-      setStatus("Access denied.", "error");
-    } else if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
+      setStatus("This account has been disabled. Contact administrator.", "error");
+    } else if (error.code === "auth/user-not-found") {
+      setStatus("Invalid email or password.", "error");
+    } else if (error.code === "auth/wrong-password") {
       setStatus("Invalid email or password.", "error");
     } else if (error.code === "auth/too-many-requests") {
-      setStatus("Too many attempts. Try again later.", "error");
+      setStatus("Too many failed attempts. Try again in a few minutes.", "error");
+    } else if (error.code === "auth/network-request-failed") {
+      setStatus("Network error. Please check your connection.", "error");
+    } else if (error.message?.includes("Email and password are required")) {
+      setStatus("Please enter both email and password.", "error");
     } else {
       setStatus("Sign-in failed. Please try again.", "error");
     }
