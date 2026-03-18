@@ -6,21 +6,6 @@
   <title>Admin Panel</title>
   <meta name="robots" content="noindex,nofollow">
   <link rel="stylesheet" href="/elitech/admin/admin.css">
-  
-  <script>
-    window.hideLoadingOverlayTimer = setTimeout(function() {
-      var overlay = document.getElementById("loading-overlay");
-      if (overlay) {
-        overlay.style.display = "none";
-        overlay.classList.add("hidden");
-      }
-      var loginView = document.getElementById("login-view");
-      if (loginView) {
-        loginView.style.display = "flex";
-        loginView.classList.add("is-active");
-      }
-    }, 15000);
-  </script>
 </head>
 <body class="admin-body">
   <!-- Loading Overlay -->
@@ -31,7 +16,7 @@
   </div>
 
   <!-- Login View -->
-  <section id="login-view" class="login-view is-active">
+  <section id="login-view" class="login-view is-active" style="display: flex;">
     <div class="login-container">
       <!-- Left Panel: Login Form -->
       <div class="login-panel">
@@ -66,8 +51,8 @@
           <!-- Email/Password Form -->
           <form id="email-password-form" class="login-form">
             <div class="form-group">
-              <label for="email-password-input">Email</label>
-              <input type="email" id="email-password-input" placeholder="you@example.com" required autocomplete="email">
+              <label for="email-input">Email</label>
+              <input type="email" id="email-input" placeholder="you@example.com" required autocomplete="email">
             </div>
 
             <div class="form-group">
@@ -78,9 +63,8 @@
               <input type="password" id="password-input" placeholder="••••••••" required autocomplete="current-password">
             </div>
 
-            <button type="button" id="btn-login-password" class="btn-primary">
+            <button type="submit" class="btn-primary">
               <span class="btn-text">Sign in</span>
-              <span class="btn-loader" style="display: none;"><i class="spinner"></i></span>
             </button>
           </form>
 
@@ -102,7 +86,7 @@
   </section>
 
   <!-- Dashboard View -->
-  <section id="dashboard-view" class="dashboard-view" style="display: none;">
+  <section id="dashboard-view" class="dashboard-view">
     <header class="dashboard-header">
       <div class="header-left">
         <div class="brand-icon"></div>

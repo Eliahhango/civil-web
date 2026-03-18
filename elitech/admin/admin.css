@@ -404,7 +404,8 @@ html, body {
 }
 
 .dashboard-view[style*="display: flex"], 
-.dashboard-view.active {
+.dashboard-view.active,
+.dashboard-view.is-active {
   display: flex;
 }
 

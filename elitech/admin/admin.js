@@ -34,9 +34,11 @@ class CMSAdmin {
     console.log("[Admin] Showing login view");
     if (this.loginView) {
       this.loginView.classList.add("is-active");
+      this.loginView.style.display = "flex";
     }
     if (this.dashboardView) {
       this.dashboardView.classList.remove("is-active");
+      this.dashboardView.style.display = "none";
     }
   }
 
@@ -48,9 +50,11 @@ class CMSAdmin {
     }
     if (this.dashboardView) {
       this.dashboardView.classList.add("is-active");
+      this.dashboardView.style.display = "flex";
     }
     if (this.loginView) {
       this.loginView.classList.remove("is-active");
+      this.loginView.style.display = "none";
     }
     this.switchTab("dashboard");
   }
