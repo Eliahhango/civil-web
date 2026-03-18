@@ -1,6 +1,7 @@
 /* ====================================================================
    Firebase Authentication - Email/Password + Google OAuth
    Admin Panel Security - No Magic Links
+   Configuration fetched from API endpoint for consistency
    ==================================================================== */
 
 import {
@@ -15,20 +16,11 @@ import {
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 
-// Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyA-3-4hbUe3eNr",
-  authDomain: "civil-web-34b1f.firebaseapp.com",
-  projectId: "civil-web-34b1f",
-  storageBucket: "civil-web-34b1f.appspot.com",
-  messagingSenderId: "505938938",
-  appId: "1:505938938:web:7f8d97c89eb4b50d",
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
+// Firebase initialization state
+let app = null;
+let auth = null;
+let googleProvider = null;
+let initPromise = null;
 
 // Global UI reference (set by admin.js)
 let uiManager = null;
@@ -39,6 +31,126 @@ function setStatus(message, type = "error") {
   if (uiManager) {
     uiManager.setStatus(message, type);
   }
+}
+
+// Fetch Firebase configuration from API endpoint
+async function fetchFirebaseConfig() {
+  try {
+    console.log("[Config] Fetching Firebase Web configuration from API");
+    const response = await fetch("/api/cms/firebase-web-config", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("[Config Error]", response.status, errorData);
+
+      if (response.status === 500) {
+        const missingVars = errorData.missing || [];
+        const config = [
+          "FIREBASE_WEB_API_KEY",
+          "FIREBASE_WEB_AUTH_DOMAIN",
+          "FIREBASE_WEB_PROJECT_ID",
+          "FIREBASE_WEB_STORAGE_BUCKET",
+          "FIREBASE_WEB_MESSAGING_SENDER_ID",
+          "FIREBASE_WEB_APP_ID"
+        ];
+
+        throw new Error(
+          `Firebase configuration incomplete. Missing environment variables:\n${config.join(", ")}\n\n` +
+          `Please ensure all Firebase Web configuration environment variables are set ` +
+          `in your deployment environment.`
+        );
+      }
+
+      throw new Error(
+        `Failed to load Firebase configuration (HTTP ${response.status}). ` +
+        `Admin panel cannot initialize.`
+      );
+    }
+
+    const config = await response.json();
+
+    // Validate config has required fields
+    const requiredFields = ["apiKey", "authDomain", "projectId", "appId"];
+    const missingFields = requiredFields.filter(field => !config[field]);
+
+    if (missingFields.length > 0) {
+      throw new Error(
+        `Firebase configuration missing required fields: ${missingFields.join(", ")}. ` +
+        `Please verify environment variables are properly set.`
+      );
+    }
+
+    console.log("[Config] Firebase Web configuration loaded successfully");
+    return config;
+  } catch (error) {
+    console.error("[Config Error]", error.message);
+    throw new Error(
+      `Configuration Error: ${error.message}\n\n` +
+      `The admin panel requires a properly configured Firebase project. ` +
+      `Check console for details.`
+    );
+  }
+}
+
+// Initialize Firebase with configuration
+async function initializeFirebase() {
+  if (initPromise) {
+    return initPromise; // Return existing promise if already initializing
+  }
+
+  initPromise = (async () => {
+    try {
+      const firebaseConfig = await fetchFirebaseConfig();
+
+      // Initialize Firebase
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      googleProvider = new GoogleAuthProvider();
+
+      console.log("[Firebase] Firebase initialized successfully");
+      return true;
+    } catch (error) {
+      console.error("[Firebase Init Error]", error.message);
+      setStatus(error.message, "error");
+      
+      // Show error clearly in the UI
+      const loginView = document.getElementById("login-view");
+      if (loginView) {
+        loginView.innerHTML = `
+          <div style="padding: 40px; text-align: center; color: #ef4444;">
+            <h2 style="margin-bottom: 16px;">Configuration Error</h2>
+            <p style="font-size: 14px; line-height: 1.6; margin-bottom: 16px;">
+              The admin panel cannot initialize due to a configuration error.
+            </p>
+            <p style="font-size: 12px; color: #6b7280; white-space: pre-wrap; text-align: left; 
+                      background: #f3f4f6; padding: 12px; border-radius: 4px; font-family: monospace;">
+              ${error.message}
+            </p>
+            <p style="font-size: 12px; color: #6b7280; margin-top: 16px;">
+              Please contact your administrator.
+            </p>
+          </div>
+        `;
+      }
+      
+      throw error;
+    }
+  })();
+
+  return initPromise;
+}
+
+// Ensure Firebase is initialized before using
+function ensureInitialized() {
+  if (!auth) {
+    throw new Error("Firebase not initialized. Call initializeFirebase() first.");
+  }
+  return auth;
 }
 
 // Sync admin authorization with backend
@@ -90,6 +202,7 @@ async function syncAdminAuth(user) {
 export async function signInWithGoogle() {
   try {
     console.log("[Google Auth] Starting Google sign-in flow");
+    ensureInitialized();
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
 
@@ -134,6 +247,7 @@ export async function signInWithPassword(email, password) {
     }
 
     console.log("[Email Auth] Starting email/password sign-in");
+    ensureInitialized();
     const result = await signInWithEmailAndPassword(auth, email, password);
     const user = result.user;
 
@@ -180,6 +294,7 @@ export async function signInWithPassword(email, password) {
 export async function sendPasswordReset(email) {
   try {
     console.log("[Password Reset] Sending reset email to:", email);
+    ensureInitialized();
     await sendPasswordResetEmail(auth, email);
     setStatus("Check your email for reset instructions.", "success");
   } catch (error) {
@@ -199,6 +314,7 @@ export async function sendPasswordReset(email) {
 export async function logout() {
   try {
     console.log("[Logout] Signing out user");
+    ensureInitialized();
     await signOut(auth);
     if (uiManager) {
       uiManager.showLoginView();
@@ -209,17 +325,22 @@ export async function logout() {
 }
 
 // Sync auth state with UI
-export function syncAdminAuthState() {
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      console.log("[Auth State] No authenticated user");
-      if (uiManager) {
-        uiManager.showLoginView();
+export async function syncAdminAuthState() {
+  try {
+    ensureInitialized();
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        console.log("[Auth State] No authenticated user");
+        if (uiManager) {
+          uiManager.showLoginView();
+        }
+      } else {
+        console.log("[Auth State] User authenticated:", user.email);
       }
-    } else {
-      console.log("[Auth State] User authenticated:", user.email);
-    }
-  });
+    });
+  } catch (error) {
+    console.error("[Auth State Error]", error.message);
+  }
 }
 
 // UI Manager registration (called by admin.js)
@@ -229,12 +350,13 @@ export function registerUIManager(manager) {
 
 // Get current Firebase user
 export function getCurrentUser() {
+  if (!auth) return null;
   return auth.currentUser;
 }
 
 // Get current user's ID token
 export async function getIdToken() {
-  const user = auth.currentUser;
+  const user = getCurrentUser();
   if (!user) {
     console.error("[Auth] No user currently logged in");
     return null;
@@ -250,8 +372,18 @@ export async function getIdToken() {
 // Initialize on DOM load
 let initTimeout = null;
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   console.log("[Init] Admin panel initialization started");
+
+  try {
+    // Initialize Firebase first (fetch config from API)
+    console.log("[Init] Initializing Firebase...");
+    await initializeFirebase();
+  } catch (error) {
+    console.error("[Init] Failed to initialize Firebase:", error.message);
+    // Error message already displayed by initializeFirebase()
+    return;
+  }
 
   // Safety timeout: hide loader after 15 seconds
   initTimeout = setTimeout(() => {
