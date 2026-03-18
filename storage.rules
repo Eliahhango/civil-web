@@ -10,7 +10,7 @@ service firebase.storage {
     }
 
     function isAdmin() {
-      return (emailVerified() && request.auth.token.admin == true) || request.auth.uid == '0wirGG8qA3XjkMby3eX62ScE9Ku1';
+      return emailVerified() && (request.auth.token.role == 'admin' || request.auth.token.role == 'super_admin');
     }
 
     match /cms/{allPaths=**} {
