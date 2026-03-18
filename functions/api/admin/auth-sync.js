@@ -88,14 +88,15 @@ export default async function handler(req, res) {
 
     // User IS authorized
     const userData = adminUserSnap.data();
+    const userRole = userData.role || "admin";
     console.log(
-      `[Auth Sync] User authorized with role: ${userData.role || "unknown"}`
+      `[Auth Sync] User authorized with role: ${userRole}`
     );
 
-    // Set custom claims (optional - for frontend verification)
+    // Set custom claims for role-based access control
+    // Claims are available in Firebase ID token and can be used by other services
     await admin.auth().setCustomUserClaims(uid, {
-      isAdmin: true,
-      role: userData.role || "admin",
+      role: userRole,
       authorizedAt: new Date().toISOString(),
     });
 
@@ -111,7 +112,7 @@ export default async function handler(req, res) {
       eventType: "admin.auth.success",
       ipAddress: clientIP,
       userAgent: userAgent,
-      role: userData.role || "admin",
+      role: userRole,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -121,7 +122,7 @@ export default async function handler(req, res) {
       success: true,
       uid: uid,
       email: email,
-      role: userData.role || "admin",
+      role: userRole,
     });
   } catch (error) {
     // Token verification error
