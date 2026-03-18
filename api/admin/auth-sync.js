@@ -82,10 +82,9 @@ module.exports = async function handler(req, res) {
       lastLogin: admin.firestore.FieldValue.serverTimestamp()
     });
 
-    // Set custom claims based on role
+    // Set custom claims based on role (standardized: request.auth.token.role)
     const customClaims = {
-      admin: true,
-      super_admin: userRole === "super_admin"
+      role: userRole  // 'admin' or 'super_admin'
     };
     await adminAuth.setCustomUserClaims(decodedToken.uid, customClaims);
     console.log(`[Auth Sync] Custom claims set for ${decodedToken.email}:`, customClaims);
