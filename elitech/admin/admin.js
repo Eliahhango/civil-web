@@ -1349,54 +1349,102 @@ document.addEventListener("DOMContentLoaded", function () {
   if (!usersTabBtn || !listContainer) return;
 
   function fetchUsers() {
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        user.getIdToken().then(token => {
-          fetch("/api/admin/users", {
-            headers: { "Authorization": "Bearer " + token }
-          }).then(r => r.json()).then(data => {
-            if (data.users && data.users.length > 0) {
-              let html = "";
-              data.users.forEach(u => {
-                const isSelf = u.email === user.email;
-                const roleLabel = u.role === "super_admin" ? "Super Admin" : "Content Admin";
-                const statusClass = u.active !== false ? "text-emerald-700" : "text-gray-500";
-                const statusText = u.active !== false ? "Active" : "Disabled";
+    console.log("[Users Tab] fetchUsers called");
+    const user = firebase.auth().currentUser;
+    
+    if (!user) {
+      console.error("[Users Tab] No user logged in");
+      listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Not authenticated. Please log in.</td></tr>`;
+      return;
+    }
 
-                html += `
-                  <tr>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                          <div class="flex items-center">
-                              <div class="font-medium text-gray-900">${u.email}</div>
-                              ${isSelf ? '<span class="ml-2 rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary uppercase">You</span>' : ''}
-                              ${u.role === "super_admin" ? '<span class="ml-2 rounded bg-gray-100 border border-gray-200 px-2 py-0.5 text-[10px] font-semibold text-gray-600 uppercase">Primary</span>' : ''}
-                          </div>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          ${roleLabel}
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap">
-                          <span class="inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${statusClass}">
-                              ${statusText}
-                          </span>
-                      </td>
-                      <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-left">
-                         ${!isSelf ? '<button class="text-blue-600 hover:text-blue-900 mx-1 border-0 bg-transparent cursor-pointer">Edit</button>' : '<span class="text-gray-400">Current</span>'}
-                      </td>
-                  </tr>
-                `;
-              });
-              listContainer.innerHTML = html;
-            } else if (data.error) {
-               listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">${data.error}</td></tr>`;
-            } else {
-               listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No users found.</td></tr>`;
-            }
-          }).catch(err => {
-             listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Error loading users.</td></tr>`;
+    console.log("[Users Tab] User:", user.email);
+    
+    // Force refresh token to ensure latest custom claims are included
+    user.getIdToken(true).then(token => {
+      console.log("[Users Tab] Token refreshed, fetching users...");
+      
+      // Show loading state
+      listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i> Loading users...</td></tr>`;
+      
+      fetch("/api/admin/users", {
+        method: "GET",
+        headers: { 
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/json"
+        }
+      })
+      .then(r => {
+        console.log("[Users Tab] Response status:", r.status);
+        return r.json().then(data => ({
+          status: r.status,
+          data: data
+        }));
+      })
+      .then(({status, data}) => {
+        console.log("[Users Tab] Response data:", data);
+        
+        if (status === 403) {
+          listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Access denied. You must be a Super Admin to view users.</td></tr>`;
+          return;
+        }
+        
+        if (status === 401) {
+          listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Authentication failed. Please log in again.</td></tr>`;
+          return;
+        }
+        
+        if (status !== 200) {
+          listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Server error: ${data.error || 'Unknown error'}</td></tr>`;
+          return;
+        }
+        
+        if (data.users && data.users.length > 0) {
+          let html = "";
+          data.users.forEach(u => {
+            const isSelf = u.email === user.email;
+            const roleLabel = u.role === "super_admin" ? "Super Admin" : "Content Admin";
+            const statusClass = u.active !== false ? "text-emerald-700" : "text-gray-500";
+            const statusText = u.active !== false ? "Active" : "Disabled";
+
+            html += `
+              <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center">
+                          <div class="font-medium text-gray-900">${u.email}</div>
+                          ${isSelf ? '<span class="ml-2 rounded bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary uppercase">You</span>' : ''}
+                          ${u.role === "super_admin" ? '<span class="ml-2 rounded bg-gray-100 border border-gray-200 px-2 py-0.5 text-[10px] font-semibold text-gray-600 uppercase">Primary</span>' : ''}
+                      </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      ${roleLabel}
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${statusClass}">
+                          ${statusText}
+                      </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-left">
+                     ${!isSelf ? '<button class="text-blue-600 hover:text-blue-900 mx-1 border-0 bg-transparent cursor-pointer">Edit</button>' : '<span class="text-gray-400">Current</span>'}
+                  </td>
+              </tr>
+            `;
           });
-        });
-      }
+          listContainer.innerHTML = html;
+          console.log("[Users Tab] Rendered", data.users.length, "users");
+        } else if (data.error) {
+           listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">${data.error}</td></tr>`;
+        } else {
+           listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No users found. Create one to get started.</td></tr>`;
+        }
+      })
+      .catch(err => {
+        console.error("[Users Tab] Fetch error:", err);
+        listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Error loading users: ${err.message}</td></tr>`;
+      });
+    }).catch(err => {
+      console.error("[Users Tab] Token refresh error:", err);
+      listContainer.innerHTML = `<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Failed to refresh authentication token.</td></tr>`;
     });
   }
 
@@ -1427,7 +1475,22 @@ document.addEventListener("DOMContentLoaded", function () {
       addAdminBtn.innerText = "Saving...";
       addAdminBtn.disabled = true;
 
-      firebase.auth().currentUser.getIdToken().then(token => {
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        addAdminBtn.innerText = "Save Admin";
+        addAdminBtn.disabled = false;
+        if(errorDiv) {
+           errorDiv.innerText = "Not authenticated. Please log in again.";
+           errorDiv.classList.remove("hidden");
+           errorDiv.style.display = "block";
+        }
+        return;
+      }
+
+      // Force refresh token to include latest claims
+      user.getIdToken(true).then(token => {
+        console.log("[Add Admin] Creating new admin with email:", email);
+        
         fetch("/api/admin/users", {
           method: "POST",
           headers: { 
@@ -1435,30 +1498,73 @@ document.addEventListener("DOMContentLoaded", function () {
             "Authorization": "Bearer " + token 
           },
           body: JSON.stringify({ email, password, role })
-        }).then(r => r.json()).then(res => {
+        })
+        .then(r => {
+          return r.json().then(data => ({
+            status: r.status,
+            data: data
+          }));
+        })
+        .then(({status, data}) => {
           addAdminBtn.innerText = "Save Admin";
           addAdminBtn.disabled = false;
           
-          if (res.success || res.message || res.users) {
+          console.log("[Add Admin] Response status:", status, "data:", data);
+          
+          if (status === 403) {
+            if(errorDiv) {
+               errorDiv.innerText = "Access denied. You must be a Super Admin to create users.";
+               errorDiv.classList.remove("hidden");
+               errorDiv.style.display = "block";
+            }
+            return;
+          }
+          
+          if (status !== 200) {
+            if(errorDiv) {
+               errorDiv.innerText = "Error: " + (data.error || "Failed to create user");
+               errorDiv.classList.remove("hidden");
+               errorDiv.style.display = "block";
+            }
+            return;
+          }
+          
+          if (data.success || data.uid) {
             emailInput.value = "";
             passwordInput.value = "";
+            if(errorDiv) {
+               errorDiv.classList.add("hidden");
+               errorDiv.style.display = "none";
+            }
+            console.log("[Add Admin] User created successfully");
             fetchUsers();
           } else {
             if(errorDiv) {
-               errorDiv.innerText = "Error: " + (res.error || "Failed to create");
+               errorDiv.innerText = "Error: " + (data.error || "Failed to create user");
                errorDiv.classList.remove("hidden");
                errorDiv.style.display = "block";
             }
           }
-        }).catch(err => {
+        })
+        .catch(err => {
           addAdminBtn.innerText = "Save Admin";
           addAdminBtn.disabled = false;
+          console.error("[Add Admin] Fetch error:", err);
           if(errorDiv) {
-             errorDiv.innerText = "Error processing request.";
+             errorDiv.innerText = "Error: " + err.message;
              errorDiv.classList.remove("hidden");
              errorDiv.style.display = "block";
           }
         });
+      }).catch(err => {
+        addAdminBtn.innerText = "Save Admin";
+        addAdminBtn.disabled = false;
+        console.error("[Add Admin] Token refresh error:", err);
+        if(errorDiv) {
+           errorDiv.innerText = "Failed to refresh authentication token.";
+           errorDiv.classList.remove("hidden");
+           errorDiv.style.display = "block";
+        }
       });
     });
   }

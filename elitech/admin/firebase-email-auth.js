@@ -238,11 +238,25 @@ function syncAdminAuthState(user) {
         method: "POST",
         headers: { "Authorization": "Bearer " + token }
       }).then(res => res.json()).then(data => {
-          console.log("Auth sync complete", data);
+          console.log("[Auth Sync] Sync complete:", data);
           if(data.success) {
-             setStatus("Sign-in active. Super Admin synced.", false);
+             // CRITICAL: Force refresh token to include the newly set custom claims
+             // This is necessary because setCustomUserClaims on the server won't be
+             // reflected in the current token until we force a refresh
+             user.getIdToken(true).then(refreshedToken => {
+               console.log("[Auth Sync] Token refreshed with custom claims");
+               setStatus("Sign-in active. Super Admin synced. Ready to manage users.", false);
+             }).catch(err => {
+               console.error("[Auth Sync] Token refresh failed:", err);
+               setStatus("Warning: Could not refresh authentication token. Some features may be limited.", false);
+             });
+          } else {
+             setStatus("Warning: Admin sync returned success=false. " + (data.error || ""), false);
           }
-      }).catch(err => console.error("Sync error", err));
+      }).catch(err => {
+        console.error("[Auth Sync] Sync error:", err);
+        setStatus("Warning: Could not sync admin permissions. " + err.message, false);
+      });
     });
     return;
   }

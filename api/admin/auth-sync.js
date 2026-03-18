@@ -40,6 +40,7 @@ module.exports = async function handler(req, res) {
     }
 
     // Write audit log securely
+    const admin = require("firebase-admin");
     await db.collection("adminAuditLogs").add({
       email: decodedToken.email,
       eventType: "admin.api.success",
@@ -53,7 +54,7 @@ module.exports = async function handler(req, res) {
         uid: decodedToken.uid,
         userAgent: req.headers["user-agent"]
       },
-      timestamp: adminAuth.app.options ? require("firebase-admin").firestore.FieldValue.serverTimestamp() : new Date().toISOString()
+      timestamp: admin.firestore.FieldValue.serverTimestamp()
     });
 
     return res.status(200).json({ success: true, role, uid: decodedToken.uid });
