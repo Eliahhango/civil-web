@@ -381,6 +381,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     await initializeFirebase();
   } catch (error) {
     console.error("[Init] Failed to initialize Firebase:", error.message);
+    const overlay = document.getElementById("loading-overlay");
+    if (overlay) {
+      overlay.classList.add("hidden");
+    }
+    if (uiManager) {
+      uiManager.hideLoadingOverlay();
+    }
     // Error message already displayed by initializeFirebase()
     return;
   }
