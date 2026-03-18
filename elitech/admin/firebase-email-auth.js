@@ -351,18 +351,47 @@ function bindAuthButtons() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  console.log("[Auth] DOMContentLoaded fired - initializing auth system");
+  
   window.CMSFirebaseAuth = {
     getIdToken: getIdToken,
     logout: logout
   };
 
   bindAuthButtons();
+  
+  // Initialize Firebase with timeout
+  const initTimeout = setTimeout(() => {
+    console.error("[Auth] Initialization timeout - hiding loading overlay");
+    if (window.CMSAdmin && typeof window.CMSAdmin.hideLoadingOverlay === "function") {
+      window.CMSAdmin.hideLoadingOverlay();
+    }
+    if (window.CMSAdmin && typeof window.CMSAdmin.showLoginView === "function") {
+      window.CMSAdmin.showLoginView();
+    }
+    setStatus("Connection timeout. Please refresh the page.", true);
+  }, 10000); // 10 second timeout
+
   ensureAuth().then(function (authInstance) {
+    clearTimeout(initTimeout);
+    console.log("[Auth] Firebase initialized successfully");
+    
     onAuthStateChanged(authInstance, function (user) {
+      console.log(`[Auth] Auth state changed - user: ${user ? user.email : "none"}`);
       syncAdminAuthState(user);
     });
-  }).catch(function (_error) {
-    setStatus("Failed to initialize sign-in.", true);
+  }).catch(function (error) {
+    clearTimeout(initTimeout);
+    console.error("[Auth] Firebase initialization error:", error);
+    setStatus("Failed to initialize authentication. Please refresh the page.", true);
+    
+    // Make sure loading overlay is hidden even on error
+    if (window.CMSAdmin && typeof window.CMSAdmin.hideLoadingOverlay === "function") {
+      window.CMSAdmin.hideLoadingOverlay();
+    }
+    if (window.CMSAdmin && typeof window.CMSAdmin.showLoginView === "function") {
+      window.CMSAdmin.showLoginView();
+    }
   });
 });
 
