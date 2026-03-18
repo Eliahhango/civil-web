@@ -36,8 +36,27 @@ class CMSAdmin {
     this.btnCreateAdmin = document.getElementById("btn-create-admin");
     this.createAdminStatusEl = document.getElementById("create-admin-status");
 
+    // Logs tab elements
+    this.logsFilterEl = document.getElementById("logs-filters");
+    this.logsLoadingEl = document.getElementById("logs-loading");
+    this.logsErrorEl = document.getElementById("logs-error");
+    this.logsEmptyEl = document.getElementById("logs-empty");
+    this.logsListContainerEl = document.getElementById("logs-list-container");
+    this.auditLogsListEl = document.getElementById("audit-logs-list");
+    this.logsErrorMessageEl = this.logsErrorEl?.querySelector(".error-message");
+    this.btnRetryLogs = document.getElementById("btn-retry-logs");
+    this.logsFilterEventType = document.getElementById("filter-event-type");
+    this.logsFilterEmail = document.getElementById("filter-email");
+    this.btnApplyFilters = document.getElementById("btn-apply-filters");
+    this.btnClearFilters = document.getElementById("btn-clear-filters");
+    this.logsPaginationEl = document.getElementById("logs-pagination");
+
     // Store user role for permission checks
     this.currentUserRole = null;
+    
+    // Store current logs page and filters
+    this.currentLogsPage = 1;
+    this.currentLogsFilters = {};
 
     if (this.btnLogout) {
       this.btnLogout.addEventListener("click", () => this.handleLogout());
@@ -51,11 +70,41 @@ class CMSAdmin {
         if (tabName === "users") {
           this.loadUsers();
         }
+        // Load data when switching to logs tab
+        if (tabName === "logs") {
+          this.currentLogsPage = 1;
+          this.loadLogs();
+        }
       });
     });
 
     if (this.btnRetryUsers) {
       this.btnRetryUsers.addEventListener("click", () => this.loadUsers());
+    }
+
+    if (this.btnRetryLogs) {
+      this.btnRetryLogs.addEventListener("click", () => this.loadLogs());
+    }
+
+    if (this.btnApplyFilters) {
+      this.btnApplyFilters.addEventListener("click", () => {
+        this.currentLogsPage = 1;
+        this.currentLogsFilters = {
+          eventType: this.logsFilterEventType?.value || "",
+          email: this.logsFilterEmail?.value || "",
+        };
+        this.loadLogs();
+      });
+    }
+
+    if (this.btnClearFilters) {
+      this.btnClearFilters.addEventListener("click", () => {
+        if (this.logsFilterEventType) this.logsFilterEventType.value = "";
+        if (this.logsFilterEmail) this.logsFilterEmail.value = "";
+        this.currentLogsPage = 1;
+        this.currentLogsFilters = {};
+        this.loadLogs();
+      });
     }
 
     if (this.formCreateAdmin) {
@@ -378,6 +427,166 @@ class CMSAdmin {
     if (!timestamp) return "Unknown";
     const date = new Date(timestamp);
     return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+  }
+
+  // Load audit logs from API
+  async loadLogs() {
+    console.log("[Admin] Loading audit logs");
+    
+    // Show loading state
+    this.showLogsState("loading");
+
+    try {
+      // Import Firebase auth to get token
+      const { getIdToken } = await import("./firebase-email-auth.js");
+      const token = await getIdToken();
+
+      if (!token) {
+        throw new Error("No authentication token available");
+      }
+
+      // Build query params
+      const params = new URLSearchParams();
+      params.append("pageNumber", this.currentLogsPage);
+      params.append("pageSize", "25");
+      
+      if (this.currentLogsFilters.eventType) {
+        params.append("eventType", this.currentLogsFilters.eventType);
+      }
+      
+      if (this.currentLogsFilters.email) {
+        params.append("email", this.currentLogsFilters.email);
+      }
+
+      // Fetch logs from API
+      const response = await fetch(`/api/admin/logs?${params}`, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 403) {
+        console.warn("[Admin] User not authorized to view logs");
+        this.showLogsState("error", "You don't have permission to view logs");
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("[Admin] Logs loaded successfully:", data.logs?.length || 0);
+
+      // Show filters
+      if (this.logsFilterEl) {
+        this.logsFilterEl.style.display = "flex";
+      }
+
+      // Render logs or show empty state
+      if (!data.logs || data.logs.length === 0) {
+        this.showLogsState("empty");
+      } else {
+        this.renderLogs(data.logs);
+        this.renderLogsPagination(data.pagination);
+        this.showLogsState("list");
+      }
+    } catch (error) {
+      console.error("[Admin] Failed to load logs:", error);
+      this.showLogsState("error", "Failed to load logs. Please try again.");
+    }
+  }
+
+  // Show/hide logs state containers
+  showLogsState(state, errorMessage = "") {
+    // Hide all states
+    if (this.logsLoadingEl) this.logsLoadingEl.style.display = "none";
+    if (this.logsErrorEl) this.logsErrorEl.style.display = "none";
+    if (this.logsEmptyEl) this.logsEmptyEl.style.display = "none";
+    if (this.logsListContainerEl) this.logsListContainerEl.style.display = "none";
+
+    // Show requested state
+    if (state === "loading" && this.logsLoadingEl) {
+      this.logsLoadingEl.style.display = "block";
+    } else if (state === "error" && this.logsErrorEl) {
+      if (this.logsErrorMessageEl) {
+        this.logsErrorMessageEl.textContent = errorMessage;
+      }
+      this.logsErrorEl.style.display = "block";
+    } else if (state === "empty" && this.logsEmptyEl) {
+      this.logsEmptyEl.style.display = "block";
+    } else if (state === "list" && this.logsListContainerEl) {
+      this.logsListContainerEl.style.display = "block";
+    }
+  }
+
+  // Render audit logs list
+  renderLogs(logs) {
+    if (!this.auditLogsListEl) return;
+
+    const html = logs.map((log) => {
+      const eventLabel = this.getEventTypeLabel(log.eventType);
+      const actor = this.escapeHtml(log.email || "Unknown");
+      const target = log.targetEmail ? ` → ${this.escapeHtml(log.targetEmail)}` : "";
+      
+      return `
+        <div class="log-row">
+          <div class="log-timestamp">${this.formatDate(log.timestamp)}</div>
+          <div class="log-event">
+            <span class="event-badge event-${this.escapeHtml(log.eventType)}">${eventLabel}</span>
+          </div>
+          <div class="log-actor">${actor}</div>
+          <div class="log-target">${target}</div>
+          <div class="log-ip">${this.escapeHtml(log.ipAddress)}</div>
+        </div>
+      `;
+    }).join("");
+
+    this.auditLogsListEl.innerHTML = html;
+  }
+
+  // Render pagination controls
+  renderLogsPagination(pagination) {
+    if (!this.logsPaginationEl) return;
+
+    const { pageNumber, pageSize, totalPages, totalCount } = pagination;
+
+    if (totalPages <= 1) {
+      this.logsPaginationEl.innerHTML = "";
+      return;
+    }
+
+    let html = `<div class="pagination"><p>Page ${pageNumber} of ${totalPages} (${totalCount} total)</p><div class="pagination-buttons">`;
+
+    if (pageNumber > 1) {
+      html += `<button class="btn-small" onclick="adminUI.goToLogsPage(${pageNumber - 1})">← Previous</button>`;
+    }
+
+    if (pageNumber < totalPages) {
+      html += `<button class="btn-small" onclick="adminUI.goToLogsPage(${pageNumber + 1})">Next →</button>`;
+    }
+
+    html += `</div></div>`;
+    this.logsPaginationEl.innerHTML = html;
+  }
+
+  // Navigate to specific logs page
+  goToLogsPage(pageNumber) {
+    this.currentLogsPage = pageNumber;
+    this.loadLogs();
+  }
+
+  // Get human-readable event type label
+  getEventTypeLabel(eventType) {
+    const labels = {
+      "admin.auth.success": "Auth Success",
+      "admin.auth.denied": "Auth Denied",
+      "admin.user.created": "User Created",
+      "admin.user.creation.rollback.failed": "Creation Rollback Failed",
+    };
+    return labels[eventType] || eventType || "Unknown";
   }
 
   handleLogout() {

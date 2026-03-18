@@ -168,6 +168,52 @@
           <div class="panel-header">
             <h2>Audit Logs</h2>
           </div>
+
+          <!-- Filter Controls -->
+          <div id="logs-filters" class="filters-container" style="display: none;">
+            <div class="filter-group">
+              <label for="filter-event-type">Event Type:</label>
+              <select id="filter-event-type">
+                <option value="">All Events</option>
+                <option value="admin.auth.success">Admin Auth Success</option>
+                <option value="admin.auth.denied">Admin Auth Denied</option>
+                <option value="admin.user.created">User Created</option>
+                <option value="admin.user.creation.rollback.failed">Creation Rollback Failed</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="filter-email">Email:</label>
+              <input type="email" id="filter-email" placeholder="Filter by email...">
+            </div>
+
+            <button id="btn-apply-filters" class="btn-small">Apply Filters</button>
+            <button id="btn-clear-filters" class="btn-small">Clear</button>
+          </div>
+
+          <!-- Loading State -->
+          <div id="logs-loading" class="state-container loading" style="display: none;">
+            <div class="spinner-small"></div>
+            <p>Loading audit logs...</p>
+          </div>
+
+          <!-- Error State -->
+          <div id="logs-error" class="state-container error" style="display: none;">
+            <p class="error-message"></p>
+            <button id="btn-retry-logs" class="btn-small">Retry</button>
+          </div>
+
+          <!-- Empty State -->
+          <div id="logs-empty" class="state-container empty" style="display: none;">
+            <p>No audit logs found</p>
+          </div>
+
+          <!-- Logs List -->
+          <div id="logs-list-container" style="display: none;">
+            <div id="audit-logs-list" class="logs-table"></div>
+            <div id="logs-pagination" class="pagination-controls"></div>
+          </div>
+
           <div id="logs-container"></div>
         </section>
       </div>
