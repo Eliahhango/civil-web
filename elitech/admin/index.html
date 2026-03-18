@@ -19,95 +19,48 @@
     </div>
   </div>
   <section id="login-view" class="login-view is-active" aria-hidden="false">
-    <div class="login-ambient login-ambient-a" aria-hidden="true"></div>
-    <div class="login-ambient login-ambient-b" aria-hidden="true"></div>
-
-    <header class="login-topbar" aria-label="Admin login header">
-      <a class="login-topbar-brand" href="/elitech/home-version-2/" target="_blank" rel="noopener">
-        <img src="/elitech/wp-content/uploads/2025/11/logo.svg" alt="EliTechWiz">
-        <span>EliTechWiz Civil Portal</span>
-      </a>
-      <nav class="login-topbar-nav" aria-label="Quick links">
-        <a href="/elitech/admin/support.html" rel="noopener">Support</a>
-        <a href="/elitech/admin/system-status.html" rel="noopener">System Status</a>
-        <a href="/elitech/admin/documentation.html" rel="noopener">Documentation</a>
-      </nav>
-    </header>
-
-    <div class="login-shell">
-      <aside class="login-brand-panel" aria-hidden="true">
-        <p class="brand-kicker">EliTechWiz Control Suite</p>
-        <h2>Engineering-Led Content Operations</h2>
-        <p>Oversee project storytelling with a modern control space inspired by real civil infrastructure delivery.</p>
-
-        <div class="brand-pill-row">
-          <span class="brand-pill">Infrastructure Focus</span>
-          <span class="brand-pill">Project-First Workflow</span>
-          <span class="brand-pill">Responsive Dashboard</span>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>Admin Login</h2>
+                <p>Sign in to your account</p>
+            </div>
+            
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="email-password-input">Email</label>
+                    <input type="email" id="email-password-input" placeholder="m@example.com" class="form-input">
+                </div>
+                
+                <div class="form-group" style="margin-top: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <label for="password-input">Password</label>
+                        <a href="#" id="btn-forgot-password" class="forgot-link">Forgot your password?</a>
+                    </div>
+                    <input type="password" id="password-input" placeholder="" class="form-input">
+                </div>
+                
+                <button type="button" id="btn-login-password" class="btn-primary" style="margin-top: 20px; width: 100%;">
+                    Login
+                </button>
+                
+                <div style="text-align: center; margin: 20px 0; font-size: 14px; color: #71717a;">
+                    Or continue with magic link
+                </div>
+                
+                <div class="form-group">
+                    <input type="email" id="email-link-input" placeholder="m@example.com" class="form-input">
+                    <button type="button" id="btn-send-email-link" class="btn-outline" style="margin-top: 10px; width: 100%;">
+                        Send Magic Link
+                    </button>
+                </div>
+                
+                <div id="login-auth-state" class="auth-state" style="margin-top: 15px; font-size: 12px; text-align: center;">Not authenticated</div>
+                <div id="login-status" class="login-status-msg" style="margin-top: 5px; font-size: 12px; text-align: center; color: #ef4444;"></div>
+            </div>
         </div>
-
-        <div class="brand-metrics">
-          <article>
-            <strong>120+</strong>
-            <span>Delivered Programs</span>
-          </article>
-          <article>
-            <strong>24/7</strong>
-            <span>Operations Visibility</span>
-          </article>
-          <article>
-            <strong>99.9%</strong>
-            <span>Secure Access Layer</span>
-          </article>
-        </div>
-      </aside>
-
-      <div class="login-card">
-        <p class="login-badge">EliTechWiz CMS</p>
-        <h1>Admin Sign In</h1>
-        <p class="login-subtitle">Sign in with email link or email/password.</p>
-
-        <div class="login-block stagger-1">
-          <label>Email Link
-            <input id="email-link-input" type="email" placeholder="admin@yourdomain.com">
-          </label>
-          <div class="auth-actions">
-            <button id="btn-send-email-link" class="btn-default" type="button">Send Sign-In Link</button>
-            <button id="btn-complete-email-link" class="btn-default btn-outline" type="button">Complete Sign-In</button>
-          </div>
-        </div>
-
-        <div class="login-divider"><span>or</span></div>
-
-        <div class="login-block stagger-2">
-          <label>Email
-            <input id="email-password-input" type="email" placeholder="admin@yourdomain.com" autocomplete="email">
-          </label>
-          <label>Password
-            <input id="password-input" type="password" placeholder="Enter your password" autocomplete="current-password">
-          </label>
-          <div class="auth-actions">
-            <button id="btn-login-password" class="btn-default" type="button">Sign In With Password</button>
-            <button id="btn-forgot-password" class="btn-default btn-outline" type="button">Forgot Password</button>
-          </div>
-        </div>
-
-        <div class="login-state-panel stagger-3">
-          <p id="login-auth-state" class="auth-state">Not authenticated</p>
-          <p id="login-status" class="admin-footer" aria-live="polite">Ready.</p>
-        </div>
-      </div>
     </div>
-
-    <footer class="login-site-footer" aria-label="Admin login footer">
-      <p>© 2026 EliTechWiz Internal Dashboard. Built for precision, safety, and delivery excellence.</p>
-      <div class="login-footer-links">
-        <a href="/elitech/admin/privacy-policy.html" rel="noopener">Privacy Policy</a>
-        <a href="/elitech/admin/terms.html" rel="noopener">Terms of Service</a>
-        <a href="/elitech/admin/admin-rules.html" rel="noopener">Admin Rules</a>
-      </div>
-    </footer>
-  </section>
+</section>
 
   <div id="dashboard-view" class="admin-shell hidden" aria-hidden="true">
     <aside class="admin-sidebar">
@@ -561,53 +514,7 @@
           </div>
         </div>
       </section>
-            <section id="tab-users" class="tab-panel">
-        <div class="panel-head">
-          <h3>User Management</h3>
-          <button id="add-admin-user" class="btn-default"><i class="fas fa-user-plus"></i> Add Admin</button>
-        </div>
-        <div class="split-layout">
-          <div class="form-container" style="flex: 2;">
-            <div class="form-group" style="margin-bottom: 2rem;">
-              <h4 style="color: var(--text-color); margin-bottom: 1rem;"><i class="fas fa-users"></i> Registered Administrators</h4>
-              <div id="admin-users-list" class="list-wrap" style="background: var(--admin-panel-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 10px;">
-                <p style="color: var(--text-hint); text-align: center; padding: 20px;">Loading users...</p>
-              </div>
-            </div>
-            
-            <div id="add-user-modal" style="display: none; background: var(--admin-panel-bg); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
-              <h4 style="color: white; margin-bottom: 15px;"><i class="fas fa-user-plus"></i> Create New Administrator</h4>
-              <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="new-user-email" class="icon-input" placeholder="admin@elitechwiz.com" />
-              </div>
-              <div class="form-group">
-                <label>Temporary Password</label>
-                <input type="password" id="new-user-password" class="icon-input" placeholder="Min 6 characters" />
-              </div>
-              <div class="form-group">
-                <label>Role</label>
-                <select id="new-user-role" class="icon-input">
-                  <option value="admin">Admin (Read/Write)</option>
-                  <option value="super_admin">Super Admin (Full Access)</option>
-                </select>
-              </div>
-              <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button id="submit-new-user" class="btn-default">Create User</button>
-                <button id="cancel-new-user" class="btn-default btn-outline">Cancel</button>
-              </div>
-            </div>
-          </div>
-          <div class="sidebar-help" style="flex: 1;">
-            <div class="help-card">
-              <h4><i class="fas fa-shield-alt"></i> Role Policies</h4>
-              <p><strong>Super Admin:</strong> Full database structural control, global settings, and user management.</p>
-              <p><strong>Admin:</strong> Manage projects, blogs, services, media, and general content.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-      <section id="tab-logs" class="tab-panel">
+            <section id="tab-logs" class="tab-panel">
         <div class="panel-head">
           <h3>System Audit Log</h3>
           <div class="header-actions">
