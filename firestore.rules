@@ -5,19 +5,16 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    // Check if user has super_admin role (from custom claims set by auth-sync)
     function isSuperAdmin() {
-      return signedIn() && (
-        request.auth.uid == '0wirGG8qA3XjkMby3eX62ScE9Ku1' ||
-        get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data.role == 'super_admin' ||
-        request.auth.token.super_admin == true
-      );
+      return signedIn() && request.auth.token.role == 'super_admin';
     }
     
+    // Check if user has admin or super_admin role
     function isAdmin() {
       return signedIn() && (
-        isSuperAdmin() || 
-        get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data.role == 'admin' ||
-        request.auth.token.admin == true
+        request.auth.token.role == 'super_admin' || 
+        request.auth.token.role == 'admin'
       );
     }
 
@@ -26,10 +23,13 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Audit logs are append-only: only backend can create, no client-side updates/deletes
     match /adminAuditLogs/{logId} {
       allow read: if isAdmin();
-      allow create: if isAdmin();
-      allow update, delete: if isSuperAdmin();
+      // Create only allowed from backend (authenticated admin users)
+      allow create: if false;
+      // No updates or deletes allowed - append-only audit trail
+      allow update, delete: if false;
     }
 
     match /adminInvites/{inviteId} {

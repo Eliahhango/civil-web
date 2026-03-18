@@ -87,33 +87,15 @@ function isAdminUser(decodedToken) {
     return { ok: false, reason: "invalid-token" };
   }
 
-  if (decodedToken.uid === "0wirGG8qA3XjkMby3eX62ScE9Ku1") {
-    return { ok: true, mode: "hardcoded-uid" };
+  // Check for role custom claim set by auth-sync endpoint
+  // Role values: "admin" or "super_admin"
+  const role = decodedToken.role;
+  if (role === "admin" || role === "super_admin") {
+    return { ok: true, mode: "role-claim", role: role };
   }
 
-  if (decodedToken.admin === true) {
-    return { ok: true, mode: "custom-claim" };
-  }
-
-  if (!canUseEmailFallback()) {
-    return { ok: false, reason: "admin-claim-required" };
-  }
-
-  const email = String(decodedToken.email || "").trim().toLowerCase();
-  if (!email) {
-    return { ok: false, reason: "missing-email" };
-  }
-
-  const allowlist = getAdminEmailAllowlist();
-  if (!allowlist.length) {
-    return { ok: false, reason: "allowlist-empty" };
-  }
-
-  if (!allowlist.includes(email)) {
-    return { ok: false, reason: "email-not-allowed" };
-  }
-
-  return { ok: true, mode: "email-allowlist" };
+  // No valid admin claim found
+  return { ok: false, reason: "missing-role-claim" };
 }
 
 module.exports = {
