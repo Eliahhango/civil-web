@@ -3,214 +3,360 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel</title>
+  <title>Admin Panel - Modern Dashboard</title>
   <meta name="robots" content="noindex,nofollow">
-  <link rel="stylesheet" href="/elitech/admin/admin.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .is-active, .active { display: flex !important; }
+    .dashboard-view .is-active { display: block !important; }
+    .tab-panel.active { display: block !important; }
+    .tab-panel { display: none; }
+    
+    /* Legacy JS Support for Form fields */
+    .cms-editor-card { background: white; border: 1px solid #e2e8f0; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+    .cms-card-heading h3 { font-size: 1.125rem; font-weight: 600; color: #0f172a; margin-bottom: 0.25rem; }
+    .cms-card-heading p { font-size: 0.875rem; color: #64748b; margin-bottom: 1rem; }
+    .cms-field-grid { display: grid; gap: 1rem; }
+    .content-summary-card { background: #f8fafc; padding: 1.25rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; }
+    .content-summary-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #4f46e5; margin-bottom: 0.5rem; }
+    .content-summary-card h3 { font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-bottom: 0.25rem; }
+    .cms-form-group { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+    .cms-form-group label { font-size: 0.875rem; font-weight: 500; color: #334155; }
+    .cms-form-group input, .cms-form-group textarea, .cms-form-group select { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #cbd5e1; border-radius: 0.5rem; font-size: 0.875rem; transition: all 0.15s; outline: none; }
+    .cms-form-group input:focus, .cms-form-group textarea:focus { border-color: #0f172a; box-shadow: 0 0 0 2px #f1f5f9; }
+    .cms-array-controls { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+    .btn-icon, .btn-small { padding: 0.25rem 0.75rem; font-size: 0.875rem; font-weight: 500; border-radius: 0.375rem; background: white; border: 1px solid #cbd5e1; color: #334155; cursor: pointer; }
+    .btn-icon:hover, .btn-small:hover { background: #f1f5f9; }
+    .cms-remove-item { color: #e11d48; border-color: #fecdd3; background: #fff1f2; }
+    .cms-remove-item:hover { background: #ffe4e6; }
+    .loading-container { display: flex; align-items: center; justify-content: center; }
+  </style>
 </head>
-<body class="admin-body">
-  <div class="theme-preloader" id="loading-overlay" aria-hidden="true">
-    <div class="loading-container">
-      <div class="loading"></div>
-      <div id="loading-icon">
-        <img alt="Preloader" src="/elitech/wp-content/themes/renovex/assets/images/loader.svg">
-      </div>
-    </div>
+<body class="bg-zinc-50 text-slate-900 antialiased min-h-screen flex">
+  <!-- Preloader -->
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-white" id="loading-overlay" aria-hidden="true">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-900"></div>
   </div>
 
-  <section id="login-view" class="login-view is-active" style="display: flex;">
-    <div class="login-container">
-      <div class="login-panel">
-        <div class="login-card">
-          <div class="login-brand">
-            <svg class="brand-icon" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-              <rect width="40" height="40" rx="8" fill="#111827"/>
-              <text x="20" y="26" font-family="system-ui" font-size="20" font-weight="bold" fill="white" text-anchor="middle">ET</text>
-            </svg>
-          </div>
+  <!-- Login Section -->
+  <section id="login-view" class="w-full h-screen is-active items-center justify-center bg-zinc-50 hidden">
+    <div class="max-w-md w-full p-8 bg-white rounded-xl shadow-lg border border-slate-100">
+      <div class="text-center mb-8">
+        <div class="bg-slate-900 w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4">
+          <span class="text-white font-bold text-xl">ET</span>
+        </div>
+        <h1 class="text-2xl font-bold">Welcome Back</h1>
+        <p class="text-sm text-slate-500 mt-2">Sign in to your account</p>
+      </div>
 
-          <div class="login-heading">
-            <h1>Welcome</h1>
-          </div>
+      <button type="button" id="btn-google-signin" class="w-full flex items-center justify-center gap-3 px-4 py-2 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+        </svg>
+        <span class="font-medium text-slate-700">Continue with Google</span>
+      </button>
 
-          <button type="button" id="btn-google-signin" class="btn-google">
-            <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-            <span>Continue with Google</span>
-          </button>
-
-          <div class="login-divider">or</div>
-
-          <form id="email-password-form" class="login-form">
-            <div class="form-group">
-              <label for="email-password-input">Email</label>
-              <input type="email" id="email-password-input" placeholder="you@example.com" required autocomplete="email">
-            </div>
-
-            <div class="form-group">
-              <div class="form-group-header">
-                <label for="password-input">Password</label>
-                <button type="button" id="btn-forgot-password" class="link-button">Forgot?</button>
-              </div>
-              <input type="password" id="password-input" placeholder="Enter your password" required autocomplete="current-password">
-            </div>
-
-            <button type="submit" id="btn-login-password" class="btn-primary">
-              <span class="btn-text">Sign in</span>
-              <span class="btn-loader" style="display: none;"></span>
-            </button>
-          </form>
-
-          <div id="status" class="auth-status" style="display: none;"></div>
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-slate-200"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-white text-slate-500">Or continue with</span>
         </div>
       </div>
 
-      <div class="visual-panel">
-        <div class="visual-bg"></div>
-        <div class="visual-shapes">
-          <div class="shape s1"></div>
-          <div class="shape s2"></div>
-          <div class="shape s3"></div>
+      <form id="email-password-form" class="space-y-4">
+        <div>
+          <label for="email-password-input" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <input type="email" id="email-password-input" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900" placeholder="you@example.com" required autocomplete="email">
         </div>
-      </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label for="password-input" class="block text-sm font-medium text-slate-700">Password</label>
+            <button type="button" id="btn-forgot-password" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">Forgot password?</button>
+          </div>
+          <input type="password" id="password-input" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900" placeholder="" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" id="btn-login-password" class="w-full bg-slate-900 text-white font-medium py-2 px-4 rounded-lg hover:bg-slate-800 transition-colors flex items-center justify-center">
+          <span class="btn-text">Sign in</span>
+          <div class="btn-loader ml-2 hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+        </button>
+      </form>
+
+      <div id="status" class="mt-4 text-center text-sm text-red-600 hidden"></div>
     </div>
   </section>
 
-  <section id="dashboard-view" class="dashboard-view">
-    <header class="dashboard-header">
-      <div class="header-left">
-        <div class="brand-icon"></div>
-        <span>Admin Panel</span>
+  <!-- Dashboard Section -->
+  <section id="dashboard-view" class="dashboard-view hidden w-full h-screen overflow-hidden flex">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col h-full flex-shrink-0">
+      <div class="h-16 flex items-center px-6 border-b border-slate-800">
+        <div class="bg-white w-8 h-8 rounded shrink-0 flex items-center justify-center mr-3">
+          <span class="text-slate-900 font-bold text-sm">ET</span>
+        </div>
+        <span class="text-white font-semibold text-lg tracking-tight">Admin Console</span>
       </div>
-      <div class="header-right">
-        <span id="user-email"></span>
-        <button id="btn-logout" class="btn-logout">Logout</button>
+
+      <div class="flex-1 overflow-y-auto py-6 flex flex-col gap-1 px-4 dashboard-nav">
+        <!-- Added unique classes like 'nav-btn' which is used by JS -->
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-4 px-2">Overview</div>
+        <button class="nav-btn active w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors" data-tab="dashboard">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+        </button>
+        <button class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors" data-tab="users">
+          <i data-lucide="users" class="w-5 h-5"></i> Users & Admins
+        </button>
+        <button class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors" data-tab="logs">
+          <i data-lucide="scroll-text" class="w-5 h-5"></i> Audit Logs
+        </button>
+
+        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-6 px-2">Content</div>
+        
+        <button class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors" data-tab="content" data-nav-key="content:site" data-content-section="site">
+          <i data-lucide="settings" class="w-5 h-5"></i> Site Settings
+        </button>
+        <button class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors" data-tab="content" data-nav-key="content:about" data-content-section="about">
+          <i data-lucide="info" class="w-5 h-5"></i> About Us
+        </button>
+        <button class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors" data-tab="content" data-nav-key="content:services" data-content-section="services">
+          <i data-lucide="briefcase" class="w-5 h-5"></i> Services
+        </button>
+        <button class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors" data-tab="content" data-nav-key="content:projects" data-content-section="projects">
+          <i data-lucide="folder-kanban" class="w-5 h-5"></i> Projects
+        </button>
+        <button class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors" data-tab="content" data-nav-key="content:blog" data-content-section="blog">
+          <i data-lucide="file-text" class="w-5 h-5"></i> Blog Posts
+        </button>
+        <button class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors" data-tab="content" data-nav-key="content:faqs" data-content-section="faqs">
+          <i data-lucide="help-circle" class="w-5 h-5"></i> FAQs
+        </button>
+        <button class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors" data-tab="content" data-nav-key="content:contact" data-content-section="contact">
+          <i data-lucide="phone" class="w-5 h-5"></i> Contact Info
+        </button>
+        <button class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors" data-tab="content" data-nav-key="content:advanced" data-content-section="advanced">
+          <i data-lucide="braces" class="w-5 h-5"></i> Advanced Rules
+        </button>
       </div>
-    </header>
-
-    <main class="dashboard-content">
-      <nav class="dashboard-nav">
-        <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
-        <button class="nav-btn" data-tab="content" data-nav-key="content:site" data-content-section="site">Site Settings</button>
-        <button class="nav-btn" data-tab="content" data-nav-key="content:about" data-content-section="about">About Us</button>
-        <button class="nav-btn" data-tab="content" data-nav-key="content:services" data-content-section="services">Services</button>
-        <button class="nav-btn" data-tab="content" data-nav-key="content:projects" data-content-section="projects">Projects</button>
-        <button class="nav-btn" data-tab="content" data-nav-key="content:blog" data-content-section="blog">Blog Posts</button>
-        <button class="nav-btn" data-tab="content" data-nav-key="content:faqs" data-content-section="faqs">FAQs</button>
-        <button class="nav-btn" data-tab="content" data-nav-key="content:contact" data-content-section="contact">Contact Info</button>
-        <button class="nav-btn" data-tab="content" data-nav-key="content:advanced" data-content-section="advanced">Advanced Rules</button>
-        <button class="nav-btn" data-tab="users">Users & Admins</button>
-        <button class="nav-btn" data-tab="logs">Audit Logs</button>
-      </nav>
-
-      <div class="dashboard-tabs">
-        <section id="tab-dashboard" class="tab-panel active" data-panel="dashboard">
-          <div class="panel-header">
-            <h2>Dashboard</h2>
+      
+      <!-- User Profile at bottom of sidebar -->
+      <div class="p-4 border-t border-slate-800">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-white uppercase">A</div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-white truncate" id="user-email">admin@example.com</p>
+            <p class="text-xs text-slate-500 truncate">Administrator</p>
           </div>
-          <div class="editor-card dashboard-card">
-            <h3>Welcome</h3>
-            <p class="text-muted">You can now manage website content, admin users, and audit activity from this panel.</p>
-            <div class="content-editor-actions">
-              <button type="button" id="btn-open-content" class="btn-small btn-primary">Manage Website Content</button>
+        </div>
+        <button id="btn-logout" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border border-slate-700">
+          <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full bg-zinc-50 overflow-hidden">
+      <!-- Top navbar with search -->
+      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+        <div class="flex-1 flex items-center">
+            <div class="w-full max-w-md relative">
+              <i data-lucide="search" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input type="text" placeholder="Search across dashboard..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-colors text-sm outline-none">
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="text-slate-400 hover:text-slate-600 relative">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+            </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Panels Container -->
+      <div class="flex-1 overflow-y-auto p-8 dashboard-tabs block">
+
+        <!-- Dashboard Tab -->
+        <section id="tab-dashboard" class="tab-panel active" data-panel="dashboard">
+          <div class="mb-8">
+            <h2 class="text-2xl font-bold text-slate-900">Dashboard</h2>
+            <p class="text-slate-500 mt-1">Overview of your website's performance and recent activity.</p>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+             <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+               <div class="flex items-center justify-between mb-4">
+                 <h3 class="text-sm font-medium text-slate-500">Total Users</h3>
+                 <i data-lucide="users" class="w-5 h-5 text-indigo-500"></i>
+               </div>
+               <p class="text-3xl font-bold text-slate-900">12</p>
+             </div>
+             <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+               <div class="flex items-center justify-between mb-4">
+                 <h3 class="text-sm font-medium text-slate-500">Content Updates</h3>
+                 <i data-lucide="file-edit" class="w-5 h-5 text-emerald-500"></i>
+               </div>
+               <p class="text-3xl font-bold text-slate-900">48</p>
+             </div>
+             <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+               <div class="flex items-center justify-between mb-4">
+                 <h3 class="text-sm font-medium text-slate-500">Security Events</h3>
+                 <i data-lucide="shield-alert" class="w-5 h-5 text-rose-500"></i>
+               </div>
+               <p class="text-3xl font-bold text-slate-900">3</p>
+             </div>
+          </div>
+
+          <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-8 max-w-2xl">
+            <div class="flex items-start gap-4">
+                <div class="bg-indigo-50 p-3 rounded-lg text-indigo-600">
+                    <i data-lucide="rocket" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900 mb-2">Welcome to the Command Center</h3>
+                    <p class="text-slate-600 mb-6 leading-relaxed">You can now manage website content, admin users, and audit activity from this panel. Everything is saved instantly to Firebase.</p>
+                    <button type="button" id="btn-open-content" class="bg-slate-900 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
+                      Manage Website Content
+                    </button>
+                </div>
             </div>
           </div>
         </section>
 
-        <section id="tab-content" class="tab-panel" data-panel="content">
-          <div class="panel-header">
-            <p id="content-panel-kicker" class="panel-kicker">Website Content</p>
-            <h2 id="content-panel-title">About Us</h2>
-            <p id="content-panel-description" class="text-muted">Edit the selected content page without changing the public design.</p>
+        <!-- Content Editor Tab -->
+        <section id="tab-content" class="tab-panel hidden" data-panel="content">
+          <div class="mb-8 border-b border-slate-200 pb-6">
+            <p id="content-panel-kicker" class="text-indigo-600 font-medium text-sm tracking-wide uppercase mb-1">Website Content</p>
+            <h2 id="content-panel-title" class="text-2xl font-bold text-slate-900">About Us</h2>
+            <p id="content-panel-description" class="text-slate-500 mt-1">Edit the selected content page without changing the public design.</p>
           </div>
 
-          <div id="content-loading" class="state-container loading" style="display: none;">
-            <div class="spinner-small"></div>
-            <p>Loading website content...</p>
+          <!-- States -->
+          <div id="content-loading" class="hidden flex-col items-center justify-center py-12">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900 mb-4"></div>
+            <p class="text-slate-500">Loading website content...</p>
           </div>
 
-          <div id="content-error" class="state-container error" style="display: none;">
-            <p class="error-message"></p>
-            <button id="btn-retry-content" class="btn-small">Retry</button>
+          <div id="content-error" class="hidden bg-rose-50 border border-rose-200 p-6 rounded-xl text-center">
+            <p class="error-message text-rose-700 mb-4"></p>
+            <button id="btn-retry-content" class="bg-rose-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-rose-700">Retry</button>
           </div>
 
-          <div id="content-editor" style="display: none;">
-            <form id="form-content-editor" class="content-editor-form">
-              <div class="content-layout-shell">
-                <div class="content-workspace">
-                  <div id="content-summary" class="content-summary"></div>
-                  <div id="content-fields" class="content-fields"></div>
+          <div id="content-editor" class="hidden">
+            <form id="form-content-editor" class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div class="p-6 md:p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div id="content-summary" class="lg:col-span-1 text-slate-600 space-y-4 text-sm"></div>
+                  <div id="content-fields" class="lg:col-span-2 space-y-6"></div>
                 </div>
               </div>
 
-              <div class="content-editor-actions">
-                <button type="button" id="btn-reload-content" class="btn-small">Reload</button>
-                <button type="submit" id="btn-save-content" class="btn-small btn-primary">Save Content</button>
+              <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex items-center justify-end gap-3">
+                <button type="button" id="btn-reload-content" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">Reload Data</button>
+                <button type="submit" id="btn-save-content" class="px-5 py-2 text-sm font-medium text-white bg-slate-900 rounded-lg hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i> Save Content
+                </button>
               </div>
             </form>
 
-            <div id="content-status" class="status-message" style="display: none;"></div>
+            <div id="content-status" class="mt-4 text-sm text-center hidden p-4 rounded-lg bg-slate-100"></div>
           </div>
         </section>
 
-        <section id="tab-users" class="tab-panel" data-panel="users">
-          <div class="panel-header">
-            <h2>Users & Admins</h2>
+        <!-- Users & Admins Tab -->
+        <section id="tab-users" class="tab-panel hidden" data-panel="users">
+          <div class="flex items-center justify-between mb-8">
+            <div>
+                <h2 class="text-2xl font-bold text-slate-900">Users & Admins</h2>
+                <p class="text-slate-500 mt-1">Manage platform access and privileges.</p>
+            </div>
+            <button onclick="document.getElementById('create-admin-section').classList.toggle('hidden')" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors flex items-center gap-2">
+                <i data-lucide="user-plus" class="w-4 h-4"></i>
+                Invite User
+            </button>
           </div>
 
-          <div id="users-loading" class="state-container loading" style="display: none;">
-            <div class="spinner-small"></div>
-            <p>Loading users...</p>
-          </div>
-
-          <div id="users-error" class="state-container error" style="display: none;">
-            <p class="error-message"></p>
-            <button id="btn-retry-users" class="btn-small">Retry</button>
-          </div>
-
-          <div id="users-empty" class="state-container empty" style="display: none;">
-            <p>No users found</p>
-          </div>
-
-          <div id="users-list-container" style="display: none;">
-            <div id="admin-users-list" class="users-table"></div>
-          </div>
-
-          <div id="create-admin-section" class="create-admin-form" style="display: none;">
-            <h3>Create New Admin</h3>
-            <p class="text-muted">New admins can use the secure Forgot Password action to set their initial password after they are allowlisted.</p>
-            <form id="form-create-admin">
-              <div class="form-group">
-                <label for="input-new-admin-email">Email</label>
-                <input type="email" id="input-new-admin-email" placeholder="admin@example.com" required>
+          <div id="create-admin-section" class="hidden mb-8 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+            <h3 class="text-lg font-semibold text-slate-900 mb-2">Create New Admin</h3>
+            <p class="text-slate-500 text-sm mb-6">New admins can use the secure Forgot Password action to set their initial password after they are allowlisted.</p>
+            <form id="form-create-admin" class="flex flex-col md:flex-row gap-4 items-end">
+              <div class="flex-1">
+                <label for="input-new-admin-email" class="block text-sm font-medium text-slate-700 mb-1">Email Address</label>
+                <input type="email" id="input-new-admin-email" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900" placeholder="admin@example.com" required>
               </div>
 
-              <div class="form-group">
-                <label for="input-new-admin-role">Role</label>
-                <select id="input-new-admin-role" required>
+              <div class="w-48">
+                <label for="input-new-admin-role" class="block text-sm font-medium text-slate-700 mb-1">Role</label>
+                <select id="input-new-admin-role" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 bg-white" required>
                   <option value="admin">Admin</option>
                   <option value="super_admin">Super Admin</option>
                 </select>
               </div>
 
-              <button type="submit" id="btn-create-admin" class="btn-small btn-primary">Create Admin</button>
+              <button type="submit" id="btn-create-admin" class="bg-slate-900 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 h-10 transition-colors">Grant Access</button>
             </form>
-            <div id="create-admin-status" class="status-message" style="display: none;"></div>
+            <div id="create-admin-status" class="mt-4 text-sm hidden"></div>
+          </div>
+
+          <div id="users-loading" class="hidden flex-col items-center justify-center py-12">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900 mb-4"></div>
+            <p class="text-slate-500">Loading users...</p>
+          </div>
+
+          <div id="users-error" class="hidden bg-rose-50 border border-rose-200 p-6 rounded-xl text-center">
+            <p class="error-message text-rose-700 mb-4"></p>
+            <button id="btn-retry-users" class="bg-rose-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-rose-700">Retry</button>
+          </div>
+
+          <div id="users-empty" class="hidden bg-slate-50 border border-slate-200 p-12 rounded-xl text-center">
+            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200 shadow-sm">
+                <i data-lucide="users" class="w-6 h-6 text-slate-400"></i>
+            </div>
+            <h3 class="text-lg font-medium text-slate-900 mb-1">No users found</h3>
+            <p class="text-sm text-slate-500">Get started by inviting a new admin user.</p>
+          </div>
+
+          <div id="users-list-container" class="hidden bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-slate-600">
+                <thead class="bg-slate-50 text-slate-700 uppercase font-semibold text-xs border-b border-slate-200">
+                  <tr>
+                    <th scope="col" class="px-6 py-4">User</th>
+                    <th scope="col" class="px-6 py-4">Role</th>
+                    <th scope="col" class="px-6 py-4">Status</th>
+                    <th scope="col" class="px-6 py-4">Last Active</th>
+                    <th scope="col" class="px-6 py-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="admin-users-list" class="divide-y divide-slate-200 bg-white">
+                  <!-- Users will be injected here via JS -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 
-        <section id="tab-logs" class="tab-panel" data-panel="logs">
-          <div class="panel-header">
-            <h2>Audit Logs</h2>
+        <!-- Audit Logs Tab -->
+        <section id="tab-logs" class="tab-panel hidden" data-panel="logs">
+          <div class="mb-8">
+            <h2 class="text-2xl font-bold text-slate-900">Audit Logs</h2>
+            <p class="text-slate-500 mt-1">Review system activity and security events.</p>
           </div>
 
-          <div id="logs-filters" class="filters-container" style="display: none;">
-            <div class="filter-group">
-              <label for="filter-event-type">Event Type:</label>
-              <select id="filter-event-type">
+          <div id="logs-filters" class="hidden mb-6 bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-end">
+            <div class="flex-1">
+              <label for="filter-event-type" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Event Type</label>
+              <select id="filter-event-type" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 bg-white text-sm">
                 <option value="">All Events</option>
                 <option value="admin.auth.success">Admin Auth Success</option>
                 <option value="admin.auth.denied">Admin Auth Denied</option>
@@ -221,39 +367,74 @@
               </select>
             </div>
 
-            <div class="filter-group">
-              <label for="filter-email">Email:</label>
-              <input type="email" id="filter-email" placeholder="Filter by email...">
+            <div class="flex-1">
+              <label for="filter-email" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Email</label>
+              <input type="email" id="filter-email" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-900 text-sm" placeholder="Filter by email...">
             </div>
 
-            <button id="btn-apply-filters" class="btn-small">Apply Filters</button>
-            <button id="btn-clear-filters" class="btn-small">Clear</button>
+            <div class="flex gap-2">
+                <button id="btn-apply-filters" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">Apply</button>
+                <button id="btn-clear-filters" class="bg-white text-slate-700 border border-slate-300 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">Clear</button>
+            </div>
           </div>
 
-          <div id="logs-loading" class="state-container loading" style="display: none;">
-            <div class="spinner-small"></div>
-            <p>Loading audit logs...</p>
+          <div id="logs-loading" class="hidden flex-col items-center justify-center py-12">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-900 mb-4"></div>
+            <p class="text-slate-500">Loading audit logs...</p>
           </div>
 
-          <div id="logs-error" class="state-container error" style="display: none;">
-            <p class="error-message"></p>
-            <button id="btn-retry-logs" class="btn-small">Retry</button>
+          <div id="logs-error" class="hidden bg-rose-50 border border-rose-200 p-6 rounded-xl text-center">
+            <p class="error-message text-rose-700 mb-4"></p>
+            <button id="btn-retry-logs" class="bg-rose-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-rose-700">Retry</button>
           </div>
 
-          <div id="logs-empty" class="state-container empty" style="display: none;">
-            <p>No audit logs found</p>
+          <div id="logs-empty" class="hidden bg-slate-50 border border-slate-200 p-12 rounded-xl text-center">
+            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200 shadow-sm">
+                <i data-lucide="clipboard-list" class="w-6 h-6 text-slate-400"></i>
+            </div>
+            <h3 class="text-lg font-medium text-slate-900 mb-1">No logs found</h3>
+            <p class="text-sm text-slate-500">No activity matches the current filters.</p>
           </div>
 
-          <div id="logs-list-container" style="display: none;">
-            <div id="audit-logs-list" class="logs-table"></div>
-            <div id="logs-pagination" class="pagination-controls"></div>
+          <div id="logs-list-container" class="hidden bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-slate-600">
+                <thead class="bg-slate-50 text-slate-700 uppercase font-semibold text-xs border-b border-slate-200">
+                  <tr>
+                    <th scope="col" class="px-6 py-4">Timestamp</th>
+                    <th scope="col" class="px-6 py-4">Event</th>
+                    <th scope="col" class="px-6 py-4">User/Actor</th>
+                    <th scope="col" class="px-6 py-4">Details</th>
+                  </tr>
+                </thead>
+                <tbody id="audit-logs-list" class="divide-y divide-slate-200 bg-white">
+                  <!-- Logs will be injected here via JS -->
+                </tbody>
+              </table>
+            </div>
+            <div id="logs-pagination" class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex items-center justify-between"></div>
           </div>
         </section>
+
       </div>
     </main>
   </section>
 
+  <!-- IMPORTANT: Initialize Lucide Icons -->
+  <script>
+    lucide.createIcons();
+    
+    // Quick hook to trigger Lucide refresh when tab changes
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setTimeout(() => lucide.createIcons(), 50);
+      });
+    });
+  </script>
+
+  <!-- Application Scripts -->
   <script type="module" src="/elitech/admin/firebase-email-auth.js"></script>
   <script type="module" src="/elitech/admin/admin.js"></script>
 </body>
 </html>
+
