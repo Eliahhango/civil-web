@@ -146,6 +146,10 @@ function objectField(key, label, fields, options = {}) {
   return { key, label, type: "object", fields, ...options };
 }
 
+function groupField(label, fields, options = {}) {
+  return { label, type: "group", fields, ...options };
+}
+
 function arrayTextField(key, label, options = {}) {
   return { key, label, type: "arrayText", itemType: "text", addLabel: "Add item", ...options };
 }
@@ -225,50 +229,62 @@ const SECTION_DEFINITIONS = [
         textField("heroTitle", "Hero title")
       ]),
       arrayObjectField("services", "Services", [
-        textField("slug", "Slug"),
-        textField("title", "Title"),
-        textareaField("excerpt", "Excerpt", { rows: 3 }),
-        urlField("image", "Archive image"),
-        arrayTextField("intro", "Intro paragraphs", {
-          itemType: "textarea",
-          rows: 3,
-          addLabel: "Add intro paragraph"
-        }),
-        urlField("detailImage", "Detail image"),
-        textField("whyChooseTitle", "Why choose title"),
-        textareaField("whyChooseDescription", "Why choose description", { rows: 4 }),
-        arrayObjectField("whyChooseItems", "Why Choose Cards", [
+        groupField("Service Basics", [
+          textField("slug", "Slug"),
           textField("title", "Title"),
-          textareaField("description", "Description", { rows: 3 }),
-          urlField("image", "Image URL")
-        ], {
-          addLabel: "Add why choose card",
-          summary: (item, index) => item.title || `Card ${index + 1}`,
-          createItem: () => ({ title: "", description: "", image: "" })
-        }),
-        textField("offerTitle", "Offer title"),
-        textareaField("offerDescription", "Offer description", { rows: 4 }),
-        arrayTextField("offerItems", "Offer list", {
-          addLabel: "Add offer item"
-        }),
-        textField("processTitle", "Process title"),
-        arrayObjectField("processSteps", "Process Steps", [
-          textField("title", "Title"),
-          textareaField("description", "Description", { rows: 3 })
-        ], {
-          addLabel: "Add process step",
-          summary: (item, index) => item.title || `Step ${index + 1}`,
-          createItem: () => ({ title: "", description: "" })
-        }),
-        textField("faqTitle", "FAQ title"),
-        arrayObjectField("faqItems", "FAQ Items", [
-          textField("question", "Question"),
-          textareaField("answer", "Answer", { rows: 4 })
-        ], {
-          addLabel: "Add FAQ",
-          summary: (item, index) => item.question || `FAQ ${index + 1}`,
-          createItem: () => ({ question: "", answer: "" })
-        })
+          textareaField("excerpt", "Excerpt", { rows: 3 }),
+          urlField("image", "Archive image")
+        ]),
+        groupField("Service Detail Intro", [
+          arrayTextField("intro", "Intro paragraphs", {
+            itemType: "textarea",
+            rows: 3,
+            addLabel: "Add intro paragraph"
+          }),
+          urlField("detailImage", "Detail image")
+        ]),
+        groupField("Why Choose Section", [
+          textField("whyChooseTitle", "Why choose title"),
+          textareaField("whyChooseDescription", "Why choose description", { rows: 4 }),
+          arrayObjectField("whyChooseItems", "Why Choose Cards", [
+            textField("title", "Title"),
+            textareaField("description", "Description", { rows: 3 }),
+            urlField("image", "Image URL")
+          ], {
+            addLabel: "Add why choose card",
+            summary: (item, index) => item.title || `Card ${index + 1}`,
+            createItem: () => ({ title: "", description: "", image: "" })
+          })
+        ]),
+        groupField("Offer Section", [
+          textField("offerTitle", "Offer title"),
+          textareaField("offerDescription", "Offer description", { rows: 4 }),
+          arrayTextField("offerItems", "Offer list", {
+            addLabel: "Add offer item"
+          })
+        ]),
+        groupField("Process Section", [
+          textField("processTitle", "Process title"),
+          arrayObjectField("processSteps", "Process Steps", [
+            textField("title", "Title"),
+            textareaField("description", "Description", { rows: 3 })
+          ], {
+            addLabel: "Add process step",
+            summary: (item, index) => item.title || `Step ${index + 1}`,
+            createItem: () => ({ title: "", description: "" })
+          })
+        ]),
+        groupField("Service FAQs", [
+          textField("faqTitle", "FAQ title"),
+          arrayObjectField("faqItems", "FAQ Items", [
+            textField("question", "Question"),
+            textareaField("answer", "Answer", { rows: 4 })
+          ], {
+            addLabel: "Add FAQ",
+            summary: (item, index) => item.question || `FAQ ${index + 1}`,
+            createItem: () => ({ question: "", answer: "" })
+          })
+        ])
       ], {
         addLabel: "Add service",
         summary: (item, index) => item.title || item.slug || `Service ${index + 1}`,
@@ -305,56 +321,70 @@ const SECTION_DEFINITIONS = [
         textField("heroTitle", "Hero title")
       ]),
       arrayObjectField("projects", "Projects", [
-        textField("slug", "Slug"),
-        textField("title", "Title"),
-        textField("category", "Category"),
-        urlField("image", "Archive image"),
-        objectField("meta", "Project Meta", [
-          textField("category", "Meta category"),
-          textField("duration", "Duration"),
-          textField("date", "Date"),
-          textField("location", "Location")
+        groupField("Project Basics", [
+          textField("slug", "Slug"),
+          textField("title", "Title"),
+          textField("category", "Category"),
+          urlField("image", "Archive image")
         ]),
-        arrayTextField("intro", "Intro paragraphs", {
-          itemType: "textarea",
-          rows: 3,
-          addLabel: "Add intro paragraph"
-        }),
-        urlField("detailImage", "Detail image"),
-        textField("keyFeaturesTitle", "Key features title"),
-        textareaField("keyFeaturesDescription", "Key features description", { rows: 4 }),
-        arrayObjectField("keyFeatures", "Key Features", [
-          textField("title", "Title"),
-          textareaField("description", "Description", { rows: 3 }),
-          urlField("image", "Image URL")
-        ], {
-          addLabel: "Add feature",
-          summary: (item, index) => item.title || `Feature ${index + 1}`,
-          createItem: () => ({ title: "", description: "", image: "" })
-        }),
-        textField("processTitle", "Process title"),
-        arrayObjectField("processSteps", "Process Steps", [
-          textField("title", "Title"),
-          textareaField("description", "Description", { rows: 3 })
-        ], {
-          addLabel: "Add process step",
-          summary: (item, index) => item.title || `Step ${index + 1}`,
-          createItem: () => ({ title: "", description: "" })
-        }),
-        textField("solutionsTitle", "Solutions section title"),
-        textField("problemTitle", "Problem label"),
-        textareaField("problemText", "Problem text", { rows: 4 }),
-        textField("solutionsHeading", "Solutions heading"),
-        textareaField("solutionsText", "Solutions text", { rows: 4 }),
-        textField("faqTitle", "FAQ title"),
-        arrayObjectField("faqItems", "FAQ Items", [
-          textField("question", "Question"),
-          textareaField("answer", "Answer", { rows: 4 })
-        ], {
-          addLabel: "Add FAQ",
-          summary: (item, index) => item.question || `FAQ ${index + 1}`,
-          createItem: () => ({ question: "", answer: "" })
-        })
+        groupField("Project Meta", [
+          objectField("meta", "Project Meta", [
+            textField("category", "Meta category"),
+            textField("duration", "Duration"),
+            textField("date", "Date"),
+            textField("location", "Location")
+          ])
+        ]),
+        groupField("Project Detail Intro", [
+          arrayTextField("intro", "Intro paragraphs", {
+            itemType: "textarea",
+            rows: 3,
+            addLabel: "Add intro paragraph"
+          }),
+          urlField("detailImage", "Detail image")
+        ]),
+        groupField("Key Features Section", [
+          textField("keyFeaturesTitle", "Key features title"),
+          textareaField("keyFeaturesDescription", "Key features description", { rows: 4 }),
+          arrayObjectField("keyFeatures", "Key Features", [
+            textField("title", "Title"),
+            textareaField("description", "Description", { rows: 3 }),
+            urlField("image", "Image URL")
+          ], {
+            addLabel: "Add feature",
+            summary: (item, index) => item.title || `Feature ${index + 1}`,
+            createItem: () => ({ title: "", description: "", image: "" })
+          })
+        ]),
+        groupField("Process Section", [
+          textField("processTitle", "Process title"),
+          arrayObjectField("processSteps", "Process Steps", [
+            textField("title", "Title"),
+            textareaField("description", "Description", { rows: 3 })
+          ], {
+            addLabel: "Add process step",
+            summary: (item, index) => item.title || `Step ${index + 1}`,
+            createItem: () => ({ title: "", description: "" })
+          })
+        ]),
+        groupField("Solutions Section", [
+          textField("solutionsTitle", "Solutions section title"),
+          textField("problemTitle", "Problem label"),
+          textareaField("problemText", "Problem text", { rows: 4 }),
+          textField("solutionsHeading", "Solutions heading"),
+          textareaField("solutionsText", "Solutions text", { rows: 4 })
+        ]),
+        groupField("Project FAQs", [
+          textField("faqTitle", "FAQ title"),
+          arrayObjectField("faqItems", "FAQ Items", [
+            textField("question", "Question"),
+            textareaField("answer", "Answer", { rows: 4 })
+          ], {
+            addLabel: "Add FAQ",
+            summary: (item, index) => item.question || `FAQ ${index + 1}`,
+            createItem: () => ({ question: "", answer: "" })
+          })
+        ])
       ], {
         addLabel: "Add project",
         summary: (item, index) => item.title || item.slug || `Project ${index + 1}`,
@@ -534,6 +564,7 @@ export class AdminContentEditor {
       rules: "[]"
     };
     this.repeaterConfigs = {};
+    this.expandedArrayItems = {};
     this.bindEvents();
   }
 
@@ -694,6 +725,9 @@ export class AdminContentEditor {
         : (config.type === "arrayText" ? "" : {});
       list.push(deepClone(nextItem));
       setAtPath(this.state, path, list);
+      if (config.type === "arrayObject") {
+        this.expandedArrayItems[rawPath] = list.length - 1;
+      }
       this.render();
       return;
     }
@@ -703,9 +737,24 @@ export class AdminContentEditor {
       return;
     }
 
+    if (action === "toggle-array-item") {
+      const parentKey = pathKey(parentPath);
+      const currentIndex = this.expandedArrayItems[parentKey];
+      this.expandedArrayItems[parentKey] = currentIndex === index ? -1 : index;
+      this.render();
+      return;
+    }
+
     if (action === "remove-array-item") {
+      const parentKey = pathKey(parentPath);
+      const expandedIndex = this.expandedArrayItems[parentKey];
       collection.splice(index, 1);
       setAtPath(this.state, parentPath, collection);
+      if (expandedIndex === index) {
+        this.expandedArrayItems[parentKey] = -1;
+      } else if (expandedIndex > index) {
+        this.expandedArrayItems[parentKey] = expandedIndex - 1;
+      }
       this.render();
       return;
     }
@@ -720,6 +769,13 @@ export class AdminContentEditor {
       collection[index] = collection[targetIndex];
       collection[targetIndex] = currentItem;
       setAtPath(this.state, parentPath, collection);
+      const parentKey = pathKey(parentPath);
+      const expandedIndex = this.expandedArrayItems[parentKey];
+      if (expandedIndex === index) {
+        this.expandedArrayItems[parentKey] = targetIndex;
+      } else if (expandedIndex === targetIndex) {
+        this.expandedArrayItems[parentKey] = index;
+      }
       this.render();
     }
   }
@@ -774,6 +830,20 @@ export class AdminContentEditor {
 
   renderField(fieldDef, path, value) {
     const id = `cms-field-${pathKey(path).replace(/\./g, "-")}`;
+
+    if (fieldDef.type === "group") {
+      return `
+        <section class="cms-editor-card cms-group-card">
+          <div class="cms-card-heading">
+            <h3>${escapeHtml(fieldDef.label)}</h3>
+            ${fieldDef.description ? `<p>${escapeHtml(fieldDef.description)}</p>` : ""}
+          </div>
+          <div class="cms-field-grid">
+            ${this.renderFields(fieldDef.fields || [], path)}
+          </div>
+        </section>
+      `;
+    }
 
     if (fieldDef.type === "object") {
       return `
@@ -878,21 +948,27 @@ export class AdminContentEditor {
     const summary = typeof fieldDef.summary === "function"
       ? fieldDef.summary(value || {}, index)
       : `${fieldDef.label} ${index + 1}`;
+    const parentKey = pathKey(path.slice(0, -1));
+    const expandedIndex = this.expandedArrayItems[parentKey];
+    const isExpanded = expandedIndex === index;
 
     return `
-      <article class="cms-repeater-object">
+      <article class="cms-repeater-object ${isExpanded ? "is-expanded" : "is-collapsed"}">
         <div class="cms-repeater-object-header">
           <div>
             <p class="content-summary-label">${escapeHtml(fieldDef.itemLabel || fieldDef.label)}</p>
             <h4>${escapeHtml(summary)}</h4>
           </div>
           <div class="cms-inline-actions">
+            <button type="button" class="btn-small btn-primary" data-action="toggle-array-item" data-path="${escapeHtml(pathKey(path))}" data-index="${index}">
+              ${isExpanded ? "Close" : "Edit"}
+            </button>
             <button type="button" class="btn-small" data-action="move-array-item" data-path="${escapeHtml(pathKey(path))}" data-index="${index}" data-direction="up">Up</button>
             <button type="button" class="btn-small" data-action="move-array-item" data-path="${escapeHtml(pathKey(path))}" data-index="${index}" data-direction="down">Down</button>
             <button type="button" class="btn-small btn-danger" data-action="remove-array-item" data-path="${escapeHtml(pathKey(path))}" data-index="${index}">Delete</button>
           </div>
         </div>
-        <div class="cms-field-grid">
+        <div class="cms-field-grid cms-repeater-object-body" ${isExpanded ? "" : "hidden"}>
           ${this.renderFields(fieldDef.fields || [], path)}
         </div>
       </article>

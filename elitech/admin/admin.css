@@ -794,6 +794,10 @@ html, body {
   background: #fbfdff;
 }
 
+.cms-repeater-object.is-collapsed {
+  padding-bottom: 12px;
+}
+
 .cms-repeater-object-header {
   display: flex;
   justify-content: space-between;
@@ -805,6 +809,26 @@ html, body {
 .cms-repeater-object-header h4 {
   font-size: 16px;
   margin: 0;
+}
+
+.cms-repeater-object-body[hidden] {
+  display: none;
+}
+
+.cms-group-card {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.cms-group-card .cms-card-heading {
+  margin-bottom: 18px;
+}
+
+.cms-group-card .cms-card-heading p {
+  margin: 6px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .cms-inline-actions {
