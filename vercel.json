@@ -12,6 +12,18 @@
       "handle": "filesystem"
     },
     {
+      "src": "^/elitech/services/([^/]+)/?$",
+      "dest": "/elitech/services/_cms-detail/index.html"
+    },
+    {
+      "src": "^/elitech/projects/([^/]+)/?$",
+      "dest": "/elitech/projects/_cms-detail/index.html"
+    },
+    {
+      "src": "^/elitech/blog/([^/]+)/?$",
+      "dest": "/elitech/blog/_cms-detail/index.html"
+    },
+    {
       "src": "^(.*)$",
       "dest": "/elitech/404/index.html",
       "status": 404

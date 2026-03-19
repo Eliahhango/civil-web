@@ -222,6 +222,32 @@
     return false;
   }
 
+  function isPlainObject(value) {
+    return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+  }
+
+  function mergeAny(baseValue, overrideValue) {
+    if (Array.isArray(baseValue)) {
+      return Array.isArray(overrideValue) ? overrideValue.slice() : baseValue.slice();
+    }
+
+    if (isPlainObject(baseValue)) {
+      var output = {};
+      var override = isPlainObject(overrideValue) ? overrideValue : {};
+      Object.keys(baseValue).forEach(function (key) {
+        output[key] = mergeAny(baseValue[key], override[key]);
+      });
+      Object.keys(override).forEach(function (key) {
+        if (!(key in output)) {
+          output[key] = override[key];
+        }
+      });
+      return output;
+    }
+
+    return overrideValue === undefined || overrideValue === null ? baseValue : overrideValue;
+  }
+
   function applyRule(rule) {
     if (!rule || !rule.selector || !rule.action) {
       return;
@@ -331,14 +357,7 @@
       return base;
     }
 
-    var merged = {
-      site: Object.assign({}, base.site || {}, override.site || {}),
-      seo: Object.assign({}, base.seo || {}, override.seo || {}),
-      globalReplacements: Array.isArray(override.globalReplacements) ? override.globalReplacements : (base.globalReplacements || []),
-      rules: Array.isArray(override.rules) ? override.rules : (base.rules || [])
-    };
-
-    return merged;
+    return mergeAny(base || {}, override || {});
   }
 
   function getLocalOverride() {
@@ -355,6 +374,7 @@
 
   function applyConfig(data) {
     var path = normalizePath(window.location.pathname);
+    window.__ELITECH_CMS_DATA__ = data;
     setSeo(data.seo, path);
     applyRules(data, path);
     replaceTextGlobally(data.globalReplacements || []);

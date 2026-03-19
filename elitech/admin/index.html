@@ -116,7 +116,7 @@
         <section id="tab-content" class="tab-panel" data-panel="content">
           <div class="panel-header">
             <h2>Website Content</h2>
-            <p class="text-muted">Update the website identity, SEO metadata, and text replacement rules used by the live site runtime.</p>
+            <p class="text-muted">Manage seeded page content, collections, and advanced runtime settings without changing the public design.</p>
           </div>
 
           <div id="content-loading" class="state-container loading" style="display: none;">
@@ -131,70 +131,14 @@
 
           <div id="content-editor" style="display: none;">
             <form id="form-content-editor" class="content-editor-form">
-              <div class="editor-grid">
-                <section class="editor-card">
-                  <h3>Site Identity</h3>
+              <div class="content-layout-shell">
+                <aside id="content-sections" class="content-sections-nav"></aside>
 
-                  <div class="form-group">
-                    <label for="input-site-name">Site Name</label>
-                    <input type="text" id="input-site-name" placeholder="EliTechWiz" required>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="input-site-tagline">Tagline</label>
-                    <input type="text" id="input-site-tagline" placeholder="Building modern spaces with strength and vision">
-                  </div>
-                </section>
-
-                <section class="editor-card">
-                  <h3>SEO</h3>
-
-                  <div class="form-group">
-                    <label for="input-seo-title">SEO Title</label>
-                    <input type="text" id="input-seo-title" placeholder="Site title used in browser tabs and social cards">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="input-seo-description">SEO Description</label>
-                    <textarea id="input-seo-description" rows="4" placeholder="Short summary used for search engines and social sharing"></textarea>
-                  </div>
-
-                  <div class="form-group">
-                    <label for="input-seo-image">SEO Image URL</label>
-                    <input type="url" id="input-seo-image" placeholder="https://example.com/hero-image.jpg">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="input-seo-url">Canonical URL</label>
-                    <input type="url" id="input-seo-url" placeholder="https://civil-web.vercel.app/elitech/home-version-2/">
-                  </div>
-
-                  <div class="form-group">
-                    <label for="input-seo-twitter-card">Twitter Card</label>
-                    <input type="text" id="input-seo-twitter-card" placeholder="summary_large_image">
-                  </div>
-                </section>
+                <div class="content-workspace">
+                  <div id="content-summary" class="content-summary"></div>
+                  <div id="content-fields" class="content-fields"></div>
+                </div>
               </div>
-
-              <section class="editor-card">
-                <div class="editor-card-header">
-                  <div>
-                    <h3>Global Replacements</h3>
-                    <p class="text-muted">JSON array. Use this for site-wide text replacements such as brand names.</p>
-                  </div>
-                </div>
-                <textarea id="input-global-replacements" class="code-textarea" spellcheck="false" rows="10"></textarea>
-              </section>
-
-              <section class="editor-card">
-                <div class="editor-card-header">
-                  <div>
-                    <h3>Rules</h3>
-                    <p class="text-muted">JSON array. Each rule targets page paths, a CSS selector, an action, and a value.</p>
-                  </div>
-                </div>
-                <textarea id="input-content-rules" class="code-textarea" spellcheck="false" rows="16"></textarea>
-              </section>
 
               <div class="content-editor-actions">
                 <button type="button" id="btn-reload-content" class="btn-small">Reload</button>

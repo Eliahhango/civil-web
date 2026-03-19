@@ -1,119 +1,661 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        // Attempt to fetch fresh data from the Cloud API
-        let response = await fetch('/api/cms/content');
-        
-        // Fallback to local cached compiled JSON if API fails
-        if (!response.ok) {
-            response = await fetch('/elitech/cms/content.json');
-        }
-        const data = await response.json();
+(function () {
+  "use strict";
 
-        // 1. Render Blogs
-        const blogGrid = document.getElementById('cms-blog-grid');
-        if (blogGrid && data.blogs && data.blogs.length > 0) {
-            // Prepends in reverse order, so we reverse the array 
-            // first to keep the newest (first in list) at the very top.
-            data.blogs.slice().reverse().forEach(blog => {
-                const col = document.createElement('div');
-                col.className = 'col-xl-4 col-md-6';
-                col.innerHTML = `
-                    <div class="post-item">
-                        <div class="post-featured-image">
-                            <a href="${blog.url || '#'}">
-                                <figure class="at-blog-shiny-glass-effect">
-                                    <img src="${blog.image || '/elitech/wp-content/uploads/2025/11/post-image-placeholder.jpg'}" alt="${blog.title}" class="attachment-large size-large wp-post-image">
-                                </figure>
-                            </a>
-                        </div>
-                        <div class="post-item-tags">
-                            <ul><li><a href="#">${blog.category || 'Uncategorized'}</a></li></ul>
-                        </div>
-                        <div class="post-item-body">
-                            <div class="post-content-box">
-                                <div class="post-item-meta"><p>${blog.date || ''}</p></div>
-                                <div class="post-item-content">
-                                    <h2><a href="${blog.url || '#'}">${blog.title}</a></h2>
-                                    <p>${blog.excerpt || ''}</p>
-                                </div>
-                            </div>
-                            <div class="post-item-btn">
-                                <a href="${blog.url || '#'}">Read More <svg fill="currentColor" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="M17.908 8.96934C15.4978 8.96934 13.3011 6.68213 13.3011 4.17043V3.14062H11.3238V4.17043C11.3238 5.99731 12.093 7.71091 13.3001 8.96934L1.10156 8.96934L1.10156 11.029L13.3001 11.029C12.093 12.2874 11.3238 14.001 11.3238 15.8279V16.8577H13.3011V15.8279C13.3011 13.3162 15.4978 11.029 17.908 11.029H18.8966V8.96934H17.908Z" fill-rule="evenodd"></path></svg></a>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                blogGrid.prepend(col);
-            });
-        }
+  var API_URL = "/api/cms/content";
+  var STATIC_URL = "/elitech/cms/content.json";
 
-        // 2. Render Projects
-        const projectsGrid = document.getElementById('cms-projects-grid');
-        if (projectsGrid && data.projects && data.projects.length > 0) {
-            data.projects.slice().reverse().forEach(project => {
-                const col = document.createElement('div');
-                col.className = 'col-xl-4 col-md-6';
-                col.innerHTML = `
-                    <div class="project-item">
-                        <div class="project-item-image">
-                            <a href="${project.url || '#'}">
-                                <figure class="at-blog-shiny-glass-effect">
-                                    <img src="${project.image || '/elitech/wp-content/uploads/2025/11/project-image-placeholder.jpg'}" alt="${project.title}" class="attachment-large size-large wp-post-image">
-                                </figure>
-                            </a>
-                        </div>
-                        <div class="project-item-content">
-                            <h2><a href="${project.url || '#'}">${project.title}</a></h2>
-                            <p><a href="#">${project.category || 'Category'}</a></p>
-                        </div>
-                        <div class="project-item-btn">
-                            <a href="${project.url || '#'}"><svg fill="currentColor" height="20" viewBox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="M17.908 8.96934C15.4978 8.96934 13.3011 6.68213 13.3011 4.17043V3.14062H11.3238V4.17043C11.3238 5.99731 12.093 7.71091 13.3001 8.96934L1.10156 8.96934L1.10156 11.029L13.3001 11.029C12.093 12.2874 11.3238 14.001 11.3238 15.8279V16.8577H13.3011V15.8279C13.3011 13.3162 15.4978 11.029 17.908 11.029H18.8966V8.96934H17.908Z" fill-rule="evenodd"></path></svg></a>
-                        </div>
-                    </div>
-                `;
-                projectsGrid.prepend(col);
-            });
-        }
-
-        // 3. Render Services
-        const servicesGrid = document.getElementById('cms-services-grid');
-        if (servicesGrid && data.services && data.services.length > 0) {
-            data.services.slice().reverse().forEach((service) => {
-                const el = document.createElement('div');
-                el.className = 'elementor-element e-con-full service-item e-flex e-con e-child';
-                el.setAttribute('data-e-type', 'container');
-                el.setAttribute('data-element_type', 'container');
-                el.innerHTML = `
-                    <div class="elementor-element e-con-full e-flex e-con e-child" data-e-type="container" data-element_type="container">
-                        <div class="elementor-element e-con-full e-flex e-con e-child" data-e-type="container" data-element_type="container">
-                            <div class="elementor-element at-heading-animation at-animation-heading-none elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-widget_type="heading.default">
-                                <h2 class="elementor-heading-title elementor-size-default"><a href="${service.url || '#'}">${service.title}</a></h2>
-                            </div>
-                            <div class="elementor-element at-heading-animation at-animation-heading-none elementor-widget elementor-widget-heading" data-e-type="widget" data-element_type="widget" data-widget_type="heading.default">
-                                <h3 class="elementor-heading-title elementor-size-default" style="color:#d4af37">*</h3>
-                            </div>
-                        </div>
-                        <div class="elementor-element elementor-widget elementor-widget-text-editor" data-e-type="widget" data-element_type="widget" data-widget_type="text-editor.default">
-                            <p>${service.excerpt || ''}</p>
-                        </div>
-                    </div>
-                    <div class="elementor-element e-con-full e-flex e-con e-child" data-e-type="container" data-element_type="container">
-                        <div class="elementor-element at-shiny-glass-effect service-item-image at-image-animation at-animation-image-none elementor-widget elementor-widget-image" data-e-type="widget" data-element_type="widget" data-widget_type="image.default">
-                            <img src="${service.image || '/elitech/wp-content/uploads/2025/11/service-image-1.jpg'}" alt="${service.title}" class="attachment-full size-full" style="width:100%; height:auto;">
-                        </div>
-                        <div class="elementor-element elementor-absolute service-item-btn e-transform elementor-view-default elementor-widget elementor-widget-icon" data-e-type="widget" data-element_type="widget" data-widget_type="icon.default" data-settings='{"_position":"absolute"}'>
-                            <div class="elementor-icon-wrapper">
-                                <a class="elementor-icon" href="${service.url || '#'}">
-                                    <svg fill="currentColor" height="14" viewBox="0 0 18 14" width="18" xmlns="http://www.w3.org/2000/svg"><path clip-rule="evenodd" d="M16.8065 5.82872C14.3962 5.82872 12.1995 3.54151 12.1995 1.02981V0L10.2223 0V1.02981C10.2223 2.85669 10.9914 4.57028 12.1985 5.82872L0 5.82872L0 7.88833L12.1985 7.88833C10.9914 9.14676 10.2223 10.8604 10.2223 12.6872V13.717H12.1995V12.6872C12.1995 10.1755 14.3962 7.88833 16.8065 7.88833H17.7951V5.82872H16.8065Z" fill-rule="evenodd"></path></svg>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                servicesGrid.prepend(el);
-            });
-        }
-    } catch (err) {
-        console.error('Error loading collections:', err);
+  function normalizePath(value) {
+    var clean = String(value || "/").replace(/\\+/g, "/");
+    if (!clean.startsWith("/")) {
+      clean = "/" + clean;
     }
-});
+    return clean.endsWith("/") ? clean : clean + "/";
+  }
+
+  function escapeHtml(value) {
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function getCurrentPath() {
+    return normalizePath(window.location.pathname);
+  }
+
+  function getCurrentSlug() {
+    var segments = getCurrentPath().split("/").filter(Boolean);
+    return segments.length ? segments[segments.length - 1] : "";
+  }
+
+  function getCmsData() {
+    if (window.__ELITECH_CMS_DATA__ && typeof window.__ELITECH_CMS_DATA__ === "object") {
+      return Promise.resolve(window.__ELITECH_CMS_DATA__);
+    }
+
+    return fetch(API_URL, { cache: "no-store" })
+      .then(function (response) {
+        if (response.ok) {
+          return response.json();
+        }
+        return fetch(STATIC_URL, { cache: "no-store" }).then(function (fallback) {
+          if (!fallback.ok) {
+            throw new Error("Unable to load CMS content.");
+          }
+          return fallback.json();
+        });
+      })
+      .catch(function () {
+        return fetch(STATIC_URL, { cache: "no-store" }).then(function (fallback) {
+          if (!fallback.ok) {
+            throw new Error("Unable to load CMS content.");
+          }
+          return fallback.json();
+        });
+      });
+  }
+
+  function safeArray(value) {
+    return Array.isArray(value) ? value : [];
+  }
+
+  function sortByOrder(items) {
+    return safeArray(items).slice().sort(function (left, right) {
+      return Number(left && left.order || 0) - Number(right && right.order || 0);
+    });
+  }
+
+  function setText(node, value) {
+    if (node) {
+      node.textContent = String(value || "");
+    }
+  }
+
+  function setLink(node, href, text) {
+    if (!node) {
+      return;
+    }
+    if (href) {
+      node.setAttribute("href", href);
+    }
+    if (text !== undefined) {
+      node.textContent = String(text || "");
+    }
+  }
+
+  function setImage(node, src, alt) {
+    if (!node) {
+      return;
+    }
+    if (src) {
+      node.setAttribute("src", src);
+      node.setAttribute("srcset", src);
+    }
+    if (alt !== undefined) {
+      node.setAttribute("alt", String(alt || ""));
+    }
+  }
+
+  function setParagraphs(container, paragraphs) {
+    if (!container) {
+      return;
+    }
+    container.innerHTML = safeArray(paragraphs).map(function (text) {
+      return "<p>" + escapeHtml(text) + "</p>";
+    }).join("");
+  }
+
+  function getTemplateClone(container) {
+    if (!container || !container.firstElementChild) {
+      return null;
+    }
+    return container.firstElementChild.cloneNode(true);
+  }
+
+  function renderFromTemplate(container, items, binder, options) {
+    if (!container) {
+      return;
+    }
+
+    var template = getTemplateClone(container);
+    if (!template) {
+      return;
+    }
+
+    var renderItems = safeArray(items).slice();
+    if (options && typeof options.limit === "number") {
+      renderItems = renderItems.slice(0, options.limit);
+    }
+
+    container.innerHTML = "";
+    renderItems.forEach(function (item, index) {
+      var node = template.cloneNode(true);
+      binder(node, item, index);
+      container.appendChild(node);
+    });
+  }
+
+  function updateBreadcrumb(label) {
+    setText(document.querySelector(".breadcrumb-trail .trail-end span span"), label);
+  }
+
+  function updatePageTitle(title) {
+    var hero = document.querySelector(".page-header h1, .page-header-box h1, h1.elementor-heading-title");
+    setText(hero, title);
+  }
+
+  function replaceAccordionItems(container, items) {
+    if (!container) {
+      return;
+    }
+
+    var template = container.querySelector(".elementskit-card");
+    if (!template) {
+      return;
+    }
+
+    container.innerHTML = "";
+    safeArray(items).forEach(function (item, index) {
+      var node = template.cloneNode(true);
+      var baseId = "cms-accordion-" + Math.random().toString(36).slice(2) + "-" + index;
+      var link = node.querySelector(".ekit-accordion--toggler");
+      var title = node.querySelector(".ekit-accordion-title");
+      var content = node.querySelector(".collapse, .multi-collapse");
+      var answer = node.querySelector(".elementskit-card-body p");
+
+      setText(title, item && item.question || "");
+      setText(answer, item && item.answer || "");
+
+      node.classList.toggle("active", index === 0);
+      if (link) {
+        link.setAttribute("href", "#" + baseId);
+        link.setAttribute("data-target", "#" + baseId);
+        link.setAttribute("aria-controls", baseId);
+        link.setAttribute("aria-expanded", index === 0 ? "true" : "false");
+      }
+      if (content) {
+        content.setAttribute("id", baseId);
+        content.classList.toggle("show", index === 0);
+      }
+
+      container.appendChild(node);
+    });
+  }
+
+  function replaceListItems(list, items) {
+    if (!list) {
+      return;
+    }
+
+    var template = list.querySelector("li");
+    if (!template) {
+      return;
+    }
+
+    list.innerHTML = "";
+    safeArray(items).forEach(function (itemText) {
+      var node = template.cloneNode(true);
+      setText(node.querySelector(".elementor-icon-list-text"), itemText);
+      list.appendChild(node);
+    });
+  }
+
+  function bindServiceCard(node, item) {
+    if (node.querySelector(".service-item-body-gold")) {
+      var homeHeadings = node.querySelectorAll(".elementskit-info-box-title");
+      setText(homeHeadings[0], item.excerpt || item.title || "");
+      setText(homeHeadings[1], item.title || "");
+      setLink(node.querySelector(".elementskit-btn"), item.url || "#");
+      return;
+    }
+
+    setLink(node.querySelector("h2 a"), item.url || "#", item.title || "");
+    setText(node.querySelector(".elementor-widget-text-editor p"), item.excerpt || "");
+    setImage(node.querySelector(".service-item-image img"), item.image || "", item.title || "");
+    setLink(node.querySelector(".service-item-btn a"), item.url || "#");
+  }
+
+  function bindProjectCard(node, item) {
+    if (node.querySelector(".project-item-gold")) {
+      setLink(node.querySelector(".project-item-image-gold a"), item.url || "#");
+      setImage(node.querySelector(".project-item-image-gold img"), item.image || item.detailImage || "", item.title || "");
+      setText(node.querySelector(".project-item-categories-gold"), item.category || "");
+      setText(node.querySelector(".project-item-content-gold h2"), item.title || "");
+      setText(node.querySelector(".project-item-content-gold p"), safeArray(item.intro)[0] || "");
+      setLink(node.querySelector(".project-item-content-gold a"), item.url || "#");
+      setLink(node.querySelector(".project-readmore-btn-gold a"), item.url || "#");
+      return;
+    }
+
+    setLink(node.querySelector(".project-item-image a"), item.url || "#");
+    setImage(node.querySelector(".project-item-image img"), item.image || item.detailImage || "", item.title || "");
+    setLink(node.querySelector(".project-item-content h2 a"), item.url || "#", item.title || "");
+    setText(node.querySelector(".project-item-content p a"), item.category || "");
+    setLink(node.querySelector(".project-item-btn a"), item.url || "#");
+  }
+
+  function bindBlogCard(node, item) {
+    if (node.querySelector(".elementskit-post-image-card")) {
+      setLink(node.querySelector(".elementskit-entry-thumb"), item.url || "#");
+      setImage(node.querySelector(".elementskit-entry-thumb img"), item.image || "", item.title || "");
+      setText(node.querySelector(".elementskit-meta-wraper span a"), item.category || "");
+      setText(node.querySelector(".entry-title a"), item.title || "");
+      setLink(node.querySelector(".entry-title a"), item.url || "#");
+      setText(node.querySelector(".elementskit-entry-header + .elementskit-post-body p, .elementskit-post-body p"), item.excerpt || "");
+      return;
+    }
+
+    setLink(node.querySelector(".post-featured-image a"), item.url || "#");
+    setImage(node.querySelector(".post-featured-image img"), item.image || "", item.title || "");
+    setText(node.querySelector(".post-item-tags a"), item.category || "");
+    setText(node.querySelector(".post-item-meta p"), item.date || "");
+    setLink(node.querySelector(".post-item-content h2 a"), item.url || "#", item.title || "");
+    setText(node.querySelector(".post-item-content p"), item.excerpt || "");
+    setLink(node.querySelector(".post-item-btn a"), item.url || "#");
+  }
+
+  function applySharedContact(contact) {
+    if (!contact) {
+      return;
+    }
+
+    var workingRows = document.querySelectorAll(".ekit-single-day");
+    if (workingRows.length && safeArray(contact.workingHours).length) {
+      var template = workingRows[0].cloneNode(true);
+      var parent = workingRows[0].parentElement;
+      if (parent) {
+        parent.innerHTML = "";
+        safeArray(contact.workingHours).forEach(function (row) {
+          var node = template.cloneNode(true);
+          setText(node.querySelector(".ekit-business-day"), row.days || "");
+          setText(node.querySelector(".ekit-business-time"), row.hours || "");
+          parent.appendChild(node);
+        });
+      }
+    }
+
+    setText(document.querySelector(".elementor-element-0a1fea6 p"), contact.footerAddress || "");
+    setText(document.querySelector(".elementor-element-2a6ca4f p"), contact.footerAddress || "");
+
+    var footerPhoneLinks = document.querySelectorAll('a[href^="tel:"]');
+    footerPhoneLinks.forEach(function (link) {
+      var text = (link.textContent || "").trim();
+      if (/^\+?[\d\s()-]+$/.test(text) || text === "") {
+        if (contact.footerPhone) {
+          link.setAttribute("href", "tel:" + contact.footerPhone.replace(/[^\d+]/g, ""));
+          link.textContent = contact.footerPhone;
+        }
+      }
+    });
+
+    var footerEmailLinks = document.querySelectorAll('a[href^="mailto:"]');
+    footerEmailLinks.forEach(function (link) {
+      if (contact.footerEmail) {
+        link.setAttribute("href", "mailto:" + contact.footerEmail);
+        var text = (link.textContent || "").trim();
+        if (!text || text.indexOf("@") >= 0) {
+          link.textContent = contact.footerEmail;
+        }
+      }
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll(".elementor-widget-text-editor p"), function (paragraph) {
+      var text = (paragraph.textContent || "").trim();
+      if (text === "Kibaha, Pwani, Tanzania" && contact.footerAddress) {
+        paragraph.textContent = contact.footerAddress;
+      }
+      if (text === "+255 688 164 510" && contact.footerPhone) {
+        paragraph.textContent = contact.footerPhone;
+      }
+      if (text === "hangoeliah@outlook.com" && contact.footerEmail) {
+        paragraph.textContent = contact.footerEmail;
+      }
+    });
+  }
+
+  function applyAboutPage(about) {
+    if (getCurrentPath() !== "/elitech/about-us/" || !about) {
+      return;
+    }
+
+    updatePageTitle(about.heroTitle || "About us");
+    updateBreadcrumb("About Us");
+
+    setText(document.querySelector('[data-id="922977c"] h3'), about.label || "");
+    setText(document.querySelector('[data-id="922977c"] h2'), about.title || "");
+    setText(document.querySelector('[data-id="922977c"] .elementor-widget-text-editor p'), about.description || "");
+    setImage(document.querySelector(".about-us-image img"), about.images && about.images.primary || "", about.title || "");
+    setImage(document.querySelector(".about-us-image-box-2 img"), about.images && about.images.secondary || "", about.title || "");
+    setImage(document.querySelector('img[src*="our-values-image"]'), about.images && about.images.values || "", about.valuesTitle || "");
+
+    var pathRing = document.querySelector(".e-text-path");
+    if (pathRing && about.experienceLabel) {
+      pathRing.setAttribute("data-text", about.experienceLabel);
+    }
+
+    var aboutCards = document.querySelectorAll('[data-id="3b25c37"] .elementskit-infobox');
+    safeArray(about.featureCards).forEach(function (card, index) {
+      var node = aboutCards[index];
+      if (!node) {
+        return;
+      }
+      setText(node.querySelector(".elementskit-info-box-title"), card.title || "");
+      setText(node.querySelector("p"), card.description || "");
+    });
+
+    var pillarTitleSelectors = [
+      '[data-id="d96a807"] .elementskit-info-box-title',
+      '[data-id="186b1ee"] .elementskit-info-box-title',
+      '[data-id="d063e1a"] .elementskit-info-box-title'
+    ];
+    var pillarDescriptionSelectors = [
+      '[data-id="d96a807"] .box-body p',
+      '[data-id="186b1ee"] .box-body p',
+      '[data-id="d063e1a"] .box-body p'
+    ];
+    var pillarListSelectors = [
+      '[data-id="90289eb"] ul',
+      '[data-id="f29d521"] ul',
+      '[data-id="9dcd2f5"] ul'
+    ];
+    safeArray(about.pillars).forEach(function (pillar, index) {
+      setText(document.querySelector(pillarTitleSelectors[index]), pillar.title || "");
+      setText(document.querySelector(pillarDescriptionSelectors[index]), pillar.description || "");
+      replaceListItems(document.querySelector(pillarListSelectors[index]), about.bulletPoints || []);
+    });
+
+    setText(document.querySelector('[data-id="2d53a47"] h3'), about.valuesTitle || "");
+    setText(document.querySelector('[data-id="2d53a47"] .elementor-widget-text-editor p'), about.valuesDescription || "");
+    setText(document.querySelector('[data-id="0a6b639"] h3'), about.faqIntroTitle || "");
+    setText(document.querySelector('[data-id="0a6b639"] .elementor-widget-text-editor p'), about.faqIntroDescription || "");
+  }
+
+  function applyContactPage(contact) {
+    if (getCurrentPath() !== "/elitech/contact-us/" || !contact) {
+      return;
+    }
+
+    updatePageTitle(contact.heroTitle || "Contact us");
+    updateBreadcrumb("Contact Us");
+
+    setText(document.querySelector('[data-id="dc25cf4"] h3'), contact.label || "");
+    setText(document.querySelector('[data-id="dc25cf4"] h2'), contact.title || "");
+    setText(document.querySelector('[data-id="dc25cf4"] .elementor-widget-text-editor p'), contact.description || "");
+
+    var cards = document.querySelectorAll('[data-id="f011ab1"] .elementskit-infobox');
+    safeArray(contact.cards).forEach(function (card, index) {
+      var node = cards[index];
+      if (!node) {
+        return;
+      }
+      setText(node.querySelector(".elementskit-info-box-title"), card.title || "");
+      setText(node.querySelector("p"), card.value || "");
+      var link = node.closest("a");
+      if (link && card.href) {
+        link.setAttribute("href", card.href);
+      }
+    });
+
+    setText(document.querySelector('[data-id="1135d22"] h2'), contact.formTitle || "");
+    setText(document.querySelector('[data-id="1135d22"] .elementor-widget-text-editor p'), contact.formDescription || "");
+
+    var mapFrame = document.querySelector("iframe[title]");
+    if (mapFrame && contact.mapEmbedUrl) {
+      mapFrame.setAttribute("src", contact.mapEmbedUrl);
+      mapFrame.setAttribute("title", contact.footerAddress || contact.title || "Map");
+      mapFrame.setAttribute("aria-label", contact.footerAddress || contact.title || "Map");
+    }
+  }
+
+  function applyFaqPage(faqs) {
+    if (getCurrentPath() !== "/elitech/faqs/" || !faqs) {
+      return;
+    }
+
+    updatePageTitle(faqs.heroTitle || "Frequently asked questions");
+    updateBreadcrumb("FAQs");
+
+    var navList = document.querySelector(".service-category-list ul");
+    var navTemplate = navList && navList.querySelector("li");
+    if (navList && navTemplate) {
+      navList.innerHTML = "";
+      safeArray(faqs.categories).forEach(function (category) {
+        var navNode = navTemplate.cloneNode(true);
+        setText(navNode.querySelector(".elementor-icon-list-text"), category.navLabel || category.title || "");
+        setLink(navNode.querySelector("a"), "#" + (category.id || ""));
+        navList.appendChild(navNode);
+      });
+    }
+
+    var sectionTemplate = document.querySelector('[id^="faq-"]');
+    var sectionsParent = sectionTemplate && sectionTemplate.parentElement;
+    if (!sectionsParent || !sectionTemplate) {
+      return;
+    }
+
+    sectionsParent.innerHTML = "";
+    safeArray(faqs.categories).forEach(function (category) {
+      var sectionNode = sectionTemplate.cloneNode(true);
+      sectionNode.setAttribute("id", category.id || "");
+      setText(sectionNode.querySelector("h2"), category.title || "");
+      replaceAccordionItems(sectionNode.querySelector(".elementskit-accordion"), category.items || []);
+      sectionsParent.appendChild(sectionNode);
+    });
+  }
+
+  function applyServiceDetailPage(data) {
+    var path = getCurrentPath();
+    if (path === "/elitech/services/" || path.indexOf("/elitech/services/") !== 0) {
+      return;
+    }
+
+    var slug = getCurrentSlug();
+    var service = sortByOrder(data.services).find(function (item) {
+      return item && item.slug === slug;
+    });
+
+    if (!service) {
+      window.location.replace("/elitech/services/");
+      return;
+    }
+
+    updatePageTitle(service.title || "");
+    updateBreadcrumb(service.title || "Service");
+    setImage(document.querySelector(".page-single-image img"), service.detailImage || service.image || "", service.title || "");
+    setParagraphs(document.querySelector('[data-id="7a24b0a"], [data-id="9723542"]'), service.intro || []);
+    setText(document.querySelector('[data-id="3374bfb"] h2'), service.whyChooseTitle || "");
+    setText(document.querySelector('[data-id="87d0d00"] p'), service.whyChooseDescription || "");
+    renderFromTemplate(document.querySelector('[data-id="3aac059"]'), service.whyChooseItems || [], function (node, item) {
+      setText(node.querySelector(".elementskit-info-box-title"), item.title || "");
+      setText(node.querySelector("p"), item.description || "");
+    });
+    setText(document.querySelector('[data-id="429881d"] h2'), service.offerTitle || "");
+    setText(document.querySelector('[data-id="909764c"] p'), service.offerDescription || "");
+    replaceListItems(document.querySelector(".service-offer-list ul"), service.offerItems || []);
+    setText(document.querySelector('[data-id="66988b4"] h2'), service.processTitle || "");
+    renderFromTemplate(document.querySelector('[data-id="7b2c96a"]'), service.processSteps || [], function (node, item) {
+      setText(node.querySelector(".elementskit-info-box-title"), item.title || "");
+      setText(node.querySelector("p"), item.description || "");
+    });
+    setText(document.querySelector('[data-id="3e6cea2"] h2'), service.faqTitle || "");
+    replaceAccordionItems(document.querySelector('[data-id="7950d03"] .elementskit-accordion'), service.faqItems || []);
+  }
+
+  function applyProjectDetailPage(data) {
+    var path = getCurrentPath();
+    if (path === "/elitech/projects/" || path.indexOf("/elitech/projects/") !== 0) {
+      return;
+    }
+
+    var slug = getCurrentSlug();
+    var project = sortByOrder(data.projects).find(function (item) {
+      return item && item.slug === slug;
+    });
+
+    if (!project) {
+      window.location.replace("/elitech/projects/");
+      return;
+    }
+
+    updatePageTitle(project.title || "");
+    updateBreadcrumb(project.title || "Project");
+    setImage(document.querySelector(".page-single-image img"), project.detailImage || project.image || "", project.title || "");
+    setParagraphs(document.querySelector('[data-id="9723542"]'), project.intro || []);
+    setText(document.querySelector('[data-id="12537ef"] h2'), project.keyFeaturesTitle || "");
+    setText(document.querySelector('[data-id="f4bf5a3"] p'), project.keyFeaturesDescription || "");
+    renderFromTemplate(document.querySelector('[data-id="4de3535"]'), project.keyFeatures || [], function (node, item) {
+      setText(node.querySelector(".elementskit-info-box-title"), item.title || "");
+      setText(node.querySelector("p"), item.description || "");
+    });
+    setText(document.querySelector('[data-id="ec9eeab"] h2'), project.processTitle || "");
+    renderFromTemplate(document.querySelector('[data-id="2c9b96a"]'), project.processSteps || [], function (node, item) {
+      setText(node.querySelector(".elementskit-info-box-title"), item.title || "");
+      setText(node.querySelector("p"), item.description || "");
+    });
+    setText(document.querySelector('[data-id="cefe05a"] h2'), project.solutionsTitle || "");
+    setText(document.querySelector('[data-id="83d426b"] p'), project.problemText || "");
+    setText(document.querySelector('[data-id="3396c07"] h3'), project.problemTitle || "");
+    setText(document.querySelector('[data-id="0ead120"] .elementskit-info-box-title'), project.solutionsHeading || "");
+    setText(document.querySelector('[data-id="f839319"] p'), project.solutionsText || "");
+    setText(document.querySelector('[data-id="d75da27"] h2'), project.faqTitle || "");
+    replaceAccordionItems(document.querySelector('[data-id="2b8af2a"] .elementskit-accordion'), project.faqItems || []);
+  }
+
+  function buildBlogArticle(body) {
+    var html = [];
+    safeArray(body && body.intro).forEach(function (paragraph) {
+      html.push("<p>" + escapeHtml(paragraph) + "</p>");
+    });
+    if (body && body.quote) {
+      html.push("<blockquote class=\"wp-block-quote is-layout-flow wp-block-quote-is-layout-flow\"><p>" + escapeHtml(body.quote) + "</p></blockquote>");
+    }
+    safeArray(body && body.sections).forEach(function (section) {
+      html.push("<h2 class=\"wp-block-heading\">" + escapeHtml(section.title || "") + "</h2>");
+      safeArray(section.paragraphs).forEach(function (paragraph) {
+        html.push("<p>" + escapeHtml(paragraph) + "</p>");
+      });
+      if (safeArray(section.bullets).length) {
+        html.push("<ul>");
+        safeArray(section.bullets).forEach(function (bullet) {
+          html.push("<li>" + escapeHtml(bullet) + "</li>");
+        });
+        html.push("</ul>");
+      }
+    });
+    return html.join("");
+  }
+
+  function applyBlogDetailPage(data) {
+    var path = getCurrentPath();
+    var slug = "";
+
+    if (path.indexOf("/elitech/blog/") === 0 && path !== "/elitech/blog/") {
+      slug = getCurrentSlug();
+    } else if (document.querySelector(".post-single-meta")) {
+      slug = getCurrentSlug();
+    }
+
+    if (!slug) {
+      return;
+    }
+
+    var post = safeArray(data.blogPosts).find(function (item) {
+      return item && item.slug === slug;
+    });
+
+    if (!post) {
+      window.location.replace("/elitech/blog/");
+      return;
+    }
+
+    setText(document.querySelector(".page-header-box h1, .page-header h1"), post.title || "");
+    updateBreadcrumb(post.title || "Blog");
+    var metaItems = document.querySelectorAll(".post-single-meta li");
+    if (metaItems[0]) {
+      var dateIcon = metaItems[0].querySelector("i");
+      metaItems[0].innerHTML = (dateIcon ? dateIcon.outerHTML : "") + escapeHtml(post.date || "");
+    }
+    if (metaItems[1]) {
+      var categoryIcon = metaItems[1].querySelector("i");
+      metaItems[1].innerHTML = (categoryIcon ? categoryIcon.outerHTML : "") + "<a href=\"#\">" + escapeHtml(post.category || "") + "</a>";
+    }
+    setImage(document.querySelector(".post-single-image img"), post.image || "", post.title || "");
+    var article = document.querySelector(".post-entry");
+    if (article) {
+      article.innerHTML = buildBlogArticle(post.body || {});
+    }
+
+    var tags = document.querySelector(".post-tags .tag-links");
+    if (tags) {
+      tags.innerHTML = "Tags:" + safeArray(post.tags).map(function (tag) {
+        return "<a href=\"#\">" + escapeHtml(tag) + "</a>";
+      }).join("");
+    }
+  }
+
+  function renderCollections(data) {
+    var path = getCurrentPath();
+    var services = sortByOrder(data.services);
+    var projects = sortByOrder(data.projects);
+    var posts = safeArray(data.blogPosts);
+
+    var servicesGrid = document.getElementById("cms-services-grid");
+    if (servicesGrid) {
+      renderFromTemplate(servicesGrid, services, bindServiceCard, {
+        limit: path === "/elitech/home-version-2/" ? servicesGrid.children.length : undefined
+      });
+    }
+
+    var projectsGrid = document.getElementById("cms-projects-grid");
+    if (projectsGrid) {
+      renderFromTemplate(projectsGrid, projects, bindProjectCard, {
+        limit: path === "/elitech/home-version-2/" ? projectsGrid.children.length : undefined
+      });
+    }
+
+    var blogGrid = document.getElementById("cms-blog-grid");
+    if (blogGrid) {
+      renderFromTemplate(blogGrid, posts, bindBlogCard, {
+        limit: path === "/elitech/home-version-2/" ? blogGrid.children.length : undefined
+      });
+    }
+
+    if (path === "/elitech/services/") {
+      updatePageTitle(data.servicesPage && data.servicesPage.heroTitle || "Our services");
+      updateBreadcrumb("Services");
+    }
+
+    if (path === "/elitech/projects/") {
+      updatePageTitle(data.projectsPage && data.projectsPage.heroTitle || "Our projects");
+      updateBreadcrumb("Projects");
+    }
+
+    if (path === "/elitech/blog/") {
+      updatePageTitle(data.blogPage && data.blogPage.heroTitle || "Blog");
+      updateBreadcrumb("Blog");
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    getCmsData()
+      .then(function (data) {
+        if (!data || typeof data !== "object") {
+          return;
+        }
+
+        applySharedContact(data.contact || {});
+        renderCollections(data);
+        applyAboutPage(data.about || {});
+        applyContactPage(data.contact || {});
+        applyFaqPage(data.faqs || {});
+        applyServiceDetailPage(data);
+        applyProjectDetailPage(data);
+        applyBlogDetailPage(data);
+      })
+      .catch(function (error) {
+        console.error("Failed to render CMS content:", error);
+      });
+  });
+})();

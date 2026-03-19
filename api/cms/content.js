@@ -3,6 +3,7 @@ const path = require("path");
 const { getFirestore, getFirebaseAuth, isAdminUser } = require("./firebase");
 const { validateAndNormalizePayload } = require("./payload-validation");
 
+const DEFAULT_CONTENT_PATH = path.join(process.cwd(), "api", "cms", "default-content.json");
 const FALLBACK_CONTENT_PATH = path.join(process.cwd(), "elitech", "cms", "content.json");
 const TEMP_CONTENT_PATH = "/tmp/elitech-cms-content.json";
 const CONTENT_KEY = "elitech_cms_content";
@@ -18,15 +19,52 @@ function readJsonSafe(raw) {
   }
 }
 
-function normalizeConfig(data) {
-  const value = data && typeof data === "object" ? data : {};
+function isPlainObject(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
 
-  return {
-    site: value.site && typeof value.site === "object" ? value.site : {},
-    seo: value.seo && typeof value.seo === "object" ? value.seo : {},
-    globalReplacements: Array.isArray(value.globalReplacements) ? value.globalReplacements : [],
-    rules: Array.isArray(value.rules) ? value.rules : []
-  };
+function deepClone(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function loadDefaultContent() {
+  if (!fs.existsSync(DEFAULT_CONTENT_PATH)) {
+    return {};
+  }
+
+  const raw = fs.readFileSync(DEFAULT_CONTENT_PATH, "utf8");
+  return readJsonSafe(raw) || {};
+}
+
+function mergeContent(baseValue, overrideValue) {
+  if (Array.isArray(baseValue)) {
+    return Array.isArray(overrideValue) ? deepClone(overrideValue) : deepClone(baseValue);
+  }
+
+  if (isPlainObject(baseValue)) {
+    const output = {};
+    const override = isPlainObject(overrideValue) ? overrideValue : {};
+    const keys = Object.keys(baseValue);
+
+    for (let i = 0; i < keys.length; i += 1) {
+      const key = keys[i];
+      output[key] = mergeContent(baseValue[key], override[key]);
+    }
+
+    return output;
+  }
+
+  if (overrideValue === undefined || overrideValue === null) {
+    return baseValue;
+  }
+
+  return overrideValue;
+}
+
+function normalizeConfig(data) {
+  const defaults = loadDefaultContent();
+  const value = isPlainObject(data) ? data : {};
+  return mergeContent(defaults, value);
 }
 
 function getBearerToken(req) {

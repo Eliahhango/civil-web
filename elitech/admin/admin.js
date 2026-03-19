@@ -3,6 +3,8 @@
    Handles login/dashboard visibility, website content, users, and logs
    ==================================================================== */
 
+import { AdminContentEditor } from "./content-editor.js";
+
 class CMSAdmin {
   constructor() {
     this.currentUser = null;
@@ -35,15 +37,14 @@ class CMSAdmin {
     this.btnReloadContent = document.getElementById("btn-reload-content");
     this.btnSaveContent = document.getElementById("btn-save-content");
     this.contentStatusEl = document.getElementById("content-status");
-    this.inputSiteName = document.getElementById("input-site-name");
-    this.inputSiteTagline = document.getElementById("input-site-tagline");
-    this.inputSeoTitle = document.getElementById("input-seo-title");
-    this.inputSeoDescription = document.getElementById("input-seo-description");
-    this.inputSeoImage = document.getElementById("input-seo-image");
-    this.inputSeoUrl = document.getElementById("input-seo-url");
-    this.inputSeoTwitterCard = document.getElementById("input-seo-twitter-card");
-    this.inputGlobalReplacements = document.getElementById("input-global-replacements");
-    this.inputContentRules = document.getElementById("input-content-rules");
+    this.contentSectionsEl = document.getElementById("content-sections");
+    this.contentSummaryEl = document.getElementById("content-summary");
+    this.contentFieldsEl = document.getElementById("content-fields");
+    this.contentEditor = new AdminContentEditor({
+      navEl: this.contentSectionsEl,
+      summaryEl: this.contentSummaryEl,
+      fieldsEl: this.contentFieldsEl
+    });
 
     this.usersLoadingEl = document.getElementById("users-loading");
     this.usersErrorEl = document.getElementById("users-error");
@@ -226,14 +227,7 @@ class CMSAdmin {
   }
 
   normalizeContentConfig(data) {
-    const value = data && typeof data === "object" ? data : {};
-
-    return {
-      site: value.site && typeof value.site === "object" && !Array.isArray(value.site) ? { ...value.site } : {},
-      seo: value.seo && typeof value.seo === "object" && !Array.isArray(value.seo) ? { ...value.seo } : {},
-      globalReplacements: Array.isArray(value.globalReplacements) ? value.globalReplacements : [],
-      rules: Array.isArray(value.rules) ? value.rules : []
-    };
+    return data && typeof data === "object" ? data : {};
   }
 
   async loadContent(force = false) {
@@ -291,64 +285,11 @@ class CMSAdmin {
   }
 
   populateContentForm(data) {
-    if (!data) {
-      return;
-    }
-
-    if (this.inputSiteName) this.inputSiteName.value = String(data.site.name || "");
-    if (this.inputSiteTagline) this.inputSiteTagline.value = String(data.site.tagline || "");
-    if (this.inputSeoTitle) this.inputSeoTitle.value = String(data.seo.title || "");
-    if (this.inputSeoDescription) this.inputSeoDescription.value = String(data.seo.description || "");
-    if (this.inputSeoImage) this.inputSeoImage.value = String(data.seo.image || "");
-    if (this.inputSeoUrl) this.inputSeoUrl.value = String(data.seo.url || "");
-    if (this.inputSeoTwitterCard) this.inputSeoTwitterCard.value = String(data.seo.twitterCard || "");
-    if (this.inputGlobalReplacements) this.inputGlobalReplacements.value = JSON.stringify(data.globalReplacements || [], null, 2);
-    if (this.inputContentRules) this.inputContentRules.value = JSON.stringify(data.rules || [], null, 2);
-  }
-
-  parseJsonArray(rawValue, label) {
-    const raw = String(rawValue || "").trim();
-    if (!raw) {
-      return [];
-    }
-
-    let parsed;
-    try {
-      parsed = JSON.parse(raw);
-    } catch (_error) {
-      throw new Error(`${label} must be valid JSON.`);
-    }
-
-    if (!Array.isArray(parsed)) {
-      throw new Error(`${label} must be a JSON array.`);
-    }
-
-    return parsed;
+    this.contentEditor.setData(data || {});
   }
 
   buildContentPayload() {
-    const current = this.normalizeContentConfig(this.contentConfig);
-    const site = {
-      ...current.site,
-      name: this.inputSiteName ? this.inputSiteName.value.trim() : "",
-      tagline: this.inputSiteTagline ? this.inputSiteTagline.value.trim() : ""
-    };
-
-    const seo = {
-      ...current.seo,
-      title: this.inputSeoTitle ? this.inputSeoTitle.value.trim() : "",
-      description: this.inputSeoDescription ? this.inputSeoDescription.value.trim() : "",
-      image: this.inputSeoImage ? this.inputSeoImage.value.trim() : "",
-      url: this.inputSeoUrl ? this.inputSeoUrl.value.trim() : "",
-      twitterCard: this.inputSeoTwitterCard ? this.inputSeoTwitterCard.value.trim() : ""
-    };
-
-    return {
-      site,
-      seo,
-      globalReplacements: this.parseJsonArray(this.inputGlobalReplacements ? this.inputGlobalReplacements.value : "[]", "Global Replacements"),
-      rules: this.parseJsonArray(this.inputContentRules ? this.inputContentRules.value : "[]", "Rules")
-    };
+    return this.contentEditor.getData();
   }
 
   async handleSaveContent(event) {
