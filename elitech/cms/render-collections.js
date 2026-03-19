@@ -91,7 +91,9 @@
     }
     if (src) {
       node.setAttribute("src", src);
-      node.setAttribute("srcset", src);
+      node.removeAttribute("srcset");
+      node.removeAttribute("sizes");
+      node.removeAttribute("loading");
     }
     if (alt !== undefined) {
       node.setAttribute("alt", String(alt || ""));
@@ -130,24 +132,68 @@
     }
 
     container.innerHTML = "";
+    
+    // Use an IntersectionObserver to animate content naturally as it scrolls into view (Mobile compatible)
+    var observer = null;
+    if (typeof IntersectionObserver !== "undefined") {
+      observer = new IntersectionObserver(function(entries, obs) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var target = entry.target;
+            target.classList.remove("elementor-invisible");
+            target.classList.add("animated", "fadeInUp");
+            target.style.visibility = "visible";
+            target.style.opacity = "1";
+            target.style.animationName = "fadeInUp";
+            
+            var invisibles = target.querySelectorAll(".elementor-invisible, [style*='visibility: hidden']");
+            for (var i = 0; i < invisibles.length; i++) {
+              invisibles[i].classList.remove("elementor-invisible");
+              invisibles[i].classList.add("animated", "fadeInUp");
+              invisibles[i].style.visibility = "visible";
+              invisibles[i].style.opacity = "1";
+              invisibles[i].style.animationName = "fadeInUp";
+            }
+            obs.unobserve(target);
+          }
+        });
+      }, { threshold: 0.1 });
+    }
+
     renderItems.forEach(function (item, index) {
       var node = template.cloneNode(true);
       
-      // Remove elementor-invisible so async injected cards actually show up
-      node.classList.remove("elementor-invisible");
-      var invisibles = node.querySelectorAll(".elementor-invisible");
-      for (var i = 0; i < invisibles.length; i++) {
-        invisibles[i].classList.remove("elementor-invisible");
-        invisibles[i].classList.add("animated", "fadeInUp");
-        invisibles[i].style.visibility = "visible";
-        invisibles[i].style.opacity = "1";
-        invisibles[i].style.animationName = "fadeInUp";
+      if (observer) {
+        // Prepare element for scroll animation
+        node.classList.add("elementor-invisible");
+        node.style.visibility = "hidden";
+        node.style.opacity = "0";
+        node.style.animationName = "none";
+        observer.observe(node);
+        
+        var invisibles = node.querySelectorAll(".elementor-invisible");
+        for (var i = 0; i < invisibles.length; i++) {
+          invisibles[i].style.visibility = "hidden";
+          invisibles[i].style.opacity = "0";
+          invisibles[i].style.animationName = "none";
+        }
+      } else {
+        // Fallback if IntersectionObserver isn't supported (old browsers)
+        node.classList.remove("elementor-invisible");
+        var invisibles = node.querySelectorAll(".elementor-invisible");
+        for (var i = 0; i < invisibles.length; i++) {
+          invisibles[i].classList.remove("elementor-invisible");
+          invisibles[i].classList.add("animated", "fadeInUp");
+          invisibles[i].style.visibility = "visible";
+          invisibles[i].style.opacity = "1";
+          invisibles[i].style.animationName = "fadeInUp";
+        }
+        
+        node.classList.add("animated", "fadeInUp");
+        node.style.visibility = "visible";
+        node.style.opacity = "1";
+        node.style.animationName = "fadeInUp";
       }
-      
-      node.classList.add("animated", "fadeInUp");
-      node.style.visibility = "visible";
-      node.style.opacity = "1";
-      node.style.animationName = "fadeInUp";
 
       binder(node, item, index);
       container.appendChild(node);
