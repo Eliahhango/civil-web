@@ -732,10 +732,73 @@
         console.error("Failed to render CMS content:", error);
       });
   });
+
+  // Generic Android/Mobile Fallbacks for Static Elements
+  document.addEventListener("DOMContentLoaded", function () {
+    // 1. Fix buggy srcset strings that cause missing images on Android Chrome/WebKit
+    if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768) {
+        function cleanImages() {
+            var images = document.querySelectorAll("img[srcset]");
+            for(var i=0; i<images.length; i++) {
+                images[i].removeAttribute("srcset");
+                images[i].removeAttribute("sizes");
+                images[i].setAttribute("loading", "eager");
+            }
+        }
+        
+        cleanImages();
+        setTimeout(cleanImages, 1000);
+        setTimeout(cleanImages, 2500);
+
+        // 2. Elementor animations (Waypoints) often fail on mobile scrolling. Native fallback:
+        var observer = null;
+        if (typeof IntersectionObserver !== "undefined") {
+          observer = new IntersectionObserver(function(entries, obs) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting) {
+                var el = entry.target;
+                
+                if (el.classList.contains("elementor-invisible") || el.classList.contains("at-image-animation")) {
+                  el.classList.remove("elementor-invisible");
+                  el.classList.add("animated", "fadeInUp");
+                  el.style.visibility = "visible";
+                  el.style.opacity = "1";
+                  el.style.animationName = "fadeInUp";
+                }
+
+                if (el.classList.contains("elementor-counter-number")) {
+                  var target = el.getAttribute("data-to-value");
+                  if (target) {
+                    el.innerText = target;
+                  }
+                }
+                obs.unobserve(el);
+              }
+            });
+          }, { threshold: 0.1 });
+          
+          var triggers = document.querySelectorAll(".elementor-invisible, .at-image-animation, .elementor-counter-number");
+          for(var i=0; i<triggers.length; i++) {
+              observer.observe(triggers[i]);
+          }
+        }
+
+        // 3. Absolute Fallback: Force everything to show/animate after 3 seconds anyway
+        setTimeout(function() {
+            var invisibles = document.querySelectorAll(".elementor-invisible, .at-image-animation");
+            for(var j=0; j<invisibles.length; j++) {
+                invisibles[j].classList.remove("elementor-invisible");
+                invisibles[j].classList.add("animated", "fadeInUp");
+                invisibles[j].style.visibility = "visible";
+                invisibles[j].style.opacity = "1";
+            }
+            var counters = document.querySelectorAll(".elementor-counter-number");
+            for(var k=0; k<counters.length; k++) {
+                var val = counters[k].getAttribute("data-to-value");
+                if (val && counters[k].innerText === "0") counters[k].innerText = val;
+            }
+        }, 3000);
+    }
+  });
+
 })();
-
-
-
-
-
-
