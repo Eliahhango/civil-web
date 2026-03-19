@@ -94,7 +94,14 @@
     <main class="dashboard-content">
       <nav class="dashboard-nav">
         <button class="nav-btn active" data-tab="dashboard">Dashboard</button>
-        <button class="nav-btn" data-tab="content">Website Content</button>
+        <button class="nav-btn" data-tab="content" data-nav-key="content:site" data-content-section="site">Site Settings</button>
+        <button class="nav-btn" data-tab="content" data-nav-key="content:about" data-content-section="about">About Us</button>
+        <button class="nav-btn" data-tab="content" data-nav-key="content:services" data-content-section="services">Services</button>
+        <button class="nav-btn" data-tab="content" data-nav-key="content:projects" data-content-section="projects">Projects</button>
+        <button class="nav-btn" data-tab="content" data-nav-key="content:blog" data-content-section="blog">Blog Posts</button>
+        <button class="nav-btn" data-tab="content" data-nav-key="content:faqs" data-content-section="faqs">FAQs</button>
+        <button class="nav-btn" data-tab="content" data-nav-key="content:contact" data-content-section="contact">Contact Info</button>
+        <button class="nav-btn" data-tab="content" data-nav-key="content:advanced" data-content-section="advanced">Advanced Rules</button>
         <button class="nav-btn" data-tab="users">Users & Admins</button>
         <button class="nav-btn" data-tab="logs">Audit Logs</button>
       </nav>
@@ -115,8 +122,9 @@
 
         <section id="tab-content" class="tab-panel" data-panel="content">
           <div class="panel-header">
-            <h2>Website Content</h2>
-            <p class="text-muted">Manage seeded page content, collections, and advanced runtime settings without changing the public design.</p>
+            <p id="content-panel-kicker" class="panel-kicker">Website Content</p>
+            <h2 id="content-panel-title">About Us</h2>
+            <p id="content-panel-description" class="text-muted">Edit the selected content page without changing the public design.</p>
           </div>
 
           <div id="content-loading" class="state-container loading" style="display: none;">
@@ -132,8 +140,6 @@
           <div id="content-editor" style="display: none;">
             <form id="form-content-editor" class="content-editor-form">
               <div class="content-layout-shell">
-                <aside id="content-sections" class="content-sections-nav"></aside>
-
                 <div class="content-workspace">
                   <div id="content-summary" class="content-summary"></div>
                   <div id="content-fields" class="content-fields"></div>

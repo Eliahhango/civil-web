@@ -565,6 +565,21 @@ export class AdminContentEditor {
     }
   }
 
+  resolveSection(sectionId) {
+    return SECTION_DEFINITIONS.find((section) => section.id === sectionId) || SECTION_DEFINITIONS[0];
+  }
+
+  setActiveSection(sectionId) {
+    const nextSection = this.resolveSection(sectionId);
+    this.activeSection = nextSection.id;
+    this.render();
+    return nextSection;
+  }
+
+  getActiveSectionMeta() {
+    return this.resolveSection(this.activeSection);
+  }
+
   setData(data) {
     this.state = mergeContent(createEmptyContentConfig(), isPlainObject(data) ? data : {});
     this.jsonFields.globalReplacements = JSON.stringify(this.state.globalReplacements || [], null, 2);
@@ -732,7 +747,7 @@ export class AdminContentEditor {
       }).join("");
     }
 
-    const active = SECTION_DEFINITIONS.find((section) => section.id === this.activeSection) || SECTION_DEFINITIONS[0];
+    const active = this.getActiveSectionMeta();
     if (this.summaryEl) {
       this.summaryEl.innerHTML = `
         <div class="content-summary-card">

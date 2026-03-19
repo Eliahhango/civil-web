@@ -495,7 +495,7 @@ html, body {
 }
 
 .dashboard-nav {
-  width: 220px;
+  width: 240px;
   background: var(--bg-white);
   border-right: 1px solid var(--border);
   padding: 16px 0;
@@ -549,6 +549,15 @@ html, body {
   margin-bottom: 24px;
 }
 
+.panel-kicker {
+  font-size: 11px;
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
 .panel-header h2 {
   font-size: 24px;
   font-weight: 700;
@@ -566,10 +575,7 @@ html, body {
 }
 
 .content-layout-shell {
-  display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
+  display: block;
 }
 
 .content-sections-nav {
@@ -631,6 +637,7 @@ html, body {
   flex-direction: column;
   gap: 20px;
   min-width: 0;
+  max-width: 1040px;
 }
 
 .content-summary-card {
@@ -1101,7 +1108,7 @@ html, body {
   }
 
   .dashboard-nav {
-    width: 180px;
+    width: 220px;
   }
 
   .tab-panel {
@@ -1114,10 +1121,6 @@ html, body {
   }
 
   .editor-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .content-layout-shell {
     grid-template-columns: 1fr;
   }
 

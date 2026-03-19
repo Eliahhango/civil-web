@@ -10,6 +10,8 @@ class CMSAdmin {
     this.currentUser = null;
     this.currentUserRole = null;
     this.currentTab = "dashboard";
+    this.currentNavKey = "dashboard";
+    this.currentContentSection = "about";
     this.currentLogsPage = 1;
     this.currentLogsFilters = {};
     this.contentConfig = null;
@@ -37,11 +39,13 @@ class CMSAdmin {
     this.btnReloadContent = document.getElementById("btn-reload-content");
     this.btnSaveContent = document.getElementById("btn-save-content");
     this.contentStatusEl = document.getElementById("content-status");
-    this.contentSectionsEl = document.getElementById("content-sections");
+    this.contentPanelKickerEl = document.getElementById("content-panel-kicker");
+    this.contentPanelTitleEl = document.getElementById("content-panel-title");
+    this.contentPanelDescriptionEl = document.getElementById("content-panel-description");
     this.contentSummaryEl = document.getElementById("content-summary");
     this.contentFieldsEl = document.getElementById("content-fields");
     this.contentEditor = new AdminContentEditor({
-      navEl: this.contentSectionsEl,
+      navEl: null,
       summaryEl: this.contentSummaryEl,
       fieldsEl: this.contentFieldsEl
     });
@@ -79,13 +83,20 @@ class CMSAdmin {
     }
 
     if (this.btnOpenContent) {
-      this.btnOpenContent.addEventListener("click", () => this.switchTab("content"));
+      this.btnOpenContent.addEventListener("click", () => this.switchTab("content", {
+        contentSection: this.currentContentSection,
+        navKey: `content:${this.currentContentSection}`
+      }));
     }
 
     this.navButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const tabName = button.dataset.tab || "";
-        this.switchTab(tabName);
+        const contentSection = button.dataset.contentSection || "";
+        this.switchTab(tabName, {
+          navKey: this.getNavKey(button),
+          contentSection
+        });
       });
     });
 
@@ -171,15 +182,61 @@ class CMSAdmin {
     this.switchTab("dashboard");
   }
 
-  switchTab(tabName) {
+  getNavKey(button) {
+    if (!button) {
+      return "";
+    }
+
+    const explicitKey = button.dataset.navKey || "";
+    if (explicitKey) {
+      return explicitKey;
+    }
+
+    const tabName = button.dataset.tab || "";
+    const contentSection = button.dataset.contentSection || "";
+    return contentSection ? `${tabName}:${contentSection}` : tabName;
+  }
+
+  updateContentPanelHeader(sectionMeta = null) {
+    const activeSection = sectionMeta || this.contentEditor.getActiveSectionMeta();
+    if (!activeSection) {
+      return;
+    }
+
+    if (this.contentPanelKickerEl) {
+      this.contentPanelKickerEl.textContent = "Website Content";
+    }
+
+    if (this.contentPanelTitleEl) {
+      this.contentPanelTitleEl.textContent = activeSection.label;
+    }
+
+    if (this.contentPanelDescriptionEl) {
+      this.contentPanelDescriptionEl.textContent = activeSection.description;
+    }
+  }
+
+  switchTab(tabName, options = {}) {
     if (!tabName) {
       return;
     }
 
     this.currentTab = tabName;
+    const requestedContentSection = tabName === "content"
+      ? (options.contentSection || this.currentContentSection || "about")
+      : "";
+
+    if (requestedContentSection) {
+      const sectionMeta = this.contentEditor.setActiveSection(requestedContentSection);
+      this.currentContentSection = sectionMeta.id;
+      this.updateContentPanelHeader(sectionMeta);
+    }
+
+    this.currentNavKey = options.navKey
+      || (tabName === "content" ? `content:${this.currentContentSection}` : tabName);
 
     this.navButtons.forEach((button) => {
-      button.classList.toggle("active", button.dataset.tab === tabName);
+      button.classList.toggle("active", this.getNavKey(button) === this.currentNavKey);
     });
 
     this.tabPanels.forEach((panel) => {
@@ -286,6 +343,7 @@ class CMSAdmin {
 
   populateContentForm(data) {
     this.contentEditor.setData(data || {});
+    this.updateContentPanelHeader();
   }
 
   buildContentPayload() {
