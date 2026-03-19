@@ -132,6 +132,23 @@
     container.innerHTML = "";
     renderItems.forEach(function (item, index) {
       var node = template.cloneNode(true);
+      
+      // Remove elementor-invisible so async injected cards actually show up
+      node.classList.remove("elementor-invisible");
+      var invisibles = node.querySelectorAll(".elementor-invisible");
+      for (var i = 0; i < invisibles.length; i++) {
+        invisibles[i].classList.remove("elementor-invisible");
+        invisibles[i].classList.add("animated", "fadeInUp");
+        invisibles[i].style.visibility = "visible";
+        invisibles[i].style.opacity = "1";
+        invisibles[i].style.animationName = "fadeInUp";
+      }
+      
+      node.classList.add("animated", "fadeInUp");
+      node.style.visibility = "visible";
+      node.style.opacity = "1";
+      node.style.animationName = "fadeInUp";
+
       binder(node, item, index);
       container.appendChild(node);
     });
@@ -202,7 +219,7 @@
     });
   }
 
-  function bindServiceCard(node, item) {
+  function bindServiceCard(node, item, index) {
     if (node.querySelector(".service-item-body-gold")) {
       var homeHeadings = node.querySelectorAll(".elementskit-info-box-title");
       setText(homeHeadings[0], item.excerpt || item.title || "");
@@ -212,6 +229,17 @@
     }
 
     setLink(node.querySelector("h2 a"), item.url || "#", item.title || "");
+    
+    var h3Nodes = node.querySelectorAll("h3");
+    for (var i = 0; i < h3Nodes.length; i++) {
+      var text = h3Nodes[i].textContent || "";
+      if (text.trim().match(/^\d+\.$/)) {
+        var numText = (index < 9 ? "0" + (index + 1) : (index + 1)) + ".";
+        setText(h3Nodes[i], numText);
+        break;
+      }
+    }
+
     setText(node.querySelector(".elementor-widget-text-editor p"), item.excerpt || "");
     setImage(node.querySelector(".service-item-image img"), item.image || "", item.title || "");
     setLink(node.querySelector(".service-item-btn a"), item.url || "#");
